@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- QWeb Reports -->
+
+        <!-- Tax Invoice -->
+        <record id="account_invoices_tax" model="ir.actions.report">
+            <field name="name">TAX INVOICE</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_invoice_tax</field>
+            <field name="report_file">custom_invoice_templates.report_invoice_tax</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state == 'posted') and ((object.name or 'TAX_INV').replace('/','_')+'.pdf')</field>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]"/>
+        </record>
+
+
+<!--         COMMERCIAL INVOICE -->
+        <record id="account_invoices_commercial" model="ir.actions.report">
+            <field name="name">COMMERCIAL INVOICE</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_invoice_commercial</field>
+            <field name="report_file">custom_invoice_templates.report_invoice_commercial</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state == 'posted') and ((object.name or 'CI_INV').replace('/','_')+'.pdf')</field>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]"/>
+        </record>
+
+<!--         Normal INVOICE -->
+        <record id="action_account_invoices_normal" model="ir.actions.report">
+            <field name="name">NORMAL INVOICE</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_invoice_normal</field>
+            <field name="report_file">custom_invoice_templates.report_invoice_normal</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state == 'posted') and ((object.name or 'CI_INV').replace('/','_')+'.pdf')</field>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]"/>
+        </record>
+
+        <!-- Normal INVOICE -->
+<!--        <record id="action_account_invoices_normal_signed" model="ir.actions.report">-->
+<!--            <field name="name">NORMAL INVOICE SIGNED</field>-->
+<!--            <field name="model">account.move</field>-->
+<!--            <field name="report_type">qweb-pdf</field>-->
+<!--            <field name="report_name">custom_invoice_templates.report_invoice_normal_signed</field>-->
+<!--            <field name="report_file">custom_invoice_templates.report_invoice_normal_signed</field>-->
+<!--            <field name="print_report_name">(object._get_report_base_filename())</field>-->
+<!--            <field name="attachment">(object.state == 'posted') and ((object.name or 'INV').replace('/','_')+'.pdf')</field>-->
+<!--            <field name="binding_model_id" ref="account.model_account_move"/>-->
+<!--            <field name="binding_type">report</field>-->
+<!--            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),-->
+<!-- (4, ref('account.group_account_readonly'))]"/>-->
+<!--        </record>-->
+
+        <!-- Invoice No Head -->
+<!--        <record id="account_invoices_no_head" model="ir.actions.report">-->
+<!--            <field name="name">INVOICE DEPOSIT</field>-->
+<!--            <field name="model">account.move</field>-->
+<!--            <field name="report_type">qweb-pdf</field>-->
+<!--            <field name="report_name">custom_invoice_templates.report_invoice_no_head</field>-->
+<!--            <field name="report_file">custom_invoice_templates.report_invoice_no_head</field>-->
+<!--            <field name="print_report_name">(object._get_report_base_filename())</field>-->
+<!--            <field name="attachment">(object.state == 'posted') and ((object.name or 'INV').replace('/','_')+'.pdf')</field>-->
+<!--            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),-->
+<!-- (4, ref('account.group_account_readonly'))]"/>-->
+<!--        </record>-->
+
+
+        <!-- Journal Entry -->
+        <record id="account_erp_journal_entry" model="ir.actions.report">
+            <field name="name">Journal Entry</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_erp_journal_entry</field>
+            <field name="report_file">custom_invoice_templates.report_erp_journal_entry</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state == 'posted') and ((object.name or 'JNL').replace('/','_')+'.pdf')</field>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]"/>
+        </record>
+
+        <!-- Sale Voucher -->
+        <record id="account_erp_sale_voucher" model="ir.actions.report">
+            <field name="name">Sale Voucher</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_erp_sale_voucher</field>
+            <field name="report_file">custom_invoice_templates.report_erp_sale_voucher</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state == 'posted') and ((object.name or 'SALE_VOUCHER').replace('/','_')+'.pdf')</field>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]"/>
+        </record>
+
+        <!-- Purchase Voucher -->
+        <record id="account_erp_sale_voucher" model="ir.actions.report">
+            <field name="name">Purchase Voucher</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_erp_purchase_voucher</field>
+            <field name="report_file">custom_invoice_templates.report_erp_purchase_voucher</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state == 'posted') and ((object.name or 'PURCHASE_VOUCHER').replace('/','_')+'.pdf')</field>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]"/>
+        </record>
+
+        <!-- OFFICIAL RECEIPT -->
+        <record id="account_erp_official_receipt" model="ir.actions.report">
+            <field name="name">Official Receipt</field>
+            <field name="model">account.payment</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_erp_official_receipt</field>
+            <field name="report_file">custom_invoice_templates.report_erp_official_receipt</field>
+<!--            <field name="print_report_name">(object._get_report_base_filename())</field>-->
+            <field name="attachment">(object.state == 'posted') and ((object.name or 'RECEIPT').replace('/','_')+'.pdf')</field>
+            <field name="binding_model_id" ref="account.model_account_payment"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]"/>
+        </record>
+
+        <!-- OFFICIAL RECEIPT -->
+        <record id="account_erp_payment_voucher" model="ir.actions.report">
+            <field name="name">Payment Voucher</field>
+            <field name="model">account.payment</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_erp_official_receipt</field>
+            <field name="report_file">custom_invoice_templates.report_erp_official_receipt</field>
+<!--            <field name="print_report_name">(object._get_report_base_filename())</field>-->
+            <field name="attachment">(object.state == 'posted') and ((object.name or 'RECEIPT').replace('/','_')+'.pdf')</field>
+            <field name="binding_model_id" ref="account.model_account_payment"/>
+            <field name="binding_type">report</field>
+            <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),
+ (4, ref('account.group_account_readonly'))]"/>
+        </record>
+
+
+        <!-- SERVICE QUOTATION -->
+        <record id="sale_erp_service_quotation" model="ir.actions.report">
+            <field name="name">SERVICE QUOTATION</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_service_quotation</field>
+            <field name="report_file">custom_invoice_templates.report_service_quotation</field>
+           <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state in ('draft', 'sent') and 'Quotation - %s' % (object.name)) or 'Order - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- SERVICE QUOTATION NO HEAD-->
+        <record id="sale_erp_service_quotation_no_head" model="ir.actions.report">
+            <field name="name">SERVICE QUOTATION NO HEAD</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_service_quotation_no_head</field>
+            <field name="report_file">custom_invoice_templates.report_service_quotation_no_head</field>
+           <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state in ('draft', 'sent') and 'Quotation - %s' % (object.name)) or 'Order - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- RESTER FORM -->
+        <record id="sale_register_form" model="ir.actions.report">
+            <field name="name">REGSITER FORM</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_register_form</field>
+            <field name="report_file">custom_invoice_templates.report_register_form</field>
+           <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state in ('draft', 'sent') and 'Quotation - %s' % (object.name)) or 'Order - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <record id="sale_erp_service_term_and_condition" model="ir.actions.report">
+            <field name="name">Term and Condition</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_service_term_and_condition_template</field>
+            <field name="report_file">custom_invoice_templates.report_service_term_and_condition_template</field>
+           <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="attachment">(object.state in ('draft', 'sent') and 'TERMS - %s' % (object.name)) or 'Order - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- PURHCASE ORDER -->
+        <record id="custom_purchase_order_report" model="ir.actions.report">
+            <field name="name">PURCHASE ORDER</field>
+            <field name="model">purchase.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_invoice_templates.report_purchase_order_template</field>
+            <field name="report_file">custom_invoice_templates.report_purchase_order_template</field>
+            <field name="print_report_name">(object._get_report_base_filename())</field>
+            <field name="binding_model_id" ref="purchase.model_purchase_order"/>
+            <field name="binding_type">report</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Tax Invoices -->
+        <template id="report_register_form">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <t t-set="forced_vat" t-value="o.fiscal_position_id.foreign_vat"/>
+                        <div class="page">
+                            <style type="text/css">
+                                @font-face {
+                                    font-family: Moul;
+                                    font-style: normal;
+                                    src:url('/report_layout_template/static/src/fonts/KhmerOSMuolLight.ttf') format('truetype');
+                                }
+                                @font-face {
+                                    font-family: Battambang;
+                                    font-style: normal;
+                                    src:url('/report_layout_template/static/src/fonts/Battambang/Battambang-Regular.ttf') format('truetype');
+                                }
+                                .erp-title {
+                                    font-size: 20px;
+                                    font-family: Moul;
+                                    padding-bottom: 3px;
+                                    font-weight: bold;
+                                }
+                                .erp-title-en{
+                                    font-size: 20px;
+                                    font-family: 'Time';
+                                    padding-bottom: 3px;
+                                    font-weight: bold;
+                                }
+                                .erp-text{
+                                    font-size: 14px;
+                                    font-family: Battambang;
+                                    padding-bottom: 3px;
+                                }
+                                .erp-border{
+                                    border: 1px solid black;
+                                    padding-bottom: 5px;
+                                    padding-top: 5px;
+                                }
+                                .erp-table-header{
+                                    font-weight: bold;
+                                    background-color:  #7b7d7d;
+                                    color: #FFFFFF;
+                                }
+                                .erp-table-body{
+                                    border: 1px solid black;
+                                }
+                                .erp-right{
+                                    text-align: right;
+                                }
+                                .erp-center{
+                                    text-align: center;
+                                }
+                            </style>
+                            
+                            <!--#Start Header#-->
+                            <h4 class="text-center erp-title">
+                                <span>ទម្រង់ចុះឈ្មោះប្រើប្រាស់សេវាកម្ម</span>
+                            </h4>
+                            <h4 class="text-center erp-title-en">
+                                <span>SERVICES REGISTERATION FORM</span>
+                            </h4>
+
+                            <div class="row ">
+                                <div class="col-9">
+                                    
+                                </div>
+                                <div class="col-3">
+                                    <div class="erp-text">
+                                        <strong><span>NO: </span></strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--#End Header#-->
+                            
+                            <!--#Start Service Information#-->
+                            <div class="row erp-border">
+                                <div class="col-4">
+                                    <div class="erp-text">
+                                        <strong><span>សេវាកម្ម / Services: </span></strong>
+                                        <strong><span>-------- </span></strong>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-4">
+                                    <div class="erp-text">
+                                        <strong><span>កញ្ចប់សេវាកម្ម / Packages: </span></strong>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-4">
+                                    <div class="erp-text">
+                                        <strong><span>ល្បឿន / Speed: </span></strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--#End Service Information#-->
+                            <br/>
+                            <!--#Start Customer Profile#-->
+                            <div class="erp-border">
+                                <div class="row">
+                                    <div class="erp-text">
+                                        <strong><span>ព័ត៌មានអតិថិជន / Customer Profile </span></strong>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-1"/>
+                                    <div class="col-6">
+                                        <div class="erp-text">
+                                            <strong><span>ឈ្មោះ / Name:  </span></strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="erp-text">
+                                            <strong><span>ភេទ / Sex:  </span></strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="erp-text">
+                                            <strong><span>សញ្ជាតិ / Nationality:  </span></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="erp-text">
+                                        <strong><span>ក្រុមហ៊ុន / Company: </span></strong>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="erp-text">
+                                        <strong><span>អាសយដ្ឋានតម្លើង / Installation Address: </span></strong>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="erp-text">
+                                        <strong><span>អាសយដ្ឋានទូទាត់វិក្កយបត្រ / Billing Address: </span></strong>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-1"/>
+                                    <div class="col-6">
+                                        <div class="erp-text">
+                                            <strong><span>ឈ្មោះទំនាក់ទំនង / Contact:  </span></strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="erp-text">
+                                            <strong><span>ឈ្មោះទំនាក់ទំនង / Sex:  </span></strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="erp-text">
+                                            <strong><span>សញ្ជាតិ / Nationality:  </span></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-1"/>
+                                    <div class="col-5">
+                                        <div class="erp-text">
+                                            <strong><span>តួនាទី / Position:  </span></strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="erp-text">
+                                            <strong><span>អ៉ីមែល / Email:  </span></strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="erp-text">
+                                            <strong><span>ទូរស័ព្ទដៃ/ Tel:  </span></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-8">
+                                        <div class="erp-text">
+                                            <strong><span>លេខអត្តសញ្ញាណប័ណ្ណ/លេខលិខិតឆ្លងដែន /<br/> ID Card No or Passport No: </span></strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="erp-text">
+                                            <strong><span>លេខ VAT /<br/>VATT IN:  </span></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--#End Customer Profile#-->
+                            <br/>
+                            <!--#Start Internet Connection Information#-->
+                            <div class="erp-border">
+                                
+                            
+                                <div class="row">
+                                    <div class="erp-text">
+                                        <strong><span>ព័ត៌មានដើម្បីភ្ជាប់អ៉ីនធើណេត / Internet Connection Information </span></strong>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="erp-text">
+                                        <span>
+                                            ឯកសារភ្ជាប់ជាមួយ៖
+                                                <br/>1. ប័ណ្ណប៉ាតង់ដែលមានសុពលភាព និងអត្តសញ្ញាណប័ណ្ណរបស់អ្នកតំណាងសម្រាប់ស្ថាប័ន ឬក្រុមហ៊ុន
+                                                <br/>Valid Business License and ID Card or representative for organization's or company
+                                                <br/>2. អត្តសញ្ញាណប័ណ្ណសញ្ជាតិខ្មែរ ឬលិខិតឆ្លងដែន/ទិដ្ឋាការ សម្រាប់ឯកជន
+                                                <br/>For individual customer, ID Card (Cambodia) or Valin Passport/Visa(Foreigner)
+                                        </span>
+                                    </div>
+                                </div>
+                                    <br/>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="erp-text">
+                                                <span>
+                                                    សុពលភាពនៃកិច្ចព្រមព្រៀង / Contact Period: 
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="erp-text">
+                                                <span>
+                                                    កាលបរិច្ឆេទតម្លើង / Request Installation Date: 
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="erp-text">
+                                                <span>
+                                                    លេខសម្គាល់អតិថិជន / Customer ID No: 
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="erp-text">
+                                                <span>
+                                                    ឧបករណ៍របស់ អេមផាយ ថេក/ Empire Tech Equipment: 
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="erp-text">
+                                                <span>
+                                                    លេខ Modem / Modem Serial No: 
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                
+                                
+                            </div>
+                            <!--#End Internet Connection Information#-->
+                            <br/>
+                            <div class="erp-border">
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        <span>
+                                            ហត្តលេខា និងត្រាអ្នកតំណាងលក់អោយក្រុមហ៊ុន អេមផាយ ថេក / 
+                                            <br/>Sign and stamped for and on behalf of Empire Tech
+                                            <br/> Representative By:
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="col-2"/>
+                                    
+                                    <div class="col-5 erp-text">
+                                        <span>
+                                            ហត្តលេខា និងត្រាអ្នកតំណាងលក់អោយអ្នកលក់ / 
+                                            <br/>Sign and stamped for and on behalf of Customer
+                                            <br/> Authorized By:
+                                        </span>
+                                    </div>
+                                </div>
+                                <!--NAME-->
+                                <div class="row">
+                                    <div class="col-6">
+                                        
+                                    </div>
+                                    <div class="col-6">
+                                        
+                                    </div>
+                                </div>
+                                <!--POSITION-->
+                                <div class="row">
+                                    <div class="col-6">
+                                        
+                                    </div>
+                                    <div class="col-6">
+                                        
+                                    </div>
+                                </div>
+                                <!--SIGNATURE-->
+                                <div class="row">
+                                    <div class="col-6">
+                                        
+                                    </div>
+                                    <div class="col-6">
+                                        
+                                    </div>
+                                </div>
+                                <!--DATE-->
+                                <div class="row">
+                                    <div class="col-6">
+                                        
+                                    </div>
+                                    <div class="col-6">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                                
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
