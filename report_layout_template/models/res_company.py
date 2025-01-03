@@ -24,3 +24,4 @@ class BaseDocumentLayout(models.TransientModel):
     khmer_name = fields.Char(related='company_id.khmer_name', readonly=True)
     khmer_address = fields.Char(related='company_id.khmer_address', readonly=True)
     street = fields.Char(related='company_id.street', readonly=True)
+    city = fields.Char(related='company_id.city', readonly=True)
