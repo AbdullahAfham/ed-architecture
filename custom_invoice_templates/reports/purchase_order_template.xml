@@ -54,9 +54,7 @@
                                 text-align: center;
                             }
                         </style>
-                            <!--<div style="border-bottom: 1px solid black;"/><br/>-->
                             <div class="oe_structure"/>
-
                             <!--<h2 t-if="o.state in ['draft', 'sent', 'to approve']">Request for Quotation #<span t-field="o.name"/></h2>-->
                             <h4 class="text-center erp-title">PURCHASE ORDER</h4>
                             <h4 t-if="o.state == 'cancel'">Cancelled Purchase Order #<span t-field="o.name"/></h4>
@@ -129,8 +127,6 @@
                                   </div>
                                 </div>
 
-
-
                                 <div class="row" t-if="o.partner_id.vat">
                                   <div class="col-4">
                                     <span class="erp-text">VAT No.</span>
@@ -147,8 +143,8 @@
                                     : <span class="erp-text" t-field="o.payment_term_id.name"/>
                                   </div>
                                 </div>
-
                               </div>
+
                               <div class="col-4">
                                 <div class="row">
                                   <div class="col-6">
@@ -157,15 +153,7 @@
                                   <div class="col-6">
                                     : <b><span class="erp-text" t-field="o.name"/></b>
                                   </div>
-                                </div>
-                                <!-- <div class="row">
-                                  <div class="col-4">
-                                    <span class="erp-text">IR No.</span>
-                                  </div>
-                                  <div class="col-8">
-                                    : <b><span class="erp-text" t-field="o.name"/></b>
-                                  </div>
-                                </div> -->
+                                </div>                               
                                 <div class="row" t-if="o.date_order">
                                   <div class="col-6">
                                     <span class="erp-text">កាលបរិច្ឆេទ/Date</span>
@@ -173,67 +161,13 @@
                                   <div class="col-6">
                                     : <span class="erp-text" t-field="o.date_order" t-options="{'widget': 'date'}"/>
                                   </div>
-                                </div>
-                                <!-- <div class="row" t-if="o.date_order">
-                                  <div class="col-4">
-                                    <span class="erp-text">Date</span>
-                                  </div>
-                                  <div class="col-8">
-                                    : <span class="erp-text" t-field="o.date_order" t-options="{'widget': 'date'}"/>
-                                  </div>
-                                </div> -->
-                                <!-- <div class="row">
-                                  <div class="col-4">
-                                    <span class="erp-text">Project No.</span>
-                                  </div>
-                                  <div class="col-8">
-                                    : <span class="erp-text" t-field="o.analytic_account_id.name"/>
-                                  </div>
-                                </div> -->
-
-                                <!-- <div class="row">
-                                  <div class="col-4">
-                                    <span class="erp-text">MR No.</span>
-                                  </div>
-                                  <div class="col-8">
-                                    : <span class="erp-text" t-field="o.mr_no"/>
-                                  </div>
-                                </div>
-                                <div class="row" t-if="o.user_id">
-                                  <div class="col-4">
-                                    <span class="erp-text">Requestor</span>
-                                  </div>
-                                  <div class="col-8">
-                                    : <span class="erp-text" t-field="o.user_id.name"/>
-                                  </div>
-                                </div> -->
-
-
+                                </div>                                
                               </div>
                             </div>
-                            <br/>
-
-                            <!--<div id="informations" class="row mt32 mb32">-->
-                            <!--    <div t-if="o.user_id" class="col-3 bm-2">-->
-                            <!--        <strong>Purchase Representative:</strong>-->
-                            <!--        <p t-field="o.user_id" class="m-0"/>-->
-                            <!--    </div>-->
-                            <!--    <div t-if="o.partner_ref" class="col-3 bm-2">-->
-                            <!--        <strong>Your Order Reference:</strong>-->
-                            <!--        <p t-field="o.partner_ref" class="m-0"/>-->
-                            <!--    </div>-->
-                            <!--    <div t-if="o.date_order" class="col-3 bm-2">-->
-                            <!--        <strong>Order Date:</strong>-->
-                            <!--        <p t-field="o.date_order" class="m-0"/>-->
-                            <!--    </div>-->
-                            <!--</div>-->
-
-                            <!-- <t t-set="lines_to_report" t-value="o._get_order_lines_to_report()"/>
-                            <t t-set="display_discount" t-value="any(l.discount for l in lines_to_report)"/> -->
+                            <br/>                        
 
                             <table class="table table-sm o_main_table erp-border">
-                                <thead class="erp-border">
-                                  <t t-foreach="o.order_line" t-as="line">
+                                <thead class="erp-border">                                  
                                     <tr class="erp-border border-black">
                                         <th class="erp-text text-center erp-border"><strong>No</strong></th>
                                         <!-- <th class="erp-text erp-border"><strong>Item Code</strong></th> -->
@@ -243,10 +177,9 @@
                                         <th name="th_quantity" class="text-center erp-text erp-border"><strong>Qty</strong></th>
                                         <th name="th_uom" class="text-center erp-text erp-border"><strong>UoM</strong></th>
                                         <th name="th_price_unit" class="text-center erp-text erp-border"><strong>Unit Price</strong></th>
-                                        <th name="th_discount" t-if="line.discount" class="text-center erp-text-bold erp-border"><span>Disc.%</span></th>       
+                                        <!-- <th name="th_discount" class="text-center erp-text-bold erp-border"><span>Disc.%</span></th>        -->
                                         <th name="th_amount" class="text-center erp-text erp-border"><strong>Amount</strong></th>
                                     </tr>
-                                  </t>
                                 </thead>
                                 <tbody>
                                   <t t-set="current_subtotal" t-value="0"/>
@@ -305,14 +238,14 @@
                                           </t>
                                       </tr>
                                     </t>
+
                                     <tr class="erp-text erp-border border-black">                                        
                                         <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
                                         <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
                                         <th class="erp-text text-end erp-border">
                                             <span t-field="o.amount_untaxed"/>
                                         </th>
-                                    </tr>
-                                    
+                                    </tr>                                    
                                     <tr class="erp-text erp-border border-black">
                                         <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
                                         <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>

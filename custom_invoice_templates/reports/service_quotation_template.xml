@@ -70,7 +70,8 @@
                                     <div class="row erp-text">
                                         <div class="col-3" t-if="doc.partner_id">Organisation Name</div>
                                         <div class="col-8">: <span t-esc="doc.partner_id.name"/></div>
-                                    </div>                                    
+                                    </div>
+                                    
                                     <div class="row erp-text">
                                         <div class="col-3" t-if="doc.partner_id">Address</div>
                                         <div class="col-8">: <span t-esc="doc.partner_id.contact_address"/></div>
@@ -80,16 +81,18 @@
                                             <t t-if="o.partner_id.city">, <span t-esc="o.partner_id.city"/></t>
                                             <t t-if="o.partner_id.country_id.name">, <span t-esc="o.partner_id.country_id.name"/></t>
                                         </div> -->
-                                    </div>                                    
+                                    </div>
+                                    
                                     <div class="row erp-text">
                                         <div class="col-3" t-if="doc.partner_id">Contact Name</div>
                                         <div class="col-8">: <span t-esc="doc.partner_id.name"/></div>
-                                    </div>                                    
+                                    </div>
+                                    
                                     <div class="row erp-text">
                                         <div class="col-3" t-if="doc.partner_id">Phone Number</div>
                                         <div class="col-8">: <span t-esc="doc.partner_id.phone"/></div>
                                     </div>
-                                </div>                               
+                                </div>                                
                                 
                                 <!-- right -->
                                 <div class="col-4" style="font-size:14px">
@@ -118,30 +121,34 @@
                                     </div>
                                     
                                     <div class="row erp-text">
-                                        <div class="col-3" t-if="doc.partner_id">Email</div>
-                                        <div class="col-9">: <span t-esc="doc.partner_id.email"/></div>
+                                        <!-- <div t-if="doc.partner_id"></div> -->
+                                        <div class="col-12"><span>Email : </span><span t-esc="doc.partner_id.email"/></div>
                                     </div>
                                     
                                 </div>
                             </div>
                             <br/>
+                            <!-- <t t-set="display_discount" t-value="any(l.discount for l in doc.invoice_line_ids)"/> -->
 
+                            <!-- Is there a discount on at least one line? -->
                             <t t-set="lines_to_report" t-value="doc._get_order_lines_to_report()"/>
                             <t t-set="display_discount" t-value="any(l.discount for l in lines_to_report)"/>
 
                             <div class="oe_structure"/>
+                            <!--<table class="o_has_total_table table o_main_table">-->
                             <table class="table table-sm o_main_table">
+                                <!-- In case we want to repeat the header, remove "display: table-row-group" -->
                                 <thead style="display: table-row-group">
                                     <tr class="erp-border border-black">
-                                        <th name="th_no" class="text-center erp-text-bold erp-border">No</th>
-                                        <th name="th_description" class="text-center erp-text-bold erp-border">Item Description</th>
-                                        <th name="th_quantity" class="text-center erp-text-bold erp-border">Qty</th>
-                                        <th name="th_uom" class="text-center erp-text-bold erp-border">UoM</th>
-                                        <th name="th_priceunit" class="text-center erp-text-bold erp-border">Unit Price</th>
-                                        <th name="th_discount" t-if="display_discount" class="text-center erp-text-bold erp-border"><span>Disc.%</span></th>                                           
+                                        <th name="th_no" class="text-center erp-text-bold erp-border"><strong>No</strong></th>
+                                        <th name="th_description" class="text-center erp-text-bold erp-border"><strong>Item Description</strong></th>
+                                        <th name="th_quantity" class="text-center erp-text-bold erp-border"><strong>Qty</strong></th>
+                                        <th name="th_uom" class="text-center erp-text-bold erp-border"><strong>UoM</strong></th>
+                                        <th name="th_priceunit" class="text-center erp-text-bold erp-border"><strong>Unit Price</strong></th>
+                                        <th name="th_discount" t-if="display_discount" class="text-center erp-text-bold erp-border"><strong>Disc.%</strong></th>                                           
                                         <!-- <th name="th_subtotal" class="text-center"><span>Total</span></th>                                                                                     -->
                                         <!-- <th name="th_taxes" class="text-center erp-text erp-border">Taxes</th>                                         -->
-                                        <th name="th_total" class="text-center erp-text-bold erp-border"><span>Amount</span></th>                                          
+                                        <th name="th_total" class="text-center erp-text-bold erp-border"><strong>Amount</strong></th>                                       
                                     </tr>
                                 </thead>
                                 <tbody class="sale_tbody" style="font-size:14px">
@@ -158,7 +165,8 @@
                                             <t t-if="not line.display_type and line.product_type != 'combo'">
                                                 <td name="td_name" class="text-start erp-text erp-border"><span t-field="line.name"/></td>
                                                 <td name="td_quantity" class="text-center erp-text erp-border">
-                                                    <span t-field="line.product_uom_qty"/>                                                    
+                                                    <span t-field="line.product_uom_qty"/>
+                                                    
                                                     <span t-if="line.product_packaging_id">
                                                         (<span t-field="line.product_packaging_qty" t-options="{&quot;widget&quot;: &quot;integer&quot;}"/> <span t-field="line.product_packaging_id"/>)
                                                     </span>
@@ -205,7 +213,7 @@
                                                    <span t-out="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}">31.05</span>
                                                </td>
                                            </tr>
-                                        </t>                                        
+                                        </t>
                                     </t>
                                     
                                     <tr class="erp-text erp-border border-black">                                        
@@ -246,9 +254,8 @@
                                     <!--    </th>-->
                                     <!--</tr>-->
                                 </tbody>                                
-                            </table>                            
+                            </table>
                         
-                            <!---->
                             <div class="row" style="padding-top:20px">
                                 <div class="col-8 text-start erp-text">
                                     <span><strong>Terms &amp; Conditions</strong></span><br/>
@@ -280,10 +287,12 @@
                                     <div style="border-bottom: 1px solid black; margin-top: 140px; margin-bottom: 5px;"/>
                                     <div class="erp-text text-center">ហត្ថលេខា និងឈ្មោះអ្នកលក់ </div>
                                     <div class="erp-text text-center">Seller's Signature and Name</div>
+
                                 </div>
                             </div>
                             <br/>
                         </div>
+
                     </t>
                 </t>
             </t>
@@ -293,6 +302,7 @@
         <template id="report_service_quotation_no_head">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
+                    <!-- <t t-call="web.external_layout"> -->
                     <t t-call="report_layout_template.external_layout_erp_cambodia_no_head"><br/>
                     <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
                     <t t-set="forced_vat" t-value="doc.fiscal_position_id.foreign_vat"/>
@@ -382,7 +392,6 @@
                                     </div>
                                 </div>
                                 
-                                
                                 <!-- right -->
                                 <div class="col-4" style="font-size:14px">
                                     <div class="row erp-text">
@@ -417,28 +426,23 @@
                                 </div>
                             </div>
                             <br/>
-                            <!-- <t t-set="display_discount" t-value="any(l.discount for l in doc.invoice_line_ids)"/> -->
 
-                            <!-- Is there a discount on at least one line? -->
                             <t t-set="lines_to_report" t-value="doc._get_order_lines_to_report()"/>
                             <t t-set="display_discount" t-value="any(l.discount for l in lines_to_report)"/>
 
                             <div class="oe_structure"/>
-                            <!--<table class="o_has_total_table table o_main_table">-->
                             <table class="table table-sm o_main_table">
-                                <!-- In case we want to repeat the header, remove "display: table-row-group" -->
                                 <thead style="display: table-row-group">
                                     <tr class="erp-border border-black">
-                                        <th name="th_no" class="text-center erp-text-bold erp-border">No</th>
-                                        <th name="th_description" class="text-center erp-text-bold erp-border">Item Description</th>
-                                        <th name="th_quantity" class="text-center erp-text-bold erp-border">Qty</th>
-                                        <th name="th_uom" class="text-center erp-text-bold erp-border">UoM</th>
-                                        <th name="th_priceunit" class="text-center erp-text-bold erp-border">Unit Price</th>
-                                        <th name="th_discount" t-if="display_discount" class="text-center erp-text-bold erp-border"><span>Disc.%</span></th>                                           
+                                        <th name="th_no" class="text-center erp-text-bold erp-border"><strong>No</strong></th>
+                                        <th name="th_description" class="text-center erp-text-bold erp-border"><strong>Item Description</strong></th>
+                                        <th name="th_quantity" class="text-center erp-text-bold erp-border"><strong>Qty</strong></th>
+                                        <th name="th_uom" class="text-center erp-text-bold erp-border"><strong>UoM</strong></th>
+                                        <th name="th_priceunit" class="text-center erp-text-bold erp-border"><strong>Unit Price</strong></th>
+                                        <th name="th_discount" t-if="display_discount" class="text-center erp-text-bold erp-border"><strong>Disc.%</strong></th>                                           
                                         <!-- <th name="th_subtotal" class="text-center"><span>Total</span></th>                                                                                     -->
                                         <!-- <th name="th_taxes" class="text-center erp-text erp-border">Taxes</th>                                         -->
-                                        <th name="th_total" class="text-center erp-text-bold erp-border"><span>Amount</span></th>                                           
-                                        
+                                        <th name="th_total" class="text-center erp-text-bold erp-border"><strong>Amount</strong></th>                                       
                                     </tr>
                                 </thead>
                                 <tbody class="sale_tbody" style="font-size:14px">
@@ -532,8 +536,6 @@
                                 </tbody>                                
                             </table>
                             
-                        
-                            <!---->
                             <div class="row" style="padding-top:20px">
                                 <div class="col-8 text-start erp-text">
                                     <span><strong>Terms &amp; Conditions</strong></span><br/>
@@ -547,7 +549,6 @@
                                 </div>
                                 <div class="col-4" style="padding-bottom: 30px"/>
                             </div>
-                            <!---->   
 
                             <div class="row" style="margin-top: 15px; page-break-inside: avoid;">
                                 <div class="col-4">
@@ -575,6 +576,5 @@
                 </t>
             </t>
         </template>
-        
     </data>
 </odoo>
