@@ -175,7 +175,9 @@
                                                     <span t-field="line.product_uom"/>
                                                 </td>
                                                 <td name="td_priceunit" class="text-center erp-text erp-border">
-                                                    $ <span t-field="line.price_unit"/>
+                                                    <!-- $ <span t-field="line.price_unit"/> -->
+                                                    <span t-if="doc.currency_id.name == 'KHR'" t-esc="'{:,.2f}'.format(line.price_unit * doc.exchange_rate)"/>
+                                                    <span t-if="doc.currency_id.name != 'KHR'" t-field="line.price_unit"/>
                                                 </td>
                                                 <td t-if="display_discount" class="text-center erp-text erp-border">
                                                     <span t-field="line.discount">-</span>
@@ -188,7 +190,9 @@
                                                     <span t-out="taxes"></span>
                                                 </td> -->
                                                 <td t-if="not line.is_downpayment" name="td_subtotal" class="text-end erp-text erp-border">
-                                                    <span t-field="line.price_subtotal"/>
+                                                    <!-- <span t-field="line.price_subtotal"/> -->
+                                                    <span t-if="doc.currency_id.name == 'KHR'" t-esc="'{:,.2f}'.format(line.price_subtotal * doc.exchange_rate)"/>
+                                                    <span t-if="doc.currency_id.name != 'KHR'" t-esc="'{:,.2f}'.format(line.price_subtotal)" />
                                                 </td>
                                             </t>
                                             <t t-elif="line.display_type == 'line_section' or line.product_type == 'combo'">
@@ -216,7 +220,7 @@
                                         </t>
                                     </t>
                                     
-                                    <tr class="erp-text erp-border border-black">                                        
+                                    <!-- <tr class="erp-text erp-border border-black">                                        
                                         <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
                                         <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
                                         <th class="erp-text text-end erp-border">
@@ -236,13 +240,80 @@
                                         <th class="erp-text text-end erp-border">
                                             <span t-field="doc.amount_total"/>
                                         </th>
+                                    </tr> -->
+
+                                    <!-- === if currency_id == USD then display this === -->
+                                <t t-if="doc.currency_id.name == 'USD'">
+                                    <tr class="erp-text erp-border border-black">                                        
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
+                                        <th class="erp-text text-end erp-border">
+                                            <span t-field="doc.amount_untaxed"/>
+                                        </th>
+                                    </tr>                                    
+                                    <tr class="erp-text erp-border border-black">
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
+                                        <th class="erp-text text-end erp-border">
+                                            <span t-field="doc.amount_tax"/>
+                                        </th>
                                     </tr>
+
+                                    <tr class="erp-text erp-border border-black">
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
+                                        <th class="erp-text text-end erp-border">
+                                            <span t-field="doc.amount_total"/>
+                                        </th>
+                                    </tr>
+                                </t>
+                                <!-- === end === -->
+
+                                <!-- === if currency_id == KHR then convert the value from USD to riel by * doc.exchange_rate === -->
+                                <t t-if="doc.currency_id.name == 'KHR'">
+                                    <tr class="erp-text erp-border border-black">                                        
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
+                                        <th class="erp-text text-end erp-border">
+                                            <span t-esc="doc.amount_untaxed * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                        </th>
+                                    </tr>                                    
+                                    <tr class="erp-text erp-border border-black">
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (Riel)</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (Riel)</span></th>
+                                        <th class="erp-text text-end erp-border">
+                                            <span t-esc="doc.amount_tax * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                        </th>
+                                    </tr>
+
+                                    <tr class="erp-text erp-border border-black">
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in Riel</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in Riel</span></th>
+                                        <th class="erp-text text-end erp-border">
+                                            <span t-esc="doc.amount_total * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                        </th>
+                                    </tr>
+                                </t>
+                                <!-- === end === -->
+
+                                <!-- === Subtotal section === -->
+                                <t t-if="current_section and (line_last or o.order_line[line_index+1].display_type == 'line_section')">
+                                    <tr class="is-subtotal text-right erp-text erp-broder">
+                                        <td colspan="99" id="subtotal">
+                                            <strong class="mr16">Subtotal</strong>
+                                            <span t-if="doc.currency_id.name == 'USD'" t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                            <span t-if="doc.currency_id.name == 'KHR'" t-esc="current_subtotal * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <!-- === end === -->
+
                                     <!--<tr class="erp-border border-black">-->
                                     <!--    <th colspan="4" class="erp-text text-end erp-border">-->
                                     <!--        <span>អត្រាប្ដូរប្រាក់ / Exchange Rate</span>-->
                                     <!--    </th>-->
                                     <!--    <th class="erp-text text-end erp-border">-->
-                                            <!--<span t-field="o.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>-->
+                                            <!--<span t-field="doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>-->
                                     <!--    </th>-->
                                     <!--</tr>-->
                                     <!--<tr class="erp-border border-black">-->

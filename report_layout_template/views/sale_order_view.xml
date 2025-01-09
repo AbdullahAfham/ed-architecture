@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+      <record id="view_sale_order_form_inherit" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+          <xpath expr="//field[@name='currency_id']" position="attributes">
+            <attribute name="invisible">False</attribute>
+            <attribute name="readonly">False</attribute>
+          </xpath>
+          <xpath expr="//field[@name='payment_term_id']" position="before">
+            <field name="khr_currency_id" invisible="1"/>
+            <field name="exchange_date"/>
+            <field name="exchange_rate" readonly="0"/>
+          </xpath>
+        </field>
+      </record>
+      
+    </data>
+</odoo>

@@ -41,7 +41,7 @@
         'reports/account_report.xml',
         'reports/purchase_order_template.xml',
         'reports/register_form_template.xml',
-        'views/account_move_view.xml',
+        # 'views/account_move_view.xml',
         'views/account_payment_view.xml',
         
 

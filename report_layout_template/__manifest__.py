@@ -20,12 +20,16 @@
     ############################ERP#####################################
     'depends': [
         'web',
-        'account'
+        'account',
+        'purchase',
+        'sale'
     ],
     'data': [
         'data/report_layout.xml',
         'data/report_paperformat_view.xml',
         'views/res_company_view.xml',
+        'views/purhcase_order_view.xml',
+        'views/sale_order_view.xml',
         # 'views/report_invoice.xml',
         # 'views/account_report.xml',
 

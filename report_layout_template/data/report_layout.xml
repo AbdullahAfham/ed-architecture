@@ -78,7 +78,7 @@
                                 <li style="font-family: 'Battambang'; font-size:12px;">Address:
                                     <span t-if="company.street" t-esc="company.street"/>,
                                     <span t-if="company.city" t-esc="company.city"/>
-                                    <!--<span t-if="company.country_id" t-esc="company.country_id.name"/>-->
+                                    <span t-if="company.country_id" t-esc="company.country_id.name"/>
                                     </li>
                                 <li style="font-size:12px;">TEL: <span class="" t-field="company.phone"/></li>
                             </ul>
