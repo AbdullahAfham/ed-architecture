@@ -38,10 +38,10 @@
         'reports/official_receipt_template.xml',
         'reports/service_quotation_template.xml',
         'reports/term_and_condition_template.xml',
+        'reports/register_form_template.xml',
         'reports/account_report.xml',
         'reports/purchase_order_template.xml',
-        'reports/register_form_template.xml',
-        # 'views/account_move_view.xml',
+        'views/account_move_view.xml',
         'views/account_payment_view.xml',
         
 

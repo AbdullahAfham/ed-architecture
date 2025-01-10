@@ -35,7 +35,7 @@
         </record>
 
 <!--         Normal INVOICE -->
-        <record id="action_account_invoices_normal" model="ir.actions.report">
+        <!-- <record id="action_account_invoices_normal" model="ir.actions.report">
             <field name="name">NORMAL INVOICE</field>
             <field name="model">account.move</field>
             <field name="report_type">qweb-pdf</field>
@@ -47,7 +47,7 @@
             <field name="binding_type">report</field>
             <field name="groups_id" eval="[(4, ref('account.group_account_invoice')),
  (4, ref('account.group_account_readonly'))]"/>
-        </record>
+        </record> -->
 
         <!-- Normal INVOICE -->
 <!--        <record id="action_account_invoices_normal_signed" model="ir.actions.report">-->
@@ -181,7 +181,7 @@
         </record>
 
         <!-- RESTER FORM -->
-        <record id="sale_register_form" model="ir.actions.report">
+        <!-- <record id="sale_register_form" model="ir.actions.report">
             <field name="name">REGSITER FORM</field>
             <field name="model">sale.order</field>
             <field name="report_type">qweb-pdf</field>
@@ -191,9 +191,9 @@
             <field name="attachment">(object.state in ('draft', 'sent') and 'Quotation - %s' % (object.name)) or 'Order - %s' % (object.name)</field>
             <field name="binding_model_id" ref="sale.model_sale_order"/>
             <field name="binding_type">report</field>
-        </record>
+        </record> -->
 
-        <record id="sale_erp_service_term_and_condition" model="ir.actions.report">
+        <!-- <record id="sale_erp_service_term_and_condition" model="ir.actions.report">
             <field name="name">Term and Condition</field>
             <field name="model">sale.order</field>
             <field name="report_type">qweb-pdf</field>
@@ -203,7 +203,7 @@
             <field name="attachment">(object.state in ('draft', 'sent') and 'TERMS - %s' % (object.name)) or 'Order - %s' % (object.name)</field>
             <field name="binding_model_id" ref="sale.model_sale_order"/>
             <field name="binding_type">report</field>
-        </record>
+        </record> -->
 
         <!-- PURHCASE ORDER -->
         <record id="custom_purchase_order_report" model="ir.actions.report">

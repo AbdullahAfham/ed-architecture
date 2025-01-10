@@ -287,8 +287,8 @@
                                     </tr>
 
                                     <tr class="erp-text erp-border border-black">
-                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in Riel</span></th>
-                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in Riel</span></th>
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាប្រាក់រៀល - Grand Total in Riel</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាប្រាក់រៀល - Grand Total in Riel</span></th>
                                         <th class="erp-text text-end erp-border">
                                             <span t-esc="o.amount_total * o.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
                                         </th>
