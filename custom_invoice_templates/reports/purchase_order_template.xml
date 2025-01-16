@@ -321,13 +321,13 @@
 
                         <!-- <strong>Remark: </strong><p t-field="o.notes" class="erp-text"/> -->
 
-                        <!-- <div class="row" style="margin-top: 15px; page-break-inside: avoid;">
+                        <div class="row" style="margin-top: 15px; page-break-inside: avoid;">
                             <div class="col-4">
                                 <div style="color: white;" class="erp-text text-center">-</div>
                                 <div style="border-bottom: 1px solid black; margin-top: 140px; margin-bottom: 5px;"/>
                                 <div class="erp-text text-center">ហត្ថលេខា និងឈ្មោះអ្នកទិញ
                                 </div>
-                                <div class="erp-text text-center">Customer's Signature and Name</div>
+                                <div class="erp-text text-center">Customer's Authorized Signature and Name</div>
                             </div>
                             <div class="col-4">
                                 <div style="color: white;" class="erp-text text-center">-</div>
@@ -337,10 +337,10 @@
                                 <div style="color: white;" class="erp-text text-center">-</div>
                                 <div style="border-bottom: 1px solid black; margin-top: 140px; margin-bottom: 5px;"/>
                                 <div class="erp-text text-center">ហត្ថលេខា និងឈ្មោះអ្នកលក់ </div>
-                                <div class="erp-text text-center">Seller's Signature and Name</div>
+                                <div class="erp-text text-center">Seller's Authorized Signature and Name</div>
 
                             </div>
-                        </div> -->
+                        </div>
 
                         <div class="oe_structure"/>
                       </div>

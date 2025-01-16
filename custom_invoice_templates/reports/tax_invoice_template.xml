@@ -53,7 +53,7 @@
                                     text-align: center;
                                 }
                             </style>
-                            <h4 class="text-center erp-title" style="padding:10px">
+                            <h4 class="text-center erp-title" style="padding:10px; margin-top:-40px">
                                 <span t-if="o.move_type == 'out_invoice'">វិក្កយបត្រអាករ</span>
                                 <span t-if="o.move_type == 'out_refund'">Credit Note</span>
                                 <span t-if="o.move_type == 'in_refund'">Vendor Credit Note</span>
@@ -253,7 +253,7 @@
                                     <tr class="erp-border">
                                         <th name="th_no" class="text-center erp-text erp-border erp-table-header" style="width: 5%"><span>ល.រ<br/>No</span></th>
                                         <th name="th_description" class="text-center erp-text erp-border erp-table-header" style="width: 50%"><span>បរិយាយមុខទំនិញ <br/>Description</span></th>
-                                        <th name="th_description" class="text-center erp-text erp-border erp-table-header" style="width: 10%"><span>លេខគណនយ្យ <br/>Account ID</span></th>
+                                        <!--<th name="th_description" class="text-center erp-text erp-border erp-table-header" style="width: 10%"><span>លេខគណនយ្យ <br/>Account ID</span></th>-->
                                         <th name="th_quantity" class="text-center erp-text erp-border erp-table-header" style="width: 10%"><span>បរិមាណ <br/>Quantity</span></th>
                                         <th name="th_price_unit" class="text-center erp-text erp-border erp-table-header" style="width: 10%"><span>ថ្លៃឯកតា<br/>Unit Price</span></th>
                                         <th name="th_discount" t-if="display_discount" class="text-center erp-text erp-border erp-table-header"><span>បញ្ចុះតម្លៃ <br/>Disc.%</span></th>      
@@ -278,30 +278,26 @@
                                                 <td name="account_invoice_line_name" class="text-left erp-text erp-border">
                                                     <span t-field="line.name" t-options="{'widget': 'text'}"/>
                                                 </td>
-                                                <td name="account_invoice_line_name" class="text-left erp-text erp-border">
-                                                    <span t-field="line.account_id.display_name" t-options="{'widget': 'text'}"/>
+                                                <!--<td name="account_invoice_line_name" class="text-left erp-text erp-border">-->
+                                                <!--    <span t-field="line.account_id.display_name" t-options="{'widget': 'text'}"/>-->
                                                     <!-- <span t-field="line.account_id.name" t-options="{'widget': 'text'}"/> -->
-                                                </td>
+                                                <!--</td>-->
                                                 <td class="erp-center erp-text erp-border">
                                                     <span t-field="line.quantity"/>
                                                     <span t-field="line.product_uom_id" groups="uom.group_uom"/>
                                                 </td>
                                                 <td t-attf-class="erp-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }} erp-text erp-border">
                                                     <!-- <span class="text-nowrap" t-field="line.price_unit"/> -->
-                                                    <span class="text-nowrap" t-if="o.currency_id.name == 'USD'" 
-                                                        t-esc="'{:,.2f}'.format(line.price_unit)"/>
-                                                    <span class="text-nowrap" t-elif="o.currency_id.name == 'KHR'" 
-                                                        t-esc="'{:,.2f}'.format(round(line.price_unit * o.exchange_rate, 2))"/>
+                                                    <span class="text-nowrap" t-if="o.currency_id.name == 'USD'" t-esc="'{:,.2f}'.format(line.price_unit)"/>
+                                                    <span class="text-nowrap" t-elif="o.currency_id.name == 'KHR'" t-esc="'{:,.2f}'.format(round(line.price_unit * o.exchange_rate, 2))"/>
                                                 </td>
                                                 <td t-if="display_discount" t-attf-class="text-end {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }} erp-text erp-border">
                                                     <span class="text-nowrap" t-field="line.discount"/>
                                                 </td>
                                                 <td class="erp-right o_price_total erp-text erp-border">
                                                     <!-- <span class="text-nowrap" t-field="line.price_subtotal"/> -->
-                                                    <span class="text-nowrap" t-if="o.currency_id.name == 'USD'" 
-                                                        t-esc="'{:,.2f}'.format(line.price_subtotal)"/>
-                                                    <span class="text-nowrap" t-elif="o.currency_id.name == 'KHR'" 
-                                                        t-esc="'{:,.2f}'.format(round(line.price_subtotal * o.exchange_rate, 2))"/>
+                                                    <span class="text-nowrap" t-if="o.currency_id.name == 'USD'" t-esc="'{:,.2f}'.format(line.price_subtotal)"/>
+                                                    <span class="text-nowrap" t-elif="o.currency_id.name == 'KHR'" t-esc="'{:,.2f}'.format(round(line.price_subtotal * o.exchange_rate, 2))"/>
                                                 </td>
                                             </t>
                                             <t t-if="line.display_type == 'line_section'">
@@ -338,7 +334,7 @@
 
                                     <t t-if="o.currency_id.name == 'USD'">
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                            <th t-attf-colspan="{{ '5' if line.discount else '4' }}" class="text-end erp-border">
                                                 <span>សរុប - Subtotal</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
@@ -346,7 +342,7 @@
                                             </th>
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                            <th t-attf-colspan="{{ '5' if line.discount else '4' }}" class="text-end erp-border">
                                                 <span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
@@ -354,7 +350,7 @@
                                             </th>
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                            <th t-attf-colspan="{{ '5' if line.discount else '4' }}" class="text-end erp-border">
                                                 <span>សរុបរួមជាដុល្លារ - Grand Total in USD</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
@@ -364,7 +360,7 @@
                                     </t>
                                     <t t-elif="o.currency_id.name == 'KHR'">
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                            <th t-attf-colspan="{{ '5' if line.discount else '4' }}" class="text-end erp-border">
                                                 <span>សរុប - Subtotal</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
@@ -372,7 +368,7 @@
                                             </th>
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                            <th t-attf-colspan="{{ '5' if line.discount else '4' }}" class="text-end erp-border">
                                                 <span>អាករលើតម្លៃបន្ថែម - VAT 10% (KHR)</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
@@ -380,7 +376,7 @@
                                             </th>
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                            <th t-attf-colspan="{{ '5' if line.discount else '4' }}" class="text-end erp-border">
                                                 <span>សរុបរួមជាដុល្លារ - Grand Total in KHR</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
