@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- OFFICIAL RECEIPT -->
+        <template id="report_erp_official_receipt">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+
+                        <div class="page">
+                            <style type="text/css">
+                                @font-face {
+                                    font-family: Moul;
+                                    font-style: normal;
+                                    src:url('/report_layout_template/static/src/fonts/KhmerOSMuolLight.ttf') format('truetype');
+                                }
+                                @font-face {
+                                    font-family: Battambang;
+                                    font-style: normal;
+                                    src:url('/report_layout_template/static/src/fonts/Battambang/Battambang-Regular.ttf') format('truetype');
+                                }
+                                .erp-title {
+                                    font-size: 20px;
+                                    font-family: Moul;
+                                    padding-bottom: 3px;
+                                    font-weight: bold;
+                                }
+                                .erp-title-en{
+                                    font-size: 20px;
+                                    font-family: 'Time';
+                                    padding-bottom: 3px;
+                                    font-weight: bold;
+                                }
+                                .erp-text{
+                                    font-size: 14px;
+                                    font-family: Battambang;
+                                    padding-bottom: 3px;
+                                }
+                                .erp-border{
+                                    border: 1px solid black;
+                                }
+                                .erp-table-header{
+                                    font-weight: bold;
+                                    background-color:  #7b7d7d;
+                                    color: #FFFFFF;
+                                }
+                                .erp-table-body{
+                                    border: 1px solid black;
+                                }
+                                .erp-right{
+                                    text-align: right;
+                                }
+                                .erp-center{
+                                    text-align: center;
+                                }
+                            </style>
+
+                            <h5 class="text-center erp-title" t-if="o.payment_type == 'inbound'">
+                                <div>ប័ណ្ណចំណូល</div>
+                                <div style="margin-top: 10px;">RECEIVE PAYMENT</div>
+                            </h5>
+                            <h5 class="text-center erp-title" t-if="o.payment_type == 'outbound'">
+                                <div>ប័ណ្ណចំណាយ</div>
+                                <div style="margin-top: 10px;">PAYMENT VOUCHER</div>
+                            </h5>
+
+                            <div class="row">
+                                <div class="col-8">
+                                    <div style="border: 0px solid black;"/>
+                                    <div t-if="o.partner_id and o.payment_type == 'inbound'" class="erp-text">ទទួលពី: <span t-esc="o.partner_id.khmer_name"/></div>
+                                    <div t-if="o.partner_id and o.payment_type == 'inbound'" class="erp-text">Received From: <span t-esc="o.partner_id.name"/></div>
+                                    <div t-if="o.partner_id and o.payment_type == 'outbound'" class="erp-text">ចំណាយទៅ: <span t-esc="o.partner_id.khmer_name"/></div>
+                                    <div t-if="o.partner_id and o.payment_type == 'outbound'" class="erp-text">Pay to: <span t-esc="o.partner_id.name"/></div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="erp-text">លេខឯកសារ/Doc. No:
+                                        <strong><span t-esc="o.name" t-options="{'widget': 'text'}"/></strong>
+                                    </div>
+                                    <div t-if="o.date" class="erp-text">កាលបរិច្ឆេទ/Date:
+                                        <span t-esc="o.date" t-options="{'widget': 'date'}"/>
+                                    </div>
+                                    <!-- <div class="erp-text">លេខយោង/Bank No:
+                                         <span t-esc="o.x_check_no"/>
+                                    </div>
+                                    <div class="erp-text">លេខបង្កាន់ដៃ/ReceiptNo:
+                                         <strong><span t-esc="o.x_official_receipt"/></strong>
+                                    </div> -->
+                                    <!-- <div class="erp-text">សាខា/Branch: </div> -->
+                                </div>
+                            </div>
+
+                            <!--<t t-set="display_discount" t-value="any(l.discount for l in o.invoice_ids)"/>-->
+                            <t t-set="display_discount"/>
+
+                            <table class="table table-sm o_main_table" style="margin-top: 20px;" name="invoice_line_table">
+                                <thead>
+                                    <tr class="border-black erp-border">
+                                        <td colspan="6" class="erp-text erp-border">ទូទាត់ទៅលើ/Being Payment As Follows</td>
+                                    </tr>
+                                    <tr class="erp-border border-black">
+                                        <th name="th_no" class="text-center erp-text erp-border"><span>លរ<br/>No</span></th>
+                                        <!--<th name="th_quantity" class="text-center erp-text erp-border"><span>កាលបរិច្ឆេទ <br/>Date</span></th>-->
+                                        <th name="th_invoice_no" class="text-center erp-text erp-border"><span>វិក្កយបត្រ<br/>Invoice</span></th>
+                                        <th name="th_description" class="text-center erp-text erp-border" t-if="o.payment_type == 'outbound'"><span>លេខយោង<br/> Reference</span></th>
+                                        <th name="th_original_amount" class="text-center erp-text erp-border"><span>សមតុល្យសរុប<br/>Original Amount</span></th>
+                                        <th name="th_amount_due" class="text-center erp-text erp-border"><span>សមតុល្យមិនទាន់ទូទាត់<br/>Amount Due</span></th>
+                                        <th name="th_price_unit" class="text-center erp-text erp-border"><span>សមតុល្យទូទាត់រួច<br/>Amount</span></th>
+                                    </tr>
+                                </thead>
+                            <tbody class="invoice_tbody">
+                                    <t t-set="no" t-value="0"/>
+                                    <t t-set="total" t-value="0.0"/>
+
+                                    <!-- <t t-set="partials" t-value="o.move_id._get_reconciled_invoices_partials()[0]"/> -->
+                                    <!-- <t t-set="invoices" t-value="{partial[2].move_id for partial in partials}"/> -->
+                                    <t t-set="invoices" t-value="o.reconciled_invoice_ids or o.reconciled_bill_ids"/>
+                                    <t t-foreach="invoices" t-as="inv">
+                                        <t t-set="no" t-value="no+1"/>
+                                        <t t-set="amount" t-value="inv.amount_total"/>
+                                        <t t-if="inv.move_type != 'entry'">
+                                            <tr class="border-black erp-border">
+                                                    <td class="text-center erp-text erp-border">
+                                                        <span t-esc="no"/>
+                                                    </td>
+    <!--                                                <td class="text-center" style="font-size:12px">-->
+    <!--                                                    <span t-field="line.product_id.default_code"/>-->
+    <!--                                                </td>-->
+                                                    <!--<td class="erp-text erp-border"><span t-field="inv.invoice_date" t-options="{'widget': 'date'}"/></td>-->
+                                                    <td class="erp-text erp-border" t-if="o.partner_id and o.payment_type == 'outbound'"><span t-field="inv.ref" t-options="{'widget': 'text'}"/></td>
+                                                    <td class="erp-text erp-border"><span t-field="inv.name" t-options="{'widget': 'text'}"/></td>
+                                                    <td class="erp-text erp-border"><span t-field="inv.amount_total"/></td>
+                                                    <td class="erp-text erp-border"><span t-field="inv.amount_residual"/></td>
+                                                    <td class="erp-text text-end erp-border"><span t-esc="amount" t-options="{'widget': 'monetary', 'display_currency': inv.currency_id}"/></td>
+                                            </tr>
+                                        </t>
+                                        <!--<span t-esc="inv.move_type"/>-->
+                                        <t t-if="inv.move_type == 'entry'">
+                                          <tr class="border-black erp-border">
+                                            <td class="text-center erp-text erp-border">
+                                                <span t-esc="no"/>
+                                            </td>
+                                            <td colspan="4" class="erp-text erp-border"><span t-field="o.ref"/></td>
+                                            <td colspan="4" class="erp-text text-right erp-border"><span t-field="o.amount"/></td>
+                                          </tr>
+                                        </t>
+                                        <t t-set="total" t-value="amount+total"/>
+                                    </t>
+                                    <!--<span t-esc="o.move_id._get_reconciled_invoices_partials()"/>-->
+                                    <!-- <t t-if="o.is_internal_transfer or not o.move_id._get_reconciled_invoices_partials()">
+                                      <tr class="border-black erp-border">
+                                        <t t-set="no" t-value="no+1"/>
+                                        <td class="text-center erp-text erp-border">
+                                            <span t-esc="no"/>
+                                        </td>
+                                        <td colspan="3" class="erp-text erp-border"><span t-field="o.ref"/></td>
+                                        <td colspan="3" class="erp-text text-right erp-border"><span t-field="o.amount"/></td>
+                                      </tr>
+                                      <t t-set="total" t-value="o.amount+total"/>
+                                    </t> -->
+
+                                    <tr style="border: 1px solid white;">
+                                        <!--<td class="text-right erp-text" colspan="3"><strong>តាមរយៈ/By: TT to BOC ACC:</strong></td>-->
+                                        <td class="text-end erp-text" t-if="o.partner_id and o.payment_type == 'inbound'" colspan="4"><strong>សរុប/Total</strong></td>
+                                        <td class="text-end erp-text" t-if="o.partner_id and o.payment_type == 'outbound'" colspan="5"><strong>សរុប/Total</strong></td>
+                                        <td class="text-end erp-text">
+                                            <span class="text-nowrap" t-esc="total" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="row" style="margin-top: 5px; page-break-inside: avoid;  padding: 10px;">
+                                <div class="col-4">
+                                    <div class="erp-text text-center margin-top: 20px;">រៀបចំដោយ Prepared By</div>
+                                    <div style="border-bottom: 1px solid black; margin-top: 100px;"/>
+                                    <br/>
+                                    <div class="erp-text text-left"> ឈ្មោះ/Name:</div>
+                                    <div class="erp-text text-left" style="padding-top: 10px;">កាលបរិច្ឆេទ/Date:</div>
+                                </div>
+                                <div class="col-4" />
+                                <div class="col-4" style="padding-left: 10px; padding-right: 10px;">
+                                    <div class="erp-text text-center margin-top: 20px;">ទទួលដោយ Received By</div>
+                                    <div style="border-bottom: 1px solid black; margin-top: 100px;"/>
+                                    <br/>
+                                    <div class="erp-text text-left"> ឈ្មោះ/Name:</div>
+                                    <div class="erp-text text-left" style="padding-top: 10px;">កាលបរិច្ឆេទ/Date:</div>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

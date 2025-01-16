@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Tax Invoices -->
+        <template id="report_service_term_and_condition_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="report_layout_template.external_layout_erp_cambodia_no_head">
+                    <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+                    <t t-set="forced_vat" t-value="doc.fiscal_position_id.foreign_vat"/>
+
+                        <div class="page">
+                            <style type="text/css">
+                                @font-face {
+                                    font-family: Moul;
+                                    font-style: normal;
+                                    src:url('/report_layout_template/static/src/fonts/KhmerOSMuolLight.ttf') format('truetype');
+                                }
+                                @font-face {
+                                    font-family: Battambang;
+                                    font-style: normal;
+                                    src:url('/report_layout_template/static/src/fonts/Battambang/Battambang-Regular.ttf') format('truetype');
+                                }
+                                .erp-title {
+                                    font-size: 20px;
+                                    font-family: Moul;
+                                    padding-bottom: 3px;
+                                    font-weight: bold;
+                                }
+                                .erp-title-en{
+                                    font-size: 20px;
+                                    font-family: 'Time';
+                                    padding-bottom: 3px;
+                                    font-weight: bold;
+                                }
+                                .erp-text{
+                                    font-size: 12px;
+                                    font-family: Battambang;
+                                    padding-bottom: 3px;
+                                }
+                                .erp-border{
+                                    border: 1px solid black;
+                                }
+                                .erp-table-header{
+                                    font-weight: bold;
+                                    background-color:  #7b7d7d;
+                                    color: #FFFFFF;
+                                }
+                                .erp-table-body{
+                                    border: 1px solid black;
+                                }
+                                .erp-right{
+                                    text-align: right;
+                                }
+                                .erp-center{
+                                    text-align: center;
+                                }
+                            </style>
+                            <br/>
+                            <h4 class="text-center erp-title">
+                                <span>កិច្ចព្រមព្រៀងប្រើប្រាស់សេវាកម្ម</span>
+                            </h4>
+                            <h4 class="text-center erp-title-en">
+                                <span>SERVICES AGREEMENT</span>
+                            </h4>
+
+                            <div class="erp-border" style="padding: 5px;">
+
+                                <p class="erp-text">
+                                ១. សេវាកម្មរបស់ក្រុមហ៊ុន Empire Tech មិនរាប់ញ្ចូលការផ្តល់ឧបករណ៍ កុំព្យូទ័រ ឬផ្នែក Software ណាមួយដែលអតិថិជនត្រូវការដើម្បីតភ្ជាប់សេវាជាមួយក្រុមហ៊ុននោះទេ ។ <br/>
+    ២. ការតម្លើងមិនរាប់បញ្ចូលនូវឧបករណ៍ទាំងឡាយ ដែលប្រើសម្រាប់ភា្ជប់ប្រព័ន្ធនោះទេ លើកលែងតែឧបករណ៍នោះបានទិញ ឬជួលពីរក្រុមហ៊ុន Empire Tech ។ ឧបករណ៍ដែលជារបស់រក្រុមហ៊ុន Empire Tech ហើយបានតម្លើងភ្ជាប់ជូនតាមកិច្ចព្រមព្រៀងនេះ ត្រូវតែប្រគល់ជូនក្រុមហ៊ុនវិញក្នុងស្ថានភាពដើម(លើកលែងការសឹករេចរឹលធម្មតា)នៅពេលបញ្ចប់កិច្ចព្រមព្រៀងនេះ ។ ការមិនប្រគល់ឧបករណ៍អោយក្រុមហ៊ុនវិញ គឺជាបទល្មើសព្រហ្មទណ្ឌ ដែលអាចទូទាត់សងជាប្រាក់តាមតម្លៃដើមរបស់ឧបករណ៍ទាំងនោះ និង/ ឬ តាមការដាក់ពិន័យតាមការកំណត់របស់តុលាការ ។<br/>
+    ៣. ក្រុមហ៊ុនមិនទទួលខុសត្រូវចំពោះអតិថិជនណាដែលប្រើប្រាស់សេវកម្មរបស់ Empire Tech ភ្ជាប់ជាមួយឧបករណ៍ណាផ្សេងទៀតដើម្បីសេវាណាមួយដែលច្បាប់មិនអនុញ្ញាត ។ <br/>
+    ៤. អតិថិជនរបស់ Empire Tech មិនត្រូវបានអនុញ្ញាតឱ្យលក់សេវកម្មអ៊ុនធឺណិតបន្តទៅឱ្យភាគីទី ៣ ឡើយ លុះត្រាតែមានកិច្ចព្រមព្រៀងជាអ្នកចែកចាយសេវាកម្មពីក្រុមហ៊ុន Empire Tech ។ <br/>
+    ៥. ប្រាក់ដែលបង់លើផលិតផលសេវាកម្ម និងសេវាប្រចាំខែ គឺមិនអាចប្រគល់ជូនអតិថិជនវិញទេ ។<br/>
+    ៦. អតិថិជនតម្រូវអោយបង់វិក្កយបត្រប្រចាំខែ ឬថ្លៃទិញឧបករណ៍ ក៏ដូច ជារប្រាក់កក់ជាមុនសម្រាប់ ការភ្ជាប់បណ្តាញលើកដំបូងជាមួយក្រុមហ៊ុន Empire Tech ។ ក្រុមហ៊ុន Empire Tech និងផ្ដល់ជូននូវវិក្កយបត្រដល់អតិថិជនជារៀងរាល់ខែតាមរយៈ email។ អតិថិជនតម្រូវអោយទូទាត់វិក្កយបត្រក្នុងរយៈពេល ៧ថ្ងៃបន្ទាប់ពីទទួលវិក្កយបត្រ ។ បើសិនជាក្រុមហ៊ុន Empire Tech មិនបានទទួលការទូទាត់ថ្លៃសេវានោះទេ សេវានឹងត្រូវផ្អាកដំណើរការជ ាបណ្តោះអាសន្ន ហើយក្រុមហ៊ុននឹងមិនទទួលខុសត្រូវចំពោះការប៉ះពាល់ដល់ប្រយោជន៍របស់ អតិថិជនឡើយ ។ ក្រុមហ៊ុននឹង ជូនដំណឹងរយៈពេល ៣ថ្ងៃ មុននឹងការផ្អាកសេវកម្មតាមរយៈ email។ អតិថិជនត្រូវទទួលខុសត្រូវចំពោះការបង់ប្រាក់សម្រាប់ខែក្រោយៗទៀត ។ អតិថិជនមិនអាចធ្វើការកែប ឬ ក្លែងបន្លំវិក្កយបត្រក្នុងរូបភាពណាមួយឡើយ ។<br/>
+    ៧. អតិថិជនអាចបញ្ចប់កិច្ចព្រមព្រៀងនេះបាន ដោយត្រូវធ្វើរការជូនដំណឹងដល់ក្រុមហ៊ុន Empire Tech ក្នុងរយៈពេល៣០ថ្ងៃ មុនថ្ងៃចេញវិក្កយបត្រ (Billing date) ដោយអញ្ជើញមកបំពេញ បែបបទសម្រាប់បញ្ចប់កិច្ចព្រមីព្រៀងនេះ នៅការិយាល័យរបស់ក្រុមហ៊ុន Empire Tech ណាមួយក៏បាន បើមិនដូច្នោះទេអតិថិ ជននឹងត្រូវទទួលខុសត្រូវក្នុងការបង់សេវាប្រចាំខែ សម្រាប់ ខែក្រោយ (អាស្រ័យទៅតាមសុពលភាពនៃកិច្ចព្រមព្រៀង) ។ បន្ថែមពីនេះអតិថិជននឹងត្រូវទទួលខុសត្រូវលើការផាកពិន័យចំនួន ៥០.០០ដុល្លារ ហើយនឹងមានកាតព្វកិច្ចបង់ប្រាក់ទៅលើវិក្កយបត្រដែលមិនទាន់ទូទាត់រួច ។<br/>
+    ៨. ករណីបើបរិក្ខារបស់ក្រុមហ៊ុនត្រូវបានបាត់ ឬខូចខាតក្នុងហេតុការណ៍ណាមួយនោះ អតិថិជនត្រូវទទួលខុសត្រូវសងតម្លៃលើបរិក្ខា តាមកិច្ចព្រមព្រៀង ។ ការទូទាត់ជូនក្រុមហ៊ុន Empire Tech ត្រូវបង់ឱ្យគ្រប់ចំនួនដោយគ្មានការកាត់រំលស់ ទោះក្នុងហេតុផលណាមួយក៏ដោយ ។<br/>
+    ៩. ការផ្តល់ជំនួយតាមទូរស័ព្ទពេញ ២៤ម៉ោងក្នុង១ថ្ងៃ និង ៧ថ្ងៃ ក្នុង១សប្តាហ៏។ លោក-លោកស្រី អាចទំនាក់ទំនង តាមលេខទូរស័ព្ទ ០៨៥/០៨៦ ៦៣៧ ៣៩៣ ។ <br/>
+    ១១. ការព្រមព្រៀងនេះមានប្រសិទ្ធភាពចាប់ពីកាលបរិច្ឆេទនៃការចេញវិក្កយបត្រលើកដំបូង ។<br/>
+    ១២. ចំពោះអតិថិជនដែលស្មើកែរប្រែល្បឿន Internet ឬផ្លាស់ប្តូរផ្សេងៗ ត្រូវធ្វើការស្នើសុំជាមុនចំនួន ៧ថ្ងៃ មុនថ្ងៃចេញវិក្កយបត្រ ដោយត្រូវបំពេញនូវឯកសារដែលពាក់ព័ន្ធរបស់ក្រុមហ៊ុន ។ តម្លៃនឹងមានការប្រែប្រួលទៅតាមគម្រោងនៃសេវាកម្មថ្មី ។<br/>
+
+    *** កិច្ចព្រមព្រៀងត្រូវបានធ្វើរឡើងជាភាសាខ្មែរនិងភាសាអង់គ្លេសដែលមានខ្លឹមសារតែមួយដូចគ្នា ។ ភាគីទាំងពីរបាន អានយល់ និងព្រមព្រៀងគ្នាថាត្រឹមត្រូវពិតប្រាកដមែន ។
+
+
+                                </p>
+                                <ol class="erp-text">
+                                    <li>Empire Tech service is not included the provision and any computer equipment or software required by the customer to connect with Empire Tech’s internet.</li>
+                                    <li>The installation provided does not include any equipment or facilities necessary for you to connect with our service unless the equipment is purchased or rented  from Empire Tech. Any Empire Tech's equipment installed under this service agreement shall be returned to Empire Tech in its original conditions (except normal  wear and tear) upon termination of this agreement. Failing to return is a criminal offense and will lead to monetary compensation paid to Empire Tech for the  original value of the equipment and/or be penalized by the competent court.</li>
+                                    <li>Empire Tech does not take any responsibility for the performance or operation of any equipment or system connected to the Internet, and/or any service  prohibited in Cambodian Law.</li>
+                                    <li>Customers are not allowed to resell an Empire Tech Internet connection to any third party without dealer agreement being signed. </li>
+                                    <li>Products or services fees cannot be refunded.</li>
+                                    <li>Customer is required to pay in advance any monthly fee or equipment purchasing fee as well as the deposit on the first signup with Empire Tech. Bill will be sent  by E-mail every month. Customer is required to pay all fees charged by Empire Tech within 7 days after invoice acceptance. In case Empire Tech has not received  any payment, the service will be temporarily suspend after 3 days noticed by email. Customer is then responsible for the next monthly fee invoiced. Customer  has no right to amend or deduct in the bill in any case.</li>
+                                    <li>Customer may terminate this agreement with 30 days written notice to Empire Tech before the billing date by filling out the termination form at any Empire Tech  office. Otherwise, customer will be responsible for the next monthly subscription fee (subject to signed agreement), and the customer will be responsible for a  $ 50.00 penalty and obligated to pay the outstanding invoice.</li>
+                                    <li>In case Empire Tech equipment is stolen, lost or damaged in any way, customer is responsible for the value of equipment. All payments due to Empire Tech  under this agreement must be made in full amount without deduction of any reason.</li>
+                                    <li>Empire Tech phone support is 24/7. The contact number is 085/086 637 393.</li>
+                                    <li>The provided service could be accessed 24 hours/day and 7 days/week to the Internet, (World Wide Web) customer will need to protect their system from  attacking by viruses, hackers, spam, DDOS before using the service.</li>
+                                    <li>This agreement commences on the firstly started billing date.</li>
+                                    <li>Customer is suggested to inform 7 days before billing date in advance and fill out the relevant document of Empire Tech in case customer would like to  downgrade, upgrade, or change any account related information. The price varies upon new proposed service plan.</li>
+                                </ol>
+                                <p class="erp-text">** This agreement is made in both Khmer and English which consist of mutual content. Both parties have read it thoroughly, understood and agreed that  the above content is correct.</p>
+                            </div>
+
+                            <br/>
+                            <p class="erp-text">
+                                <strong>Customer Acceptance</strong><br/>
+                                Customer Signed nd Stamp: ________________________________ Date: ________/________/________
+                            </p>
+                        </div>
+
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

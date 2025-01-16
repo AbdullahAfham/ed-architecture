@@ -1,0 +1,697 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Tax Invoices -->
+        <template id="report_invoice_tax_state_charge">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="report_layout_template.external_layout_template_center_vat">
+
+                        <div class="page">
+                            <style type="text/css">
+                                .erp-title{
+                                    font-size: 22px;
+                                    font-family: 'Battambang';
+                                    padding-bottom: 3px;
+                                    background-color: #FFFFFF;
+                                    color: #000000;
+                                    font-weight: bold;
+                                }
+                                .erp-text{
+                                    font-size: 12px;
+                                    font-family: 'Battambang';
+                                    padding-bottom: 3px;
+                                    background-color: #FFFFFF;
+                                    color: #000000;
+                                }
+                                .erp-border{
+                                    border: 1px solid black;
+                                }
+                                .erp-table-header{
+                                    font-weight: bold;
+                                    border: 1px solid black;
+                                    font-size:12px;
+                                }
+                                .erp-table-body{
+                                    border: 1px solid black;
+                                    font-size:12px;
+                                }
+                            </style>
+                            <div style="border-bottom: 1px solid black;"/>
+                            <br/>
+                            <h4 class="text-center erp-title">
+                                <span t-if="o.move_type == 'out_invoice'">វិក្កយបត្រអាករ<br/>TAX INVOICE</span>
+                                <!--<span t-if="o.move_type == 'out_invoice' and not print_with_payments">វិក្កយបត្រ<br/>INVOICE</span>-->
+                                <!--<span t-if="o.move_type == 'out_invoice' and o.state == 'draft'">Draft Invoice</span>-->
+                                <!--<span t-if="o.move_type == 'out_invoice' and o.state == 'cancel'">Cancelled Invoice</span>-->
+                                <span t-if="o.move_type == 'out_refund'">Credit Note</span>
+                                <span t-if="o.move_type == 'in_refund'">Vendor Credit Note</span>
+                                <span t-if="o.move_type == 'in_invoice'">Vendor Bill</span>
+                                <!--<span t-if="o.name != '/'" t-field="o.name"/>-->
+                            </h4>
+
+
+                            <div class="row">
+                              <div class="col-8">
+                                <div class="row">
+                                  <div class="col-5">
+                                    <div style="border: 0px solid black; margin-top: 15px; "/>
+                                    <div style="font-family: 'Battambang'; font-weight: bold;"><span>អតិថិជន/Customer</span></div>
+                                  </div>
+                                  <div class="col-7">
+                                      <!--<div style="border: 0px solid black; margin-top: 15px; "/>-->
+                                      <!--<div class="erp-text" t-if="o.partner_id.parent_id or o.partner_id.company_type == 'company'">: <span t-if="o.partner_id.company_type == 'company'" t-esc="o.partner_id.name"/><span t-if="o.partner_id.company_type != 'company'" t-esc="o.partner_id.parent_id.name"/></div>-->
+                                  </div>
+                                </div>
+                                <div class="row">
+                                  <div class="col-5">
+                                    <div style="border: 0px solid black; margin-top: 15px; "/>
+                                    <div class="erp-text"><span>ឈ្មោះក្រុមហ៊ុន ឬអតិថិជន </span></div>
+                                  </div>
+                                  <div class="col-7">
+                                      <div style="border: 0px solid black; margin-top: 15px; "/>
+                                      <div class="erp-text" t-if="o.partner_id.kh_name">:<span t-esc="o.partner_id.kh_name"/></div>
+                                  </div>
+                                </div>
+                                <div class="row">
+                                  <div class="col-5">
+                                    <div class="erp-text">Company Name/Customer</div>
+                                  </div>
+                                  <div class="col-7">
+                                      <div class="erp-text" t-if="o.partner_id">: <span t-esc="o.partner_id.name"/></div>
+                                  </div>
+                                </div>
+                                <!--<div class="row">-->
+                                <!--  <div class="col-5">-->
+                                <!--    <div class="erp-text">Customer Name</div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-7">-->
+                                <!--      <div class="erp-text" t-if="o.partner_id">: <span t-esc="o.partner_id.name"/></div>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+                                <!--<div class="row">-->
+                                <!--  <div class="col-5">-->
+                                <!--    <div class="erp-text"><span>អាសយដ្ឋាន</span></div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-7">-->
+                                <!--      <div class="erp-text" t-if="o.partner_id.address_kh">-->
+                                <!--          : <span t-esc="o.partner_id.address_kh"/>-->
+                                <!--      </div>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+                                <!--<div class="row">-->
+                                <!--  <div class="col-5">-->
+                                <!--    <div class="erp-text" t-if="o.partner_id.street"><span>Address</span></div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-7">-->
+                                <!--      <div class="erp-text" t-if="o.partner_id.street">-->
+                                <!--          : <t t-if="o.partner_id.street"><span t-esc="o.partner_id.street"/></t>-->
+                                <!--            <t t-if="o.partner_id.street2">, <span t-esc="o.partner_id.street2"/></t>-->
+                                <!--            <t t-if="o.partner_id.city">, <span t-esc="o.partner_id.city"/></t>-->
+                                <!--            <t t-if="o.partner_id.country_id.name">, <span t-esc="o.partner_id.country_id.name"/></t>-->
+                                <!--      </div>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+                                <!--<div class="row">-->
+                                <!--  <div class="col-5">-->
+                                <!--    <div class="erp-text" t-if="o.partner_shipping_id.street"><span>អាសយដ្ឋានដឹក Delivery Address</span></div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-7">-->
+                                <!--      <div class="erp-text" t-if="o.partner_shipping_id.street">-->
+                                <!--          : <t t-if="o.partner_shipping_id.street"><span t-esc="o.partner_shipping_id.street"/>,</t>-->
+                                <!--            <t t-if="o.partner_shipping_id.street2"><span t-esc="o.partner_shipping_id.street2"/>,</t>-->
+                                <!--            <t t-if="o.partner_shipping_id.city"><span t-esc="o.partner_shipping_id.city"/>,</t>-->
+                                <!--            <t t-if="o.partner_shipping_id.country_id.name"><span t-esc="o.partner_shipping_id.country_id.name"/></t>-->
+                                <!--      </div>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+                                <!--<div class="row">-->
+                                <!--  <div class="col-5">-->
+                                <!--    <div class="erp-text" t-if="o.partner_id.phone">លេខទូរស័ព្ទ/Phone </div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-7">-->
+                                <!--      <div class="erp-text" t-if="o.partner_id.phone">: <span t-esc="o.partner_id.phone"/></div>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+                                <!--<div class="row">-->
+                                <!--  <div class="col-5">-->
+                                <!--    <div class="erp-text" t-if="o.partner_id.vat">លេខ អ.ត.ប/(VATTIN)</div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-7">-->
+                                <!--      <div class="erp-text" t-if="o.partner_id.vat">: <span t-esc="o.partner_id.vat"/></div>-->
+                                <!--  </div>-->
+
+                                <!--</div>-->
+                              </div>
+                              <div class="col-4">
+                                <div class="row">
+                                  <div class="col-7">
+                                    <div style="border: 0px solid black; margin-top: 15px; "/>
+                                    <div class="erp-text">លេខវិក្កយបត្រ/Invoice No</div>
+                                  </div>
+                                  <div class="col-0">
+                                      <div style="border: 0px solid black; margin-top: 15px; "/>
+                                      <div class="erp-text">:</div>
+                                  </div>
+                                  <div class="col-5">
+                                      <div style="border: 0px solid black; margin-top: 15px; "/>
+                                      <div class="erp-text text-right">
+                                          <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'"><span t-if="o.name != '/'" t-field="o.name"/></span>
+                                          <span t-if="o.move_type == 'out_invoice' and o.state == 'draft'">Draft Invoice</span>
+                                          <span t-if="o.move_type == 'out_invoice' and o.state == 'cancel'">Cancelled Invoice </span>
+                                      </div>
+                                  </div>
+                                </div>
+                                <div class="row">
+                                  <div class="col-7">
+                                    <div class="erp-text" t-if="o.invoice_date">កាលបរិច្ឆេទ/Date </div>
+                                  </div>
+                                  <div class="col-0">
+                                      <div class="erp-text" t-if="o.invoice_date">:</div>
+                                  </div>
+                                  <div class="col-5">
+                                      <div class="erp-text text-right" t-if="o.invoice_date"><span t-esc="o.invoice_date" t-options="{'widget': 'date'}"/></div>
+                                  </div>
+                                </div>
+                                <!--<div class="row">-->
+                                <!--  <div class="col-7">-->
+                                <!--    <div class="erp-text" t-if="o.invoice_date_due">ថ្ងៃផុតកំណត់/Due Date </div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-0">-->
+                                <!--      <div class="erp-text" t-if="o.invoice_date_due">:</div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-5">-->
+                                <!--      <div class="erp-text text-right" t-if="o.invoice_date_due"><span t-esc="o.invoice_date_due" t-options="{'widget': 'date'}"/></div>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-8">
+                                <div class="row">
+                                  <div class="col-5">
+                                    <div class="erp-text"><span>អាសយដ្ឋាន</span></div>
+                                  </div>
+                                  <div class="col-7">
+                                      <div class="erp-text" t-if="o.partner_id.address_kh">
+                                          : <span t-esc="o.partner_id.address_kh"/>
+                                      </div>
+                                  </div>
+                                </div>
+                                <div class="row">
+                                  <div class="col-5">
+                                    <div class="erp-text" t-if="o.partner_id.street"><span>Address</span></div>
+                                  </div>
+                                  <div class="col-7">
+                                      <div class="erp-text" t-if="o.partner_id.street">
+                                          : <t t-if="o.partner_id.street"><span t-esc="o.partner_id.street"/></t>
+                                            <t t-if="o.partner_id.street2">, <span t-esc="o.partner_id.street2"/></t>
+                                            <t t-if="o.partner_id.city">, <span t-esc="o.partner_id.city"/></t>
+                                            <t t-if="o.partner_id.country_id.name">, <span t-esc="o.partner_id.country_id.name"/></t>
+                                      </div>
+                                  </div>
+                                </div>
+                                <!--<div class="row">-->
+                                <!--  <div class="col-5">-->
+                                <!--    <div class="erp-text" t-if="o.partner_id.phone">លេខទូរស័ព្ទ/Phone </div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-7">-->
+                                <!--      <div class="erp-text" t-if="o.partner_id.phone">: <span t-esc="o.partner_id.phone"/></div>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+                                <!--<div class="row">-->
+                                <!--  <div class="col-5">-->
+                                <!--    <div class="erp-text" t-if="o.partner_id.vat">លេខ អ.ត.ប/(VATTIN)</div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-7">-->
+                                <!--      <div class="erp-text" t-if="o.partner_id.vat">: <span t-esc="o.partner_id.vat"/></div>-->
+                                <!--  </div>-->
+
+                                <!--</div>-->
+                              </div>
+                              <!--<div class="col-4">-->
+                              <!--  <div class="row">-->
+                              <!--    <div class="col-7">-->
+                              <!--      <div style="border: 0px solid black; margin-top: 15px; "/>-->
+                              <!--      <div class="erp-text">លេខវិក្កយបត្រ/Invoice No</div>-->
+                              <!--    </div>-->
+                              <!--    <div class="col-0">-->
+                              <!--        <div style="border: 0px solid black; margin-top: 15px; "/>-->
+                              <!--        <div class="erp-text">:</div>-->
+                              <!--    </div>-->
+                              <!--    <div class="col-5">-->
+                              <!--        <div style="border: 0px solid black; margin-top: 15px; "/>-->
+                              <!--        <div class="erp-text text-right">-->
+                              <!--            <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'"><span t-if="o.name != '/'" t-field="o.name"/></span>-->
+                              <!--            <span t-if="o.move_type == 'out_invoice' and o.state == 'draft'">Draft Invoice</span>-->
+                              <!--            <span t-if="o.move_type == 'out_invoice' and o.state == 'cancel'">Cancelled Invoice </span>-->
+                              <!--        </div>-->
+                              <!--    </div>-->
+                              <!--  </div>-->
+                              <!--  <div class="row">-->
+                              <!--    <div class="col-7">-->
+                              <!--      <div class="erp-text" t-if="o.invoice_date">កាលបរិច្ឆេទ/Date </div>-->
+                              <!--    </div>-->
+                              <!--    <div class="col-0">-->
+                              <!--        <div class="erp-text" t-if="o.invoice_date">:</div>-->
+                              <!--    </div>-->
+                              <!--    <div class="col-5">-->
+                              <!--        <div class="erp-text text-right" t-if="o.invoice_date"><span t-esc="o.invoice_date" t-options="{'widget': 'date'}"/></div>-->
+                              <!--    </div>-->
+                              <!--  </div>-->
+                                <!--<div class="row">-->
+                                <!--  <div class="col-7">-->
+                                <!--    <div class="erp-text" t-if="o.invoice_date_due">ថ្ងៃផុតកំណត់/Due Date </div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-0">-->
+                                <!--      <div class="erp-text" t-if="o.invoice_date_due">:</div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-5">-->
+                                <!--      <div class="erp-text text-right" t-if="o.invoice_date_due"><span t-esc="o.invoice_date_due" t-options="{'widget': 'date'}"/></div>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+                              <!--</div>-->
+                            </div>
+
+                            <div class="row">
+                              <div class="col-8">
+
+                                <div class="row">
+                                  <div class="col-5">
+                                    <div class="erp-text" t-if="o.partner_id.phone">លេខទូរស័ព្ទ/Phone </div>
+                                  </div>
+                                  <div class="col-7">
+                                      <div class="erp-text" t-if="o.partner_id.phone">: <span t-esc="o.partner_id.phone"/></div>
+                                  </div>
+                                </div>
+                                <div class="row">
+                                  <div class="col-5">
+                                    <div class="erp-text" t-if="o.partner_id.vat">លេខ អ.ត.ប/(VATTIN)</div>
+                                  </div>
+                                  <div class="col-7">
+                                      <div class="erp-text" t-if="o.partner_id.vat">: <span t-esc="o.partner_id.vat"/></div>
+                                  </div>
+
+                                </div>
+                              </div>
+                              <!--<div class="col-4">-->
+                              <!--  <div class="row">-->
+                              <!--    <div class="col-7">-->
+                              <!--      <div style="border: 0px solid black; margin-top: 15px; "/>-->
+                              <!--      <div class="erp-text">លេខវិក្កយបត្រ/Invoice No</div>-->
+                              <!--    </div>-->
+                              <!--    <div class="col-0">-->
+                              <!--        <div style="border: 0px solid black; margin-top: 15px; "/>-->
+                              <!--        <div class="erp-text">:</div>-->
+                              <!--    </div>-->
+                              <!--    <div class="col-5">-->
+                              <!--        <div style="border: 0px solid black; margin-top: 15px; "/>-->
+                              <!--        <div class="erp-text text-right">-->
+                              <!--            <span t-if="o.move_type == 'out_invoice' and o.state == 'posted'"><span t-if="o.name != '/'" t-field="o.name"/></span>-->
+                              <!--            <span t-if="o.move_type == 'out_invoice' and o.state == 'draft'">Draft Invoice</span>-->
+                              <!--            <span t-if="o.move_type == 'out_invoice' and o.state == 'cancel'">Cancelled Invoice </span>-->
+                              <!--        </div>-->
+                              <!--    </div>-->
+                              <!--  </div>-->
+                              <!--  <div class="row">-->
+                              <!--    <div class="col-7">-->
+                              <!--      <div class="erp-text" t-if="o.invoice_date">កាលបរិច្ឆេទ/Date </div>-->
+                              <!--    </div>-->
+                              <!--    <div class="col-0">-->
+                              <!--        <div class="erp-text" t-if="o.invoice_date">:</div>-->
+                              <!--    </div>-->
+                              <!--    <div class="col-5">-->
+                              <!--        <div class="erp-text text-right" t-if="o.invoice_date"><span t-esc="o.invoice_date" t-options="{'widget': 'date'}"/></div>-->
+                              <!--    </div>-->
+                              <!--  </div>-->
+                                <!--<div class="row">-->
+                                <!--  <div class="col-7">-->
+                                <!--    <div class="erp-text" t-if="o.invoice_date_due">ថ្ងៃផុតកំណត់/Due Date </div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-0">-->
+                                <!--      <div class="erp-text" t-if="o.invoice_date_due">:</div>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-5">-->
+                                <!--      <div class="erp-text text-right" t-if="o.invoice_date_due"><span t-esc="o.invoice_date_due" t-options="{'widget': 'date'}"/></div>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+                              <!--</div>-->
+                            </div>
+                            <br/>
+
+                            <t t-set="display_discount" t-value="any(l.discount for l in o.invoice_line_ids)"/>
+
+                            <table class="table table-sm o_main_table" name="invoice_line_table">
+                                <thead>
+                                    <tr class="erp-border">
+                                        <th name="th_description" class="text-center erp-text erp-border"><span>ល.រ<br/>No</span></th>
+                                        <!--<th name="th_description" class="text-center erp-border" style="font-size:12px"><span>កូដ <br/>Code</span></th>-->
+                                        <th name="th_description" class="text-center erp-text erp-border"><span>បរិយាយមុខទំនិញ <br/>Description</span></th>
+                                        <th name="th_quantity" class="text-center erp-text erp-border"><span>បរិមាណ <br/>Quantity</span></th>
+                                        <th name="th_price_unit" class="text-center erp-text erp-border"><span>ថ្លៃឯកតា<br/>Unit Price</span></th>
+                                        <!--<th name="th_discount" t-if="display_discount" class="text-center erp-text erp-border">-->
+                                        <!--    <span>តម្លៃបញ្ចុះ <br/>Disc.%</span>-->
+                                        <!--</th>-->
+                                        <!--<th name="th_taxes" t-attf-class="text-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }} erp-text erp-border"><span>អាករលើតម្លែបន្ថែម <br/>VAT (10%)</span></th> -->
+                                        <th name="th_subtotal" class="text-center erp-text erp-border">
+        <!--                                            <span groups="account.group_show_line_subtotals_tax_excluded">តម្លៃសរុប <br/>Total Amount</span>-->
+                                            <span>ថ្លៃទំនិញ <br/>Amount</span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="invoice_tbody">
+                                    <t t-set="no" t-value="0"/>
+                                    <t t-set="current_subtotal" t-value="0"/>
+                                    <t t-set="lines" t-value="o.invoice_line_ids.sorted(key=lambda l: (-l.sequence, l.date, l.move_name, -l.id), reverse=True)"/>
+
+                                    <t t-foreach="lines" t-as="line">
+                                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+
+                                        <tr t-att-class="'font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else 'border-black'">
+                                            <t t-if="not line.display_type" name="account_invoice_line_accountable">
+                                                <t t-set="no" t-value="no+1"/>
+                                                <td class="text-center erp-text erp-border">
+                                                    <span t-esc="no"/>
+                                                </td>
+                                                <td name="account_invoice_line_name" class="text-left erp-text erp-border"><span t-field="line.name" t-options="{'widget': 'text'}"/></td>
+                                                <td class="text-right erp-text erp-border">
+                                                    <span t-field="line.quantity"/>
+                                                    <span t-field="line.product_uom_id" groups="uom.group_uom"/>
+                                                </td>
+                                                <td t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }} erp-text erp-border">
+                                                    <span class="text-nowrap" t-field="line.price_unit"/>
+                                                </td>
+                                                <td t-if="display_discount" t-attf-class="text-right {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }} erp-text erp-border">
+                                                    <span class="text-nowrap" t-field="line.discount"/>
+                                                </td>
+                                                <!--<td t-attf-class="text-left {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }} erp-text erp-border">-->
+                                                <!--    <span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_ids))" id="line_tax_ids"/>-->
+                                                <!--</td>-->
+                                                <td class="text-right o_price_total erp-text erp-border">
+                                                    <span class="text-nowrap" t-field="line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                                    <span class="text-nowrap" t-field="line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+                                                </td>
+                                            </t>
+                                            <t t-if="line.display_type == 'line_section'">
+                                                <td class="erp-text erp-border" colspan="99">
+                                                    <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                                </td>
+                                                <t t-set="current_section" t-value="line"/>
+                                                <t t-set="current_subtotal" t-value="0"/>
+                                            </t>
+                                            <t t-if="line.display_type == 'line_note'">
+                                                <td class="erp-text erp-border" colspan="99">
+                                                    <span t-field="line.name" t-options="{'widget': 'text'}"/>
+                                                </td>
+                                            </t>
+                                        </tr>
+
+                                        <t t-if="current_section and (line_last or lines[line_index+1].display_type == 'line_section')">
+                                            <tr class="is-subtotal text-right erp-text erp-border">
+                                                <td colspan="99">
+                                                    <strong class="mr16">Subtotal</strong>
+                                                    <span t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <div class="row">
+                              <div class="col-4 erp-text">
+                                <t>Exchange Rate 1USD = <span t-field="o.exchange_rate"/> KHR</t>
+                              </div>
+
+                              <t t-set="amount_untaxed_khr" t-value="0.0"/>
+                              <t t-set="amount_untaxed_khr" t-value="round(o.amount_untaxed*o.exchange_rate,0)"/>
+
+                              <t t-set="amount_tax_khr" t-value="0.0"/>
+                              <t t-set="amount_tax_khr" t-value="round(amount_untaxed_khr*0.1,0)"/>
+
+                              <t t-set="amount_total_khr" t-value="0.0"/>
+                              <t t-set="amount_total_khr" t-value="round(amount_untaxed_khr+amount_tax_khr,0)"/>
+
+
+                              <!--<t t-set="amount_untaxed" t-value="0.0"/>-->
+                              <!--<t t-set="amount_untaxed" t-value="round(o.amount_untaxed*o.exchange_rate,0)"/>-->
+
+                              <t t-set="amount_tax" t-value="0.0"/>
+                              <t t-set="amount_tax" t-value="round(o.amount_untaxed*0.1,2)"/>
+
+                              <t t-set="amount_total" t-value="0.0"/>
+                              <t t-set="amount_total" t-value="round(o.amount_untaxed+amount_tax,2)"/>
+
+
+
+
+                              <div class="col-8">
+                                <div class="row">
+                                  <div class="col-5 text-left erp-text">
+                                    <span>សរុប/Subtotal</span>
+                                  </div>
+                                  <!--<div class="col-2 text-center erp-text">-->
+                                  <!--  <span>(Riel)</span>-->
+                                  <!--</div>-->
+                                  <div t-if="o.khr_currency_id" class="col-4 text-right erp-text">
+
+                                    <span t-esc="amount_untaxed_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>
+                                  </div>
+                                  <!--<div class="col-2 text-center erp-text">-->
+                                  <!--  <span>(USD)</span>-->
+                                  <!--</div>-->
+                                  <div class="col-3 text-right erp-text">
+                                    <!--<span t-esc="amount_untaxed" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>-->
+                                    <span t-field="o.amount_untaxed"/>
+                                  </div>
+                                </div>
+                                <div class="row">
+                                  <div class="col-5 text-left erp-text">
+                                    <span>អាករលើតម្លៃបន្ថែមជាបន្ទុករបស់រដ្ឋ</span><br/>
+                                    <span>VALUE ADDED TAX STATE CHARGE</span>
+                                  </div>
+                                  <!--<div class="col-2 text-center erp-text">-->
+                                  <!--  <span>(Riel)</span>-->
+                                  <!--</div>-->
+                                  <div t-if="o.khr_currency_id" class="col-4 text-right erp-text">
+
+                                    <span t-esc="amount_tax_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>
+                                  </div>
+                                  <!--<div class="col-2 text-center erp-text">-->
+                                  <!--  <span>(USD)</span>-->
+                                  <!--</div>-->
+                                  <div class="col-3 text-right erp-text">
+                                    <span t-esc="amount_tax" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                    <!--<span t-field="o.amount_tax"/>-->
+                                  </div>
+                                </div>
+                                <div class="row">
+                                  <div class="col-5 text-left erp-text">
+                                    <span>សរុបរួម/Grand Total</span>
+                                  </div>
+                                  <!--<div class="col-2 text-center erp-text">-->
+                                  <!--  <span>(Riel)</span>-->
+                                  <!--</div>-->
+                                  <div t-if="o.khr_currency_id" class="col-4 text-right erp-text">
+
+                                    <span t-esc="amount_total_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>
+                                  </div>
+                                  <!--<div class="col-2 text-center erp-text">-->
+                                  <!--  <span>(USD)</span>-->
+                                  <!--</div>-->
+                                  <div class="col-3 text-right erp-text">
+                                    <span t-esc="amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                    <!--<span t-field="o.amount_total"/>-->
+                                  </div>
+                                </div>
+                                <br/>
+                                <!--<div class="row">-->
+                                <!--  <div class="col-12 text-left erp-text">-->
+                                <!--    <span>គិតជាប្រាក់រៀលស្មើនឹង/Equivalent in Riel</span>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+
+                                <!--<div class="row">-->
+                                <!--  <div class="col-6 text-left erp-text">-->
+                                <!--    <span>សរុប/Subtotal</span>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-3 text-center erp-text">-->
+                                <!--    <span>(USD)</span>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-3 text-right erp-text">-->
+                                <!--    <t t-set="amount_untaxed_khr" t-value="0.0"/>-->
+                                <!--    <t t-set="amount_untaxed_khr" t-value="o.amount_untaxed*o.exchange_rate"/>-->
+                                <!--    <span t-esc="amount_untaxed_khr"/>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+                                <!--<div class="row">-->
+                                <!--  <div class="col-6 text-left erp-text">-->
+                                <!--    <span>អាករលើតម្លៃបន្ថែម/VAT 10%</span>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-3 text-center erp-text">-->
+                                <!--    <span>(USD)</span>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-3 text-right erp-text">-->
+                                <!--    <t t-set="amount_tax_khr" t-value="0.0"/>-->
+                                <!--    <t t-set="amount_tax_khr" t-value="o.amount_tax*o.exchange_rate"/>-->
+                                <!--    <span t-esc="amount_tax_khr"/>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+                                <!--<div class="row">-->
+                                <!--  <div class="col-6 text-left erp-text">-->
+                                <!--    <span>សរុបរួម/Grand Total</span>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-3 text-center erp-text">-->
+                                <!--    <span>(USD)</span>-->
+                                <!--  </div>-->
+                                <!--  <div class="col-3 text-right erp-text">-->
+                                <!--    <t t-set="amount_total_khr" t-value="0.0"/>-->
+                                <!--    <t t-set="amount_total_khr" t-value="o.amount_total*o.exchange_rate"/>-->
+                                <!--    <span t-esc="amount_total_khr"/>-->
+                                <!--  </div>-->
+                                <!--</div>-->
+
+                              </div>
+
+                            </div>
+                            <!--<div class="row">-->
+                            <!--  <div class="col-5 erp-text">-->
+                            <!--    <t>Exchange Rate 1 USD = <span t-field="o.khr_currency_id.rate"/> KHR</t>-->
+                            <!--  </div>-->
+                            <!--  <div class="col-7">-->
+                            <!--    <div class="row">-->
+                            <!--      <div class="col-6 text-left erp-text">-->
+                            <!--        <span>សរុប/Subtotal</span>-->
+                            <!--      </div>-->
+                            <!--      <div class="col-3 text-center erp-text">-->
+                            <!--        <span>(USD)</span>-->
+                            <!--      </div>-->
+                            <!--      <div class="col-3 text-right erp-text">-->
+                            <!--        <span t-field="o.amount_untaxed"/>-->
+                            <!--      </div>-->
+                            <!--    </div>-->
+                            <!--    <div class="row">-->
+                            <!--      <div class="col-6 text-left erp-text">-->
+                            <!--        <span>អាករលើតម្លៃបន្ថែមជាបន្ទុករបស់រដ្ឋ</span><br/>-->
+                            <!--        <span>VALUE ADDED TAX STATE CHARGE</span>-->
+                            <!--      </div>-->
+                            <!--      <div class="col-3 text-center erp-text">-->
+                            <!--        <span>(USD)</span>-->
+                            <!--      </div>-->
+                            <!--      <div class="col-3 text-right erp-text">-->
+                            <!--        <span t-field="o.amount_tax"/>-->
+                            <!--      </div>-->
+                            <!--    </div>-->
+                            <!--    <div class="row">-->
+                            <!--      <div class="col-6 text-left erp-text">-->
+                            <!--        <span>សរុបរួម/Grand Total</span>-->
+                            <!--      </div>-->
+                            <!--      <div class="col-3 text-center erp-text">-->
+                            <!--        <span>(USD)</span>-->
+                            <!--      </div>-->
+                            <!--      <div class="col-3 text-right erp-text">-->
+                            <!--        <span t-field="o.amount_total"/>-->
+                            <!--      </div>-->
+                            <!--    </div>-->
+                            <!--    <br/>-->
+                            <!--    <div class="row">-->
+                            <!--      <div class="col-12 text-left erp-text">-->
+                            <!--        <span>គិតជាប្រាក់រៀលស្មើនឹង/Equivalent in Riel</span>-->
+                            <!--      </div>-->
+                            <!--    </div>-->
+
+                            <!--    <div class="row">-->
+                            <!--      <div class="col-6 text-left erp-text">-->
+                            <!--        <span>សរុប/Subtotal</span>-->
+                            <!--      </div>-->
+                            <!--      <div class="col-3 text-center erp-text">-->
+                            <!--        <span>(USD)</span>-->
+                            <!--      </div>-->
+                            <!--      <div class="col-3 text-right erp-text">-->
+                            <!--        <t t-set="amount_untaxed_khr" t-value="0.0"/>-->
+                            <!--        <t t-set="amount_untaxed_khr" t-value="o.amount_untaxed*o.exchange_rate"/>-->
+                            <!--        <span t-esc="amount_untaxed_khr"/>-->
+                            <!--      </div>-->
+                            <!--    </div>-->
+                            <!--    <div class="row">-->
+                            <!--      <div class="col-6 text-left erp-text">-->
+                            <!--        <span>អាករលើតម្លៃបន្ថែមជាបន្ទុករបស់រដ្ឋ</span><br/>-->
+                            <!--        <span>VALUE ADDED TAX STATE CHARGE</span>-->
+
+                            <!--      </div>-->
+                            <!--      <div class="col-3 text-center erp-text">-->
+                            <!--        <span>(USD)</span>-->
+                            <!--      </div>-->
+                            <!--      <div class="col-3 text-right erp-text">-->
+                            <!--        <t t-set="amount_tax_khr" t-value="0.0"/>-->
+                            <!--        <t t-set="amount_tax_khr" t-value="o.amount_tax*o.exchange_rate"/>-->
+                            <!--        <span t-esc="amount_tax_khr"/>-->
+                            <!--      </div>-->
+                            <!--    </div>-->
+                            <!--    <div class="row">-->
+                            <!--      <div class="col-6 text-left erp-text">-->
+                            <!--        <span>សរុបរួម/Grand Total</span>-->
+                            <!--      </div>-->
+                            <!--      <div class="col-3 text-center erp-text">-->
+                            <!--        <span>(USD)</span>-->
+                            <!--      </div>-->
+                            <!--      <div class="col-3 text-right erp-text">-->
+                            <!--        <t t-set="amount_total_khr" t-value="0.0"/>-->
+                            <!--        <t t-set="amount_total_khr" t-value="o.amount_total*o.exchange_rate"/>-->
+                            <!--        <span t-esc="amount_total_khr"/>-->
+                            <!--      </div>-->
+                            <!--    </div>-->
+
+                            <!--  </div>-->
+
+                            <!--</div>-->
+
+                            <!--<p t-if="o.invoice_payment_term_id" name="payment_term" class="erp-text">-->
+                            <!--    <span t-field="o.invoice_payment_term_id.note"/>-->
+                            <!--</p>-->
+                            <!--<p t-if="o.narration" name="comment" class="erp-text">-->
+                            <!--    <span t-field="o.narration"/>-->
+                            <!--</p>-->
+                            <!--<p t-if="o.fiscal_position_id.note" name="note" class="erp-text">-->
+                            <!--    <span t-field="o.fiscal_position_id.note"/>-->
+                            <!--</p>-->
+                            <!--<p t-if="o.invoice_incoterm_id" name="incoterm" class="erp-text">-->
+                            <!--    <strong>Incoterm: </strong><span t-field="o.invoice_incoterm_id.code"/> - <span t-field="o.invoice_incoterm_id.name"/>-->
+                            <!--</p>-->
+
+                            <!-- <div id="qrcode" t-if="o.display_qr_code">
+                                <p t-if="qr_code_urls.get(o.id)">
+                                    <strong class="text-center">Scan me with your banking app.</strong><br/><br/>
+                                    <img class="border border-dark rounded" t-att-src="qr_code_urls[o.id]"/>
+                                </p>
+                            </div> -->
+                            <div class="row" style="margin-top: 15px; page-break-inside: avoid;">
+                                <div class="col-4">
+                                    <div style="font-size:12px; color: white;" class="erp-text text-center">-</div>
+                                    <div style="border-bottom: 1px solid black; margin-top: 100px; margin-bottom: 5px;"/>
+                                    <div style="font-family: 'Battambang'; font-size:12px;" class="erp-text text-center">រៀបចំដោយ</div>
+                                    <div style="font-size:12px;" class="erp-text text-center">Prepared By</div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="font-size:12px; color: white;" class="erp-text text-center">-</div>
+                                    <div style="border-bottom: 1px solid black; margin-top: 100px; margin-bottom: 5px;"/>
+                                    <div style="font-family: 'Battambang'; font-size:12px;" class="erp-text text-center">អនុម័តដោយ</div>
+                                    <div style="font-size:12px;" class="erp-text text-center">Approved By</div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="font-size:12px; color: white;" class="erp-text text-center">-</div>
+                                    <div style="border-bottom: 1px solid black; margin-top: 100px; margin-bottom: 5px;"/>
+                                    <div style="font-family: 'Battambang'; font-size:12px;" class="erp-text text-center">ហត្ថលេខា និងឈ្មោះអ្នកទិញ</div>
+                                    <div style="font-size:12px;" class="erp-text text-center">Customer's Signature and Name</div>
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="erp-text"><b>សម្គាល់៖ </b>ច្បាប់ដើមសម្រាប់អ្នកទិញ ច្បាប់ចម្លងសម្រាប់អ្នកលក់</div>
+                            <div class="erp-text"><b>Note: </b>Original invoice for customer, copied invoice for seller</div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

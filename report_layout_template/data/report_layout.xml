@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+        <!-- Assets for reports -->
+<!--        <template id="report_assets_common_center" inherit_id="web.report_assets_common">-->
+<!--            <xpath expr="." position="inside">-->
+<!--                <link rel="stylesheet" type="text/scss" href="/report_layout_template/static/src/scss/layout_center.scss"/>-->
+<!--            </xpath>-->
+<!--        </template>-->
+        <template id="report_assets_pdf">
+            <link href="/web/static/src/css/reset.min.css" rel="stylesheet"/>
+        </template>
+
+        <template id="external_layout_template_center">
+            <div t-attf-class="header o_company_#{company.id}_layout" t-att-style="report_header_style">
+                <div class="o_center_header">
+                    <style type="text/css">
+                        @font-face {
+                            font-family: Moul;
+                            font-style: normal;
+                            src:url('/report_layout_template/static/src/fonts/KhmerOSMuolLight.ttf') format('truetype');
+                        }
+                        @font-face {
+                            font-family: Battambang;
+                            font-style: normal;
+                            src:url('/report_layout_template/static/src/fonts/Battambang/Battambang-Regular.ttf') format('truetype');
+                        }
+                        .erp-title{
+                            font-size: 26px;
+                            font-family: Moul;
+                            padding-bottom: 3px;
+                            font-weight: bold;
+                        }
+                        .erp-title-en{
+                            font-size: 20px;
+                            font-family: 'Time';
+                            padding-bottom: 3px;
+                            font-weight: bold;
+                        }
+                        .erp-text{
+                            font-size: 14px;
+                            font-family: Battambang
+                            padding-bottom: 3px;
+                        }
+                        .erp-border{
+                            border: 1px solid black;
+                        }
+                        .erp-table-header{
+                            font-weight: bold;
+                            border: 1px solid black;
+                        }
+                        .erp-table-body{
+                            border: 1px solid black;
+                        }
+                    </style>
+
+
+                    <div class="row mb8">
+                        <div class="col-2 mb2">
+                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-height: 60px; margin-top:10px;"/>
+                        </div>
+                        <div class="col-8 mb6" style="margin-top:10px;">
+                            <h3 class="mt0 erp-title text-center" t-field="company.khmer_name"/>
+                            <h4 class="mt0 erp-title-en text-center" t-field="company.partner_id.name"/>
+
+                        </div>
+                        <div class="col-2 mb2">
+                            <span/>
+                        </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-1"/>
+                      <div class="col-10">
+                        <div name="company_address" class="float-center mb6">
+                            <ul class="list-unstyled erp-text text-center">
+                                <li style="font-family: 'Battambang'; font-size:12px;" t-if="company.vat">លេខអត្តសញ្ញាណកម្ម អតប (VATTIN): <strong><span t-field="company.vat"/></strong></li>
+                                <li style="font-family: 'Battambang'; font-size:12px;" t-if="company.khmer_address">អាស័យដ្ឋាន: <span t-field="company.khmer_address"/></li>
+                                <li style="font-family: 'Battambang'; font-size:12px;">Address:
+                                    <span t-if="company.street" t-esc="company.street"/>,
+                                    <span t-if="company.city" t-esc="company.city"/>
+                                    <span t-if="company.country_id" t-esc="company.country_id.name"/>
+                                    </li>
+                                <li style="font-size:12px;">TEL: <span class="" t-field="company.phone"/></li>
+                            </ul>
+                        </div>
+                        <div class="col-1"/>
+                      </div>
+                    </div>
+                    <div style="border-bottom: 1px solid black;"/>
+                </div>
+            </div>
+            <div t-attf-class="article o_report_layout_center o_company_#{company.id}_layout" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
+                <div class="pt-5">
+                     <!--This div ensures that the address is not cropped by the header. -->
+                    <t t-call="web.address_layout"/>
+                    <!--I am here!-->
+                </div>
+                <t t-raw="0"/>
+            </div>
+            <div t-attf-class="footer o_center_footer o_company_#{company.id}_layout">
+                <div class="text-center">
+<!--                    <ul class="list-inline">-->
+<!--                        <li t-if="company.phone" class="list-inline-item"><span class="o_force_ltr" t-field="company.phone"/></li>-->
+<!--                        <li t-if="company.email" class="list-inline-item"><span t-field="company.email"/></li>-->
+<!--                        <li t-if="company.website" class="list-inline-item"><span t-field="company.website"/></li>-->
+<!--&lt;!&ndash;                        <li t-if="company.vat" class="list-inline-item"><t t-esc="company.country_id.vat_label or 'Tax ID'"/>: <span t-field="company.vat"/></li>&ndash;&gt;-->
+<!--                    </ul>-->
+                    <!--<div t-field="company.report_footer"/>-->
+                    <div t-if="report_type == 'pdf'">
+                        Page: <span class="page"/> of <span class="topage"/>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template id="external_layout_template_center_vat">
+            <link rel="stylesheet" href="/report_layout_standard_cambodia/static/src/css/external_layout_style.css"/>
+            <t t-if="not o" t-set="o" t-value="doc"/>
+            <t t-if="not company">
+                <!-- Multicompany -->
+                <t t-if="company_id">
+                    <t t-set="company" t-value="company_id"/>
+                </t>
+                <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                    <t t-set="company" t-value="o.company_id.sudo()"/>
+                </t>
+                <t t-else="else">
+                    <t t-set="company" t-value="res_company"/>
+                </t>
+            </t>
+            <div t-attf-class="header o_company_#{company.id}_layout" t-att-style="report_header_style">
+                <div class="o_center_header">
+                    <style type="text/css">
+                        @font-face {
+                            font-family: Moul;
+                            font-style: normal;
+                            src:url('https://erpcambodia-internal.odoo.com/report_layout_template/static/src/fonts/KhmerOSMoul.ttf') format('truetype');
+                        }
+                        .erp-title{
+                            font-size: 26px;
+                            font-family: Moul;
+                            padding-bottom: 3px;
+                            color: #000000;
+                            font-weight: bold;
+                        }
+                        .erp-title-en{
+                            font-size: 20px;
+                            font-family: 'Time';
+                            padding-bottom: 3px;
+                            color: #000000;
+                            font-weight: bold;
+                        }
+                        .erp-text{
+                            font-size: 12px;
+                            font-family: 'Battambang';
+                            padding-bottom: 3px;
+
+                            color: #000000;
+                        }
+                        .erp-border{
+                            border: 1px solid black;
+                        }
+                        .erp-table-header{
+                            font-weight: bold;
+                            border: 1px solid black;
+                            font-size:12px;
+                        }
+                        .erp-table-body{
+                            border: 1px solid black;
+                            font-size:12px;
+                        }
+                    </style>
+
+
+                    <div class="row mb8">
+                        <div class="col-2 mb2">
+                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-height: 60px; margin-top:10px;"/>
+                        </div>
+                        <div class="col-8 mb6" style="margin-top:10px;">
+                            <h3 class="mt0 erp-title text-center " t-field="company.partner_id.khmer_name"/>
+                            <h4 class="mt0 text-center erp-title-en" t-field="company.partner_id.name"/>
+                            <div name="company_address" class="float-left mb6">
+                                <ul class="list-unstyled erp-text">
+                                    <li style="font-family: 'Battambang'; font-size:12px;" t-if="company.partner_id.vat">លេខអត្តសញ្ញាណកម្ម អតប (VATTIN): <strong><span t-field="company.partner_id.vat"/></strong></li>
+                                    <li style="font-family: 'Battambang'; font-size:12px;" t-if="company.partner_id.khmer_address">អាស័យដ្ឋាន: <span t-field="company.partner_id.khmer_address"/></li>
+<!--                                    <li style="font-family: 'Battambang'; font-size:12px;">Address:-->
+<!--                                        <span t-if="company.partner_id.street" t-esc="company.partner_id.street"/>,-->
+<!--                                        <span t-if="company.street2" t-esc="company.street2"/>,-->
+<!--                                        <span t-if="company.partner_id.city" t-esc="company.partner_id.city"/>,-->
+<!--                                        <span t-if="company.state_id" t-esc="company.state_id.name"/>,-->
+<!--                                        <span t-if="company.zip" t-esc="company.zip"/>,-->
+<!--                                        <span t-if="company.partner_id.country_id" t-esc="company.partner_id.country_id.name"/>-->
+<!--                                    </li>-->
+                                    <li style="font-size:12px;">ទូរស័ព្ទលេខ: <span class="" t-field="company.partner_id.phone"/> / ទូរស័ព្ទលេខ: <span class="" t-field="company.partner_id.mobile"/></li>
+<!--                                    <li t-if="company.partner_id.website">Website: <span t-field="company.partner_id.website"/></li>-->
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-2 mb2">
+                            <span/>
+                        </div>
+                    </div>
+                    <div style="border-bottom: 1px solid black;"/>
+                </div>
+            </div>
+
+            <div t-attf-class="article o_report_layout_center o_company_#{company.id}_layout" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
+                <div class="pt-5">
+                     <!--This div ensures that the address is not cropped by the header. -->
+                    <t t-call="web.address_layout"/>
+                    <!--I am here!-->
+                </div>
+                <t t-raw="0"/>
+            </div>
+            <div t-attf-class="footer o_center_footer o_company_#{company.id}_layout">
+                <div class="text-center">
+<!--                    <ul class="list-inline">-->
+<!--                        <li t-if="company.phone" class="list-inline-item"><span class="o_force_ltr" t-field="company.phone"/></li>-->
+<!--                        <li t-if="company.email" class="list-inline-item"><span t-field="company.email"/></li>-->
+<!--                        <li t-if="company.website" class="list-inline-item"><span t-field="company.website"/></li>-->
+<!--&lt;!&ndash;                        <li t-if="company.vat" class="list-inline-item"><t t-esc="company.country_id.vat_label or 'Tax ID'"/>: <span t-field="company.vat"/></li>&ndash;&gt;-->
+<!--                    </ul>-->
+                    <div t-field="company.report_footer"/>
+                    <div t-if="report_type == 'pdf'">
+                        Page: <span class="page"/> of <span class="topage"/>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template id="external_layout_erp_cambodia_no_head">
+            <t t-if="not o" t-set="o" t-value="doc"/>
+            <t t-if="not company">
+                <!-- Multicompany -->
+                <t t-if="company_id">
+                    <t t-set="company" t-value="company_id"/>
+                </t>
+                <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                    <t t-set="company" t-value="o.company_id.sudo()"/>
+                </t>
+                <t t-else="else">
+                    <t t-set="company" t-value="res_company"/>
+                </t>
+            </t>
+
+            <div class="header o_company_#{company.id}_layout" t-att-style="report_header_style">
+                <div class="row mb8">
+
+                    <div class="col-12 text-center">
+                        <!--<h4><span t-esc="company.name"/></h4>-->
+                    </div>
+
+                </div>
+            </div>
+            <div class="article" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
+              <t t-raw="0"/>
+            </div>
+            <div t-attf-class="footer o_boxed_footer o_company_#{company.id}_layout">
+                <div class="text-center">
+<!--                    <div>-->
+<!--                        <div class="col-12">-->
+<!--                            <div style="border-bottom: 0px solid black;"/>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <ul class="list-inline" style="font-family: 'Battambang';">-->
+<!--                        <li t-if="company.khmer_address" class="list-inline-item">Add:<span class="o_force_ltr" t-field="company.khmer_address"/></li>-->
+<!--                        <li t-if="company.phone" class="list-inline-item">Phone:<span class="o_force_ltr" t-field="company.phone"/></li>-->
+<!--                        <li t-if="company.email" class="list-inline-item"><span t-field="company.email"/></li>-->
+<!--                        <li t-if="company.website" class="list-inline-item"><span t-field="company.website"/></li>-->
+<!--                        <li t-if="company.vat" class="list-inline-item"><t t-esc="company.country_id.vat_label or 'Tax ID'"/>: <span t-field="company.vat"/></li>-->
+<!--                    </ul>-->
+<!--                    <div t-field="company.report_footer"/>-->
+                    <div t-if="report_type == 'pdf'">
+                        Page: <span class="page"/> / <span class="topage"/>
+                    </div>
+                </div>
+            </div>
+        </template>
+
+        <template id="styles_company_report_center_inherit">
+            <t t-foreach="company_ids" t-as="company" t-translation="off">
+                <t t-set="font" t-value="company.font or 'Lato'" />
+            <t t-set="primary" t-value="company.primary_color or 'black'" />
+            <t t-set="secondary" t-value="company.secondary_color or 'black'" />
+                <t t-set="layout" t-value="company.external_report_layout_id.key or 'web.external_layout_standard'" />
+                    .o_company_<t t-esc='company.id'/>_layout {
+                    font-family: '<t t-esc="font" />';
+
+                <t t-if="layout == 'report_layout_template.external_layout_template_center'">
+                    &amp;.o_report_layout_center {
+                        #total strong {
+                            color: <t t-esc='primary'/>;
+                        }
+                        #informations strong {
+                            color: <t t-esc='secondary'/>;
+                        }
+                        h2 span {
+                            color: <t t-esc='primary'/>;
+                        }
+                        table {
+                            thead {
+                                tr
+                                    {
+                                        th {
+                                            color: <t t-esc='secondary'/>;
+                                            border: 1px solid black;
+                                        }
+                                }
+                            }
+                            tbody tr td {
+                                &amp;.o_line_section td {
+                                        background-color: rgba(<t t-esc='primary'/>, 0.1);
+                                        border: 1px solid black;
+                                    }
+                                &amp;.is-subtotal,
+                                    td.o_price_total {
+                                        background-color: rgba(<t t-esc='secondary'/>, 0.1);
+                                        border: 1px solid black;
+                                    }
+                            }
+                        }
+                    }
+                    .row > div > table,
+                    div#total table {
+                        tr {
+                            &amp;.o_total td {
+                                background-color: rgba(<t t-esc='primary'/>, 0.2);
+                                color: black;
+                                border: 1px solid black;
+                            }
+                        }
+                    }
+                </t>
+            </t>
+        </template>
+<!--        <record id="report_layout_erp_cambodia" model="report.layout">-->
+<!--            <field name="name">ERP CAMBODIA</field>-->
+<!--            <field name="sequence">6</field>-->
+<!--            <field name="view_id" ref="report_layout_standard_cambodia.external_layout_erp_cambodia"/>-->
+<!--            <field name="image">/web/static/img/preview_erp_cambodia.png</field>-->
+<!--            <field name="pdf">/web/static/pdf/preview_erp_cambodia.pdf</field>-->
+<!--        </record>-->
+        <record id="report_layout_template_center" model="report.layout">
+            <field name="name">ERP CAMBODIA CENTER</field>
+            <field name="sequence">7</field>
+            <field name="view_id" ref="report_layout_template.external_layout_template_center"/>
+            <field name="image">/web/static/img/preview_erp_cambodia_center.png</field>
+            <field name="pdf">/web/static/pdf/preview_erp_cambodia_center.pdf</field>
+        </record>
+</odoo>

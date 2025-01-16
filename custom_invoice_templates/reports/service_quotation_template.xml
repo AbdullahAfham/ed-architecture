@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- SERVICE QUOTATION -->
+        <template id="report_service_quotation">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                    <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+                    <t t-set="forced_vat" t-value="doc.fiscal_position_id.foreign_vat"/>
+                        <div class="page">
+                            <style type="text/css">
+                                @font-face {
+                                    font-family: Moul;
+                                    font-style: normal;
+                                    src:url('/report_layout_template/static/src/fonts/KhmerOSMuolLight.ttf') format('truetype');
+                                }
+                                @font-face {
+                                    font-family: Battambang;
+                                    font-style: normal;
+                                    src:url('/report_layout_template/static/src/fonts/Battambang/Battambang-Regular.ttf') format('truetype');
+                                }
+                                .erp-title {
+                                    font-size: 20px;
+                                    font-family: Moul;
+                                    padding-bottom: 3px;
+                                    font-weight: bold;
+                                }
+                                .erp-title-en{
+                                    font-size: 20px;
+                                    font-family: 'Time';
+                                    padding-bottom: 3px;
+                                    font-weight: bold;
+                                }
+                                .erp-text{
+                                    font-size: 14px;
+                                    font-family: Battambang;
+                                    padding-bottom: 3px;
+                                }
+                                .erp-border{
+                                    border: 1px solid black;
+                                }
+                                .erp-table-header{
+                                    font-weight: bold;
+                                    background-color:  #7b7d7d;
+                                    color: #FFFFFF;
+                                }
+                                .erp-table-body{
+                                    border: 1px solid black;
+                                }
+                                .erp-right{
+                                    text-align: right;
+                                }
+                                .erp-center{
+                                    text-align: center;
+                                }
+                            </style>
+
+                            <h4 class="text-center erp-title-en" style="margin-top: -60px; padding:15px;" t-if="doc.state in ['draft', 'sent']">SERVICE QUOTATION</h4>
+                            <h4 class="text-center erp-title-en" style="margin-top: -60px; padding:15px;" t-if="doc.state == 'sale'">SALE ORDER</h4>
+
+                            <!-- customer info -->
+                            <div class="row" style="padding-top:0px">
+                                <!--left-->
+                                <div class="col-8" style="font-size:14px;">
+                                    <div class="row erp-text">
+                                        <div class="col-3">Organisation Name</div>
+                                        <div class="col-8">: <span t-esc="doc.partner_id.name"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-3">Address</div>
+                                        <div class="col-8 erp-text" t-if="doc.partner_id.street">
+                                          : <t t-if="doc.partner_id.street"><span t-esc="doc.partner_id.street"/></t>
+                                            <t t-if="doc.partner_id.street2">, <span t-esc="doc.partner_id.street2"/></t>
+                                            <t t-if="doc.partner_id.city">, <span t-esc="doc.partner_id.city"/></t>
+                                            <t t-if="doc.partner_id.country_id.name">, <span t-esc="doc.partner_id.country_id.name"/></t>
+                                        </div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-3">Contact Name</div>
+                                        <div class="col-8">: <span t-esc="doc.partner_id.name"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-3">Phone Number</div>
+                                        <div class="col-8">: <span t-esc="doc.partner_id.phone"/></div>
+                                    </div>
+                                </div>                                
+                                
+                                <!-- right -->
+                                <div class="col-4" style="font-size:14px">
+                                    <div class="row erp-text">
+                                        <div class="col-5" t-if="doc.name">Quotation No</div>
+                                        <div class="col-7">: <span t-esc="doc.name"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-5" t-if="doc.date_order">Quotation date</div>
+                                        <div class="col-7">: <span t-esc="doc.date_order" t-options="{'widget': 'date'}"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-5" t-if="doc.validity_date">Expire date</div>
+                                        <div class="col-7">: <span t-esc="doc.validity_date" t-options="{'widget': 'date'}"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-5" t-if="doc.user_id">Salesperson</div>
+                                        <div class="col-7">: <span t-esc="doc.user_id.partner_id.name"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-5" t-if="doc.user_id">Contact Number</div>
+                                        <div class="col-7">: <span t-esc="doc.user_id.partner_id.phone"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-12">
+                                            <span>Email: </span>
+                                            <span t-esc="doc.user_id.partner_id.email"/>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <br/>
+
+                            <t t-set="lines_to_report" t-value="doc._get_order_lines_to_report()"/>
+                            <t t-set="display_discount" t-value="any(l.discount for l in lines_to_report)"/>
+
+                            <div class="oe_structure"/>
+                            <table class="table table-sm o_main_table">
+                                <thead style="display: table-row-group">
+                                    <tr class="erp-border border-black">
+                                        <th name="th_no" class="text-center erp-text-bold erp-border"><strong>No</strong></th>
+                                        <th name="th_description" class="text-center erp-text-bold erp-border"><strong>Item Description</strong></th>
+                                        <th name="th_quantity" class="text-center erp-text-bold erp-border"><strong>Qty</strong></th>
+                                        <th name="th_uom" class="text-center erp-text-bold erp-border"><strong>UoM</strong></th>
+                                        <th name="th_priceunit" class="text-center erp-text-bold erp-border"><strong>Unit Price</strong></th>
+                                        <th name="th_discount" t-if="display_discount" class="text-center erp-text-bold erp-border"><strong>Disc.%</strong></th>                                           
+                                        <!-- <th name="th_subtotal" class="text-center"><span>Total</span></th>                                                                                     -->
+                                        <!-- <th name="th_taxes" class="text-center erp-text erp-border">Taxes</th>                                         -->
+                                        <th name="th_total" class="text-center erp-text-bold erp-border"><strong>Amount</strong></th>                                       
+                                    </tr>
+                                </thead>
+                                <tbody class="sale_tbody" style="font-size:14px">
+                                    <t t-set="no" t-value="0"/>
+                                    <t t-set="current_subtotal" t-value="0"/>
+
+                                    <t t-foreach="lines_to_report" t-as="line">
+                                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
+                                        <tr t-att-class="'fw-bold o_line_section' if (line.display_type == 'line_section'or line.product_type == 'combo') else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
+                                            <t t-set="no" t-value="no+1"/>
+                                                <td class="text-center erp-text erp-border">
+                                                    <span t-esc="no"/>
+                                                </td>
+                                            <t t-if="not line.display_type and line.product_type != 'combo'">
+                                                <td name="td_name" class="text-start erp-text erp-border"><span t-field="line.name"/></td>
+                                                <td name="td_quantity" class="text-center erp-text erp-border">
+                                                    <span t-field="line.product_uom_qty"/>
+                                                    
+                                                    <span t-if="line.product_packaging_id">
+                                                        (<span t-field="line.product_packaging_qty" t-options="{&quot;widget&quot;: &quot;integer&quot;}"/> <span t-field="line.product_packaging_id"/>)
+                                                    </span>
+                                                </td>
+                                                <td name="td_uom" class="text-center erp-text erp-border">
+                                                    <span t-field="line.product_uom"/>
+                                                </td>
+                                                <td name="td_priceunit" class="text-center erp-end erp-border">
+                                                    <!-- $ <span t-field="line.price_unit"/> -->
+                                                    <span t-if="doc.currency_id.name == 'KHR'" t-esc="'{:,.2f}'.format(line.price_unit * doc.exchange_rate)"/>
+                                                    <span t-if="doc.currency_id.name != 'KHR'" t-field="line.price_unit"/>
+                                                </td>
+                                                <td t-if="display_discount" class="text-center erp-text erp-border">
+                                                    <span t-field="line.discount">-</span>
+                                                </td>
+                                                <td t-if="not line.is_downpayment" name="td_subtotal" class="text-end erp-text erp-border">
+                                                    <!-- <span t-field="line.price_subtotal"/> -->
+                                                    <span t-if="doc.currency_id.name == 'KHR'" t-esc="'{:,.2f}'.format(line.price_subtotal * doc.exchange_rate)"/>
+                                                    <span t-if="doc.currency_id.name != 'KHR'" t-esc="'{:,.2f}'.format(line.price_subtotal)" />
+                                                </td>
+                                            </t>
+                                            <t t-elif="line.display_type == 'line_section' or line.product_type == 'combo'">
+                                                <td name="td_section_line" colspan="99">
+                                                    <span t-field="line.name"/>
+                                                </td>
+                                                    <t t-set="current_section" t-value="line"/>
+                                                <t t-set="current_subtotal" t-value="0"/>
+                                            </t>
+                                            <t t-elif="line.display_type == 'line_note'">
+                                                <td name="td_note_line" colspan="99">
+                                                    <span t-field="line.name">A note, whose content usually applies to the section or product above.</span>
+                                                </td>
+                                            </t>
+                                        </tr>
+
+                                        <t t-if="current_section and (line_last or lines_to_report[line_index+1].display_type == 'line_section' or lines_to_report[line_index+1].product_type == 'combo' or (line.combo_item_id and not lines_to_report[line_index+1].combo_item_id)) and not line.is_downpayment">
+                                           <t t-set="current_section" t-value="None"/>
+                                           <tr class="is-subtotal text-end">
+                                               <td name="td_section_subtotal" colspan="99">
+                                                   <strong class="mr16">Subtotal</strong>
+                                                   <span t-out="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}">31.05</span>
+                                               </td>
+                                           </tr>
+                                        </t>
+                                    </t>
+                                    
+                                    <!-- <tr class="erp-text erp-border border-black">                                        
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
+                                        <th class="erp-text text-end erp-border">
+                                            <span t-field="doc.amount_untaxed"/>
+                                        </th>
+                                    </tr>                                    
+                                    <tr class="erp-text erp-border border-black">
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
+                                        <th class="erp-text text-end erp-border">
+                                            <span t-field="doc.amount_tax"/>
+                                        </th>
+                                    </tr>
+                                    <tr class="erp-text erp-border border-black">
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
+                                        <th class="erp-text text-end erp-border">
+                                            <span t-field="doc.amount_total"/>
+                                        </th>
+                                    </tr> -->
+
+                                    <!-- === if currency_id == USD then display this === -->
+                                    <t t-if="doc.currency_id.name == 'USD'">
+                                        <tr class="erp-text erp-border border-black">                                        
+                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
+                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-field="doc.amount_untaxed"/>
+                                            </th>
+                                        </tr>                                    
+                                        <tr class="erp-text erp-border border-black">
+                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
+                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-field="doc.amount_tax"/>
+                                            </th>
+                                        </tr>
+                                        <tr class="erp-text erp-border border-black">
+                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
+                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-field="doc.amount_total"/>
+                                            </th>
+                                        </tr>
+                                    </t>
+                                    <!-- === end === -->
+
+                                    <!-- === if currency_id == KHR then convert the value from USD to riel by * doc.exchange_rate === -->
+                                    <t t-if="doc.currency_id.name == 'KHR'">
+                                        <tr class="erp-text erp-border border-black">                                        
+                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
+                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-esc="doc.amount_untaxed * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                            </th>
+                                        </tr>                                    
+                                        <tr class="erp-text erp-border border-black">
+                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (Riel)</span></th>
+                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (Riel)</span></th>
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-esc="doc.amount_tax * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                            </th>
+                                        </tr>
+                                        <tr class="erp-text erp-border border-black">
+                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាប្រាក់រៀល - Grand Total in Riel</span></th>
+                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាប្រាក់រៀល - Grand Total in Riel</span></th>
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-esc="doc.amount_total * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                            </th>
+                                        </tr>
+                                    </t>
+                                    <!-- === end === -->
+
+                                    <!-- === Subtotal section === -->
+                                    <t t-if="current_section and (line_last or o.order_line[line_index+1].display_type == 'line_section')">
+                                        <tr class="is-subtotal text-right erp-text erp-broder">
+                                            <td colspan="99" id="subtotal">
+                                                <strong class="mr16">Subtotal</strong>
+                                                <span t-if="doc.currency_id.name == 'USD'" t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                                <span t-if="doc.currency_id.name == 'KHR'" t-esc="current_subtotal * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                <!-- === end === -->
+
+                                    <!--<tr class="erp-border border-black">-->
+                                    <!--    <th colspan="4" class="erp-text text-end erp-border">-->
+                                    <!--        <span>អត្រាប្ដូរប្រាក់ / Exchange Rate</span>-->
+                                    <!--    </th>-->
+                                    <!--    <th class="erp-text text-end erp-border">-->
+                                            <!--<span t-field="doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>-->
+                                    <!--    </th>-->
+                                    <!--</tr>-->
+                                    <!--<tr class="erp-border border-black">-->
+                                    <!--    <th colspan="4" class="erp-text text-end erp-border">-->
+                                    <!--        <span>សរុបរួមជាប្រាក់រៀល / Total in KHR</span>-->
+                                    <!--    </th>-->
+                                    <!--    <th class="erp-text text-end erp-border">-->
+                                            <!--<span t-field="o.amount_total_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>-->
+                                    <!--    </th>-->
+                                    <!--</tr>-->
+                                </tbody>                                
+                            </table>
+                        
+                            <div class="row" style="padding-top:20px">
+                                <!-- <div class="col-8 text-start erp-text">
+                                    <span><strong>Terms &amp; Conditions</strong></span><br/>
+                                    <span>1. Minimum contract term is 24 months. After the initial contract expired,the circuit will be on month to month
+                                        term and the termination notice is 30 days.<br/></span>
+                                    <span>2. Pricing is in US Dollars</span><br/>
+                                    <span>3. The Service charge is prepaid, required to pay after received the invoice 7 working days.</span><br/>
+                                    <span>4. Standard installation lead time: 7 - 10 days</span><br/>
+                                    <span>5. Price Validity is 30 days from the date of the offer</span>
+                                </div> -->
+                                <div class="col-9"/>
+                                <div class="col-3">
+                                    <div style="text-align: center;">
+                                        <img class="img img-responsive" t-att-src="'/custom_invoice_templates/static/img/erp_qr.png'" height="175" width="175"/>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-4" style="padding-bottom: 30px"/> -->
+
+                            </div>
+                            <div class="row" style="margin-top: 15px; page-break-inside: avoid;">
+                                <div class="col-4">
+                                    <div style="color: white;" class="erp-text text-center">-</div>
+                                    <div style="border-bottom: 1px solid black; margin-top: 140px; margin-bottom: 5px;"/>
+                                    <div class="erp-text text-center">ហត្ថលេខា និងឈ្មោះអ្នកទិញ
+                                    </div>
+                                    <div class="erp-text text-center">Customer's Signature and Name</div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="color: white;" class="erp-text text-center">-</div>
+                                    <div style="border-bottom: ០px solid black; margin-top: 100px; margin-bottom: 5px;"/>
+                                </div>
+                                <div class="col-4">
+                                    <div style="color: white;" class="erp-text text-center">-</div>
+                                    <div style="border-bottom: 1px solid black; margin-top: 140px; margin-bottom: 5px;"/>
+                                    <div class="erp-text text-center">ហត្ថលេខា និងឈ្មោះអ្នកលក់ </div>
+                                    <div class="erp-text text-center">Seller's Signature and Name</div>
+                                </div>
+                            </div>
+                            <br/>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <!-- SERVICE QUOTATION NO HEAD-->
+        <template id="report_service_quotation_no_head">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <!-- <t t-call="web.external_layout"> -->
+                    <t t-call="report_layout_template.external_layout_erp_cambodia_no_head"><br/>
+                    <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+                    <t t-set="forced_vat" t-value="doc.fiscal_position_id.foreign_vat"/>
+                        <div class="page">
+                            <style type="text/css">
+                                @font-face {
+                                    font-family: Moul;
+                                    font-style: normal;
+                                    src:url('/report_layout_template/static/src/fonts/KhmerOSMuolLight.ttf') format('truetype');
+                                }
+                                @font-face {
+                                    font-family: Battambang;
+                                    font-style: normal;
+                                    src:url('/report_layout_template/static/src/fonts/Battambang/Battambang-Regular.ttf') format('truetype');
+                                }
+                                .erp-title {
+                                    font-size: 20px;
+                                    font-family: Moul;
+                                    padding-bottom: 3px;
+                                    font-weight: bold;
+                                }
+                                .erp-title-en{
+                                    font-size: 20px;
+                                    font-family: 'Time';
+                                    padding-bottom: 3px;
+                                    font-weight: bold;
+                                }
+                                .erp-text{
+                                    font-size: 14px;
+                                    font-family: Battambang;
+                                    padding-bottom: 3px;
+                                }
+                                .erp-border{
+                                    border: 1px solid black;
+                                }
+                                .erp-table-header{
+                                    font-weight: bold;
+                                    background-color:  #7b7d7d;
+                                    color: #FFFFFF;
+                                }
+                                .erp-table-body{
+                                    border: 1px solid black;
+                                }
+                                .erp-right{
+                                    text-align: right;
+                                }
+                                .erp-center{
+                                    text-align: center;
+                                }
+                            </style>
+
+                            <h4 class="text-center erp-title-en" style="margin-top:0px" t-if="doc.state in ['draft', 'sent']">SERVICE QUOTATION</h4>
+                            <h4 class="text-center erp-title-en" style="margin-top:0px" t-if="doc.state == 'sale'">SALE ORDER</h4>
+                            
+                            <!-- customer info -->
+                            <div class="row" style="padding-top:0px">
+                                <!--left-->
+                                <div class="col-8" style="font-size:14px;">
+                                    <div class="row erp-text">
+                                        <div class="col-3">Organisation Name</div>
+                                        <div class="col-8">: <span t-esc="doc.partner_id.name"/></div>
+                                    </div>
+                                    
+                                    <div class="row erp-text">
+                                        <div class="col-3">Address</div>
+                                        <div class="col-8 erp-text" t-if="doc.partner_id.street">
+                                          : <t t-if="doc.partner_id.street"><span t-esc="doc.partner_id.street"/></t>
+                                            <t t-if="doc.partner_id.street2">, <span t-esc="doc.partner_id.street2"/></t>
+                                            <t t-if="doc.partner_id.city">, <span t-esc="doc.partner_id.city"/></t>
+                                            <t t-if="doc.partner_id.country_id.name">, <span t-esc="doc.partner_id.country_id.name"/></t>
+                                        </div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-3">Contact Name</div>
+                                        <div class="col-8">: <span t-esc="doc.partner_id.name"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-3">Phone Number</div>
+                                        <div class="col-8">: <span t-esc="doc.partner_id.phone"/></div>
+                                    </div>
+                                </div>                                
+                                
+                                <!-- right -->
+                                <div class="col-4" style="font-size:14px">
+                                    <div class="row erp-text">
+                                        <div class="col-5">Quotation No</div>
+                                        <div class="col-7">: <span t-esc="doc.name"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-5">Quotation date</div>
+                                        <div class="col-7">: <span t-esc="doc.date_order" t-options="{'widget': 'date'}"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-5" t-if="doc.validity_date">Expire date</div>
+                                        <div class="col-7">: <span t-esc="doc.validity_date" t-options="{'widget': 'date'}"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-5" t-if="doc.user_id">Salesperson</div>
+                                        <div class="col-7">: <span t-esc="doc.user_id.partner_id.name"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-5" t-if="doc.user_id">Contact Number</div>
+                                        <div class="col-7">: <span t-esc="doc.user_id.partner_id.phone"/></div>
+                                    </div>
+                                    <div class="row erp-text">
+                                        <div class="col-12">
+                                            <span>Email: </span>
+                                            <span t-esc="doc.user_id.partner_id.email"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br/>
+
+                            <t t-set="lines_to_report" t-value="doc._get_order_lines_to_report()"/>
+                            <t t-set="display_discount" t-value="any(l.discount for l in lines_to_report)"/>
+
+                            <div class="oe_structure"/>
+                            <table class="table table-sm o_main_table">
+                                <thead style="display: table-row-group">
+                                    <tr class="erp-border border-black">
+                                        <th name="th_no" class="text-center erp-text-bold erp-border"><strong>No</strong></th>
+                                        <th name="th_description" class="text-center erp-text-bold erp-border"><strong>Item Description</strong></th>
+                                        <th name="th_quantity" class="text-center erp-text-bold erp-border"><strong>Qty</strong></th>
+                                        <th name="th_uom" class="text-center erp-text-bold erp-border"><strong>UoM</strong></th>
+                                        <th name="th_priceunit" class="text-center erp-text-bold erp-border"><strong>Unit Price</strong></th>
+                                        <th name="th_discount" t-if="display_discount" class="text-center erp-text-bold erp-border"><strong>Disc.%</strong></th>                                           
+                                        <!-- <th name="th_subtotal" class="text-center"><span>Total</span></th>                                                                                     -->
+                                        <!-- <th name="th_taxes" class="text-center erp-text erp-border">Taxes</th>                                         -->
+                                        <th name="th_total" class="text-center erp-text-bold erp-border"><strong>Amount</strong></th>                                       
+                                    </tr>
+                                </thead>
+                                <tbody class="sale_tbody" style="font-size:14px">
+                                    <t t-set="no" t-value="0"/>
+                                    <t t-set="current_subtotal" t-value="0"/>
+
+                                    <t t-foreach="lines_to_report" t-as="line">
+                                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal"/>
+                                        <tr t-att-class="'fw-bold o_line_section' if (line.display_type == 'line_section'or line.product_type == 'combo') else 'fst-italic o_line_note' if line.display_type == 'line_note' else ''">
+                                            <t t-set="no" t-value="no+1"/>
+                                                <td class="text-center erp-text erp-border">
+                                                    <span t-esc="no"/>
+                                                </td>
+                                            <t t-if="not line.display_type and line.product_type != 'combo'">
+                                                <td name="td_name" class="text-start erp-text erp-border"><span t-field="line.name"/></td>
+                                                <td name="td_quantity" class="text-center erp-text erp-border">
+                                                    <span t-field="line.product_uom_qty"/>
+                                                    
+                                                    <span t-if="line.product_packaging_id">
+                                                        (<span t-field="line.product_packaging_qty" t-options="{&quot;widget&quot;: &quot;integer&quot;}"/> <span t-field="line.product_packaging_id"/>)
+                                                    </span>
+                                                </td>
+                                                <td name="td_uom" class="text-center erp-text erp-border">
+                                                    <span t-field="line.product_uom"/>
+                                                </td>
+                                                <td name="td_priceunit" class="text-center erp-end erp-border">
+                                                    <!-- $ <span t-field="line.price_unit"/> -->
+                                                    <span t-if="doc.currency_id.name == 'KHR'" t-esc="'{:,.2f}'.format(line.price_unit * doc.exchange_rate)"/>
+                                                    <span t-if="doc.currency_id.name != 'KHR'" t-field="line.price_unit"/>
+                                                </td>
+                                                <td t-if="display_discount" class="text-center erp-text erp-border">
+                                                    <span t-field="line.discount">-</span>
+                                                </td>
+                                                <td t-if="not line.is_downpayment" name="td_subtotal" class="text-end erp-text erp-border">
+                                                    <!-- <span t-field="line.price_subtotal"/> -->
+                                                    <span t-if="doc.currency_id.name == 'KHR'" t-esc="'{:,.2f}'.format(line.price_subtotal * doc.exchange_rate)"/>
+                                                    <span t-if="doc.currency_id.name != 'KHR'" t-esc="'{:,.2f}'.format(line.price_subtotal)" />
+                                                </td>
+                                            </t>
+                                            <t t-elif="line.display_type == 'line_section' or line.product_type == 'combo'">
+                                                <td name="td_section_line" colspan="99">
+                                                    <span t-field="line.name"/>
+                                                </td>
+                                                    <t t-set="current_section" t-value="line"/>
+                                                <t t-set="current_subtotal" t-value="0"/>
+                                            </t>
+                                            <t t-elif="line.display_type == 'line_note'">
+                                                <td name="td_note_line" colspan="99">
+                                                    <span t-field="line.name">A note, whose content usually applies to the section or product above.</span>
+                                                </td>
+                                            </t>
+                                        </tr>
+                                        <t t-if="current_section and (line_last or lines_to_report[line_index+1].display_type == 'line_section' or lines_to_report[line_index+1].product_type == 'combo' or (line.combo_item_id and not lines_to_report[line_index+1].combo_item_id)) and not line.is_downpayment">
+                                           <t t-set="current_section" t-value="None"/>
+                                           <tr class="is-subtotal text-end">
+                                               <td name="td_section_subtotal" colspan="99" class="erp-text erp-border">
+                                                   <strong class="mr16">Subtotal</strong>
+                                                   <span t-out="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}">31.05</span>
+                                               </td>
+                                           </tr>
+                                        </t>
+                                    </t>
+                                    
+                                    <!-- <tr class="erp-text erp-border border-black">                                        
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
+                                        <th class="erp-text text-end erp-border">
+                                            <span t-field="doc.amount_untaxed"/>
+                                        </th>
+                                    </tr>
+                                    <tr class="erp-text erp-border border-black">
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
+                                        <th class="erp-text text-end erp-border">
+                                            <span t-field="doc.amount_tax"/>
+                                        </th>
+                                    </tr>
+                                    <tr class="erp-text erp-border border-black">
+                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
+                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
+                                        <th class="erp-text text-end erp-border">
+                                            <span t-field="doc.amount_total"/>
+                                        </th>
+                                    </tr> -->
+
+                                    <!-- === if currency_id == USD then display this === -->
+                                    <t t-if="doc.currency_id.name == 'USD'">
+                                        <tr class="erp-text erp-border border-black">                                        
+                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
+                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-field="doc.amount_untaxed"/>
+                                            </th>
+                                        </tr>                                    
+                                        <tr class="erp-text erp-border border-black">
+                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
+                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-field="doc.amount_tax"/>
+                                            </th>
+                                        </tr>
+                                        <tr class="erp-text erp-border border-black">
+                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
+                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-field="doc.amount_total"/>
+                                            </th>
+                                        </tr>
+                                    </t>
+                                    <!-- === end === -->
+
+                                    <!-- === if currency_id == KHR then convert the value from USD to riel by * doc.exchange_rate === -->
+                                    <t t-if="doc.currency_id.name == 'KHR'">
+                                        <tr class="erp-text erp-border border-black">                                        
+                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
+                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-esc="doc.amount_untaxed * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                            </th>
+                                        </tr>                                    
+                                        <tr class="erp-text erp-border border-black">
+                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (Riel)</span></th>
+                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (Riel)</span></th>
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-esc="doc.amount_tax * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                            </th>
+                                        </tr>
+                                        <tr class="erp-text erp-border border-black">
+                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាប្រាក់រៀល - Grand Total in Riel</span></th>
+                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាប្រាក់រៀល - Grand Total in Riel</span></th>
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-esc="doc.amount_total * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                            </th>
+                                        </tr>
+                                    </t>
+                                    <!-- === end === -->
+
+                                    <!-- === Subtotal section === -->
+                                    <t t-if="current_section and (line_last or o.order_line[line_index+1].display_type == 'line_section')">
+                                        <tr class="is-subtotal text-right erp-text erp-broder">
+                                            <td colspan="99" id="subtotal">
+                                                <strong class="mr16">Subtotal</strong>
+                                                <span t-if="doc.currency_id.name == 'USD'" t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                                <span t-if="doc.currency_id.name == 'KHR'" t-esc="current_subtotal * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                <!-- === end === -->
+                                </tbody>                                
+                            </table>
+                            
+                            <div class="row" style="padding-top:20px">
+                                <!-- <div class="col-8 text-start erp-text">
+                                    <span><strong>Terms &amp; Conditions</strong></span><br/>
+                                    <span>1. Minimum contract term is 24 months. After the initial contract expired,the circuit will be on month to month
+                                        term and the termination notice is 30 days.<br/></span>
+                                    <span>2. Pricing is in US Dollars</span><br/>
+                                    <span>3. The Service charge is prepaid, required to pay after received the invoice 7 working days.</span><br/>
+                                    <span>4. Standard installation lead time: 7 - 10 days</span><br/>
+                                    <span>5. Price Validity is 30 days from the date of the offer</span>
+                                </div> -->
+                                <div class="col-9"/>
+                                <div class="col-3">
+                                    <div style="text-align: center;">
+                                        <img class="img img-responsive" t-att-src="'/custom_invoice_templates/static/img/erp_qr.png'" height="175" width="175"/>
+                                    </div>
+                                </div>
+                                <!-- <div class="col-4" style="padding-bottom: 30px"/> -->
+
+                            </div>
+
+                            <div class="row" style="margin-top: 15px; page-break-inside: avoid;">
+                                <div class="col-4">
+                                    <div style="color: white;" class="erp-text text-center">-</div>
+                                    <div style="border-bottom: 1px solid black; margin-top: 140px; margin-bottom: 5px;"/>
+                                    <div class="erp-text text-center">ហត្ថលេខា និងឈ្មោះអ្នកទិញ
+                                    </div>
+                                    <div class="erp-text text-center">Customer's Signature and Name</div>
+                                </div>
+                                <div class="col-4">
+                                    <div style="color: white;" class="erp-text text-center">-</div>
+                                    <div style="border-bottom: ០px solid black; margin-top: 100px; margin-bottom: 5px;"/>
+                                </div>
+                                <div class="col-4">
+                                    <div style="color: white;" class="erp-text text-center">-</div>
+                                    <div style="border-bottom: 1px solid black; margin-top: 140px; margin-bottom: 5px;"/>
+                                    <div class="erp-text text-center">ហត្ថលេខា និងឈ្មោះអ្នកលក់ </div>
+                                    <div class="erp-text text-center">Seller's Signature and Name</div>
+                                </div>
+                            </div>
+                            <br/>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

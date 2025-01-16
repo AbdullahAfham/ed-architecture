@@ -1,0 +1,140 @@
+@font-face {
+    font-family: Moul;
+    font-style: normal;
+    src:url('/report_layout_template/static/src/fonts/KhmerOSMoul.ttf') format('truetype');
+}
+
+.o_center_footer, .o_center_header, .o_report_layout_center {
+    color: #000;
+    font-size: 12px;
+}
+.o_center_header {
+    border-bottom: 1px solid black;
+    img {
+        max-height: 120px;
+    }
+    h4 {
+        font-family: Moul;
+        color: #000;
+//         color: #999999;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+}
+.o_center_footer {
+    margin-top: 200px;
+    white-space: nowrap;
+    border-top: 1px solid #000;
+    ul {
+        margin: 4px 0;
+    }
+}
+.o_report_layout_center {
+    #total strong {
+        color: #000r;
+    }
+    #informations strong {
+        color: #000;
+    }
+    > h2 {
+        text-transform: uppercase;
+    }
+    h2 span {
+        color: #000;
+    }
+    table {
+        border: 1px solid gray('700');
+        thead {
+            border-bottom: 1px solid gray('700');
+            tr th {
+                text-transform: capitalize;
+                border: 1px solid gray('700');
+                color: #000;
+            }
+        }
+        tbody {
+            color: black;
+            tr {
+                td {
+                    // remove border-top from standard layout
+                    border-top: none;
+                    border-right: 1px solid gray('700');
+                }
+                &.o_line_section td,
+                &.o_line_note td,
+                &.is-subtotal td {
+                    border-top: 1px solid gray('700');
+                    border-bottom: 1px solid gray('700');
+                }
+                &.o_line_section td {
+                    background-color: rgba(#000, 0.0);
+                    color: #000;
+                }
+                &.is-subtotal,
+                td.o_price_total {
+                    background-color: rgba(#000, 0.1);
+                }
+            }
+        }
+    }
+    /* compat 12.0 */
+    .page > table:not(.o_main_table) tr td:last-child {
+        background-color: rgba(#000, 0.0);
+    }
+    /* compat 12.0 */
+    .row:not(#total) > div > table tr:not(:first-child):not(:last-child) td:last-child {
+        background-color: rgba(#000, 0.0);
+    }
+    /*Total table*/
+    /* row div rule compat 12.0 */
+    .row > div > table,
+    div#total table {
+        tr {
+            &:first-child,
+            &.o_subtotal {
+                border-bottom: 1px solid gray('700');
+            }
+//             &.o_subtotal{
+//                 td:first-child {
+//                     border-right: none;
+//                 }
+//             }
+            &:last-child td,
+            &.o_total td {
+                background-color: rgba(#000, 0.1);
+                color: #000;
+
+//                 &:first-child {
+//                     border-right: none;
+//                 }
+            }
+            &.o_total strong {
+                color: #000;
+            }
+        }
+    }
+}
+
+.erp-title{
+    font-family: Moul;
+    color: #000;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.erp-text{
+    font-size: 12px;
+    font-family: 'Battambang';
+    padding-bottom: 3px;
+}
+.erp-border{
+    border: 1px solid black;
+}
+.erp-table-header{
+    font-weight: bold;
+    border: 1px solid black;
+    font-size:12px;
+}
+.erp-table-body{
+    border: 1px solid black;
+    font-size:12px;
+}

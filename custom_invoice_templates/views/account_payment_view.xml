@@ -1,0 +1,16 @@
+<odoo>
+  <data>
+    <!-- SOPHANON ADDED Company Name in Khmer and Address in Khmer -->
+        <record id="view_account_payment_form_sequence" model="ir.ui.view">
+            <field name="name">account.payment.form.sequence</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='payment_type']" position="before">
+                  <field name="number" string="Sequence" placeholder="OR/24/000001" invisible="payment_type != 'inbound'"/>
+                  <field name="number" string="Sequence" placeholder="PV/24/000001" invisible="payment_type != 'outbound'"/>
+                </xpath>
+            </field>
+        </record>
+  </data>
+</odoo>
