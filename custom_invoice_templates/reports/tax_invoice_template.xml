@@ -53,7 +53,7 @@
                                     text-align: center;
                                 }
                             </style>
-                            <h4 class="text-center erp-title" style="padding-top:10px; margin-top:-50px;">
+                            <h4 class="text-center erp-title" style="padding-top:10px; margin-top:-54px;">
                                 <span t-if="o.move_type == 'out_invoice'">វិក្កយបត្រអាករ</span>
                                 <span t-if="o.move_type == 'out_refund'">Credit Note</span>
                                 <span t-if="o.move_type == 'in_refund'">Vendor Credit Note</span>
