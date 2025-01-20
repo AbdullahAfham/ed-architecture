@@ -6,6 +6,7 @@ from datetime import date, datetime, time
 class AccountInvoice(models.Model):
     _inherit = "account.move"
 
+    @api.depends('amount_total', 'exchange_rate')
     def _compute_amount_khr(self):
         for move in self:
             move.amount_total_khr = move.amount_total * move.exchange_rate
