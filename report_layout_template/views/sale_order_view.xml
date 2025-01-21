@@ -7,14 +7,19 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
           <xpath expr="//field[@name='currency_id']" position="attributes">
-            <attribute name="invisible">False</attribute>
-            <attribute name="readonly">False</attribute>
+            <attribute name="invisible">True</attribute>
+            <!-- <attribute name="readonly">False</attribute> -->
           </xpath>
           <xpath expr="//field[@name='payment_term_id']" position="before">
             <field name="khr_currency_id" invisible="1"/>
             <field name="exchange_date"/>
             <field name="exchange_rate" readonly="0"/>
           </xpath>
+
+          <xpath expr="//group//field[@name='tax_totals']" position="after">
+            <field name="amount_total_khr" widget="monetary" options="{'currency_field': 'khr_currency_id'}" readonly="0"/>
+          </xpath>
+
         </field>
       </record>
 

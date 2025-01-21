@@ -11,6 +11,15 @@
             <field name="exchange_date"/>
             <field name="exchange_rate" readonly="0"/>
           </xpath>
+
+          <xpath expr="//field[@name='currency_id']" position="attributes">
+              <attribute name="invisible">True</attribute>
+            </xpath>
+
+          <xpath expr="//group//field[@name='tax_totals']" position="after">
+            <field name="amount_total_khr" widget="monetary" options="{'currency_field': 'khr_currency_id'}" readonly="0"/>
+          </xpath>
+
         </field>
       </record>
     </data>
