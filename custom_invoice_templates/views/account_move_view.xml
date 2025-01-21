@@ -17,5 +17,16 @@
                 </xpath>
             </field>
         </record>
+
+      <record id="view_invoice_tree_inherit" model="ir.ui.view">
+        <field name="name">account.move.tree.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+          <xpath expr="//field[@name='amount_residual_signed']" position="before">
+            <field name="amount_total_khr" optional="show"/>
+          </xpath>
+        </field>
+      </record>
     </data>
 </odoo>
