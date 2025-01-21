@@ -65,33 +65,43 @@
                             </h4>
 
                             <div class="row">
-                                <div class="col-12">
-                                    <div class="erp-text">
-                                        <strong><span>អតិថិជន/Customer</span></strong>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
                                 <div class="col-7">
-                                    <div class="row">
+                                    <div class="row" t-if="not o.partner_id.is_company">
+                                        <div class="col-4">
+                                            <div class="erp-text">
+                                                <span>អតិថិជន/Customer</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="erp-text">
+                                                : <span t-esc="o.partner_id.name"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" t-if="o.partner_id.is_company or o.partner_id.parent_id">
                                         <div class="col-4">
                                             <div class="erp-text">
                                                 <span>ឈ្មោះក្រុមហ៊ុន</span>
                                             </div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="erp-text">
+                                            <div class="erp-text" t-if="o.partner_id.parent_id">
+                                                : <span t-esc="o.partner_id.parent_id.khmer_name"/>
+                                            </div>
+                                             <div class="erp-text" t-else="not o.partner_id.parent_id">
                                                 : <span t-esc="o.partner_id.khmer_name"/>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row">
+                                    <div class="row" t-if="o.partner_id.is_company or o.partner_id.parent_id">
                                         <div class="col-4">
                                             <div class="erp-text">Company</div>
                                         </div>
                                         <div class="col-8">
-                                            <div class="erp-text">
+                                            <div class="erp-text" t-if="o.partner_id.parent_id">
+                                                : <span t-esc="o.partner_id.parent_id.name"/>
+                                            </div>
+                                            <div class="erp-text" t-else="not o.partner_id.parent_id">
                                                 : <span t-esc="o.partner_id.name"/>
                                             </div>
                                         </div>
@@ -159,7 +169,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row">
+                                    <div class="row" t-if="o.partner_id.vat">
                                         <div class="col-4">
                                             <div class="erp-text">លេខ អ.ត.ប/(VATTIN)</div>
                                         </div>
@@ -201,7 +211,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row">
+                                    <div class="row" t-if="o.invoice_origin">
                                         <div class="col-6">
                                             <div class="erp-text">លេខយោង/Quote Ref</div>
                                         </div>
@@ -253,8 +263,8 @@
                                     <tr class="erp-border">
                                         <th name="th_no" class="text-center erp-text erp-border erp-table-header" style="width: 5%"><span>ល.រ<br/>No</span></th>
                                         <th name="th_description" class="text-center erp-text erp-border erp-table-header" style="width: 50%"><span>បរិយាយមុខទំនិញ <br/>Description</span></th>
-                                        <!--<th name="th_description" class="text-center erp-text erp-border erp-table-header" style="width: 10%"><span>លេខគណនយ្យ <br/>Account ID</span></th>-->
-                                        <th name="th_quantity" class="text-center erp-text erp-border erp-table-header" style="width: 10%"><span>បរិមាណ <br/>Quantity</span></th>
+                                        <th name="th_quantity" class="text-center erp-text erp-border erp-table-header" style="width: 10%"><span>បរិមាណ <br/>QTY</span></th>
+                                        <th name="th_quantity" class="text-center erp-text erp-border erp-table-header" style="width: 10%"><span>ខ្នាត <br/>OuM</span></th>
                                         <th name="th_price_unit" class="text-center erp-text erp-border erp-table-header" style="width: 10%"><span>ថ្លៃឯកតា<br/>Unit Price</span></th>
                                         <th name="th_discount" t-if="display_discount" class="text-center erp-text erp-border erp-table-header"><span>បញ្ចុះតម្លៃ <br/>Disc.%</span></th>      
                                         <th name="th_subtotal" class="text-center erp-text erp-border erp-table-header" style="width: 15%"><span>ថ្លៃទំនិញ <br/>Amount</span></th>
@@ -284,6 +294,8 @@
                                                 <!--</td>-->
                                                 <td class="erp-center erp-text erp-border">
                                                     <span t-field="line.quantity"/>
+                                                </td>
+                                                <td class="erp-center erp-text erp-border">
                                                     <span t-field="line.product_uom_id" groups="uom.group_uom"/>
                                                 </td>
                                                 <td t-attf-class="erp-center {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }} erp-text erp-border">
@@ -334,27 +346,37 @@
 
                                     <t t-if="o.currency_id.name == 'USD'">
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-attf-colspan="{{ '5' if line.discount else '4' }}" class="text-end erp-border">
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
                                                 <span>សរុប - Subtotal</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
                                                 <span t-field="o.amount_untaxed" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
                                             </th>
                                         </tr>
+                                        <t t-if="o.amount_tax">
+                                            <tr class="erp-text erp-border border-black">
+                                                <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                    <span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span>
+                                                </th>
+                                                <th class="erp-text text-end erp-border">
+                                                    <span t-field="o.amount_tax" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                                </th>
+                                            </tr>
+                                        </t>
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-attf-colspan="{{ '5' if line.discount else '4' }}" class="text-end erp-border">
-                                                <span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span>
-                                            </th>
-                                            <th class="erp-text text-end erp-border">
-                                                <span t-field="o.amount_tax" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
-                                            </th>
-                                        </tr>
-                                        <tr class="erp-text erp-border border-black">
-                                            <th t-attf-colspan="{{ '5' if line.discount else '4' }}" class="text-end erp-border">
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
                                                 <span>សរុបរួមជាដុល្លារ - Grand Total in USD</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
                                                 <span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                            </th>
+                                        </tr>
+                                        <tr class="erp-text erp-border border-black">
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>សរុបរួមជាប្រាក់រៀល - Total in KHR</span>
+                                            </th>
+                                            <th class="erp-text text-end erp-border">
+                                                <span t-field="o.amount_total_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>
                                             </th>
                                         </tr>
                                     </t>
@@ -380,7 +402,8 @@
                                                 <span>សរុបរួមជាដុល្លារ - Grand Total in KHR</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
-                                                <span t-esc="round(o.amount_total * o.exchange_rate, 2)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>
+                                                <!-- <span t-esc="round(o.amount_total * o.exchange_rate, 2)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/> -->
+                                                <span t-esc="o.amount_total_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>
                                             </th>
                                         </tr>
                                     </t>
@@ -393,20 +416,13 @@
 <!--                                            <span t-field="o.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>-->
 <!--                                        </th>-->
 <!--                                    </tr>-->
-                                    <!-- <tr class="erp-border border-black">
-                                        <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
-                                            <span>សរុបរួមជាប្រាក់រៀល - Total in KHR</span>
-                                        </th>
-                                        <th class="erp-text text-end erp-border">
-                                            <span t-field="o.amount_total_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>
-                                        </th>
-                                    </tr> -->
+                                     
                                 </tbody>
                             </table>
                             <!-- Bank Information-->
                             <div class="row">
                                 <div class="col-9">
-                                    <!-- <div class="erp-text">
+                                     <div class="erp-text">
                                         <div>
                                             <b>ព័ត៌មានអំពីការទូទាត់តាមធនាគារ</b>
                                         </div>
@@ -424,9 +440,9 @@
                                            <br/>
                                            Khan Boeung Keng Kang, Phnom Penh, Cambodia.
                                        </div>
-                                        <div class="erp-text">Beneficiary Account Name : EMPIRE TECH CO LTD</div>
-                                        <div class="erp-text">Beneficiary Account : 000 501 844</div>
-                                    </div> -->
+                                        <div class="erp-text">Beneficiary Account Name : EXPO DENZI CO., LTD</div>
+                                        <div class="erp-text">Beneficiary Account : 000 000 000</div>
+                                    </div> 
                                 </div>
                                 <div class="col-3">
                                     <div style="text-align: center;">
