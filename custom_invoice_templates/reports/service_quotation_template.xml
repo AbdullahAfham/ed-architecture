@@ -56,7 +56,7 @@
                                 }
                             </style>
 
-                            <h4 class="text-center erp-title-en" style="margin-top: -60px; padding:15px;" t-if="doc.state in ['draft', 'sent']">SERVICE QUOTATION</h4>
+                            <h4 class="text-center erp-title-en" style="margin-top: -60px; padding:15px;" t-if="doc.state in ['draft', 'sent']">QUOTATION</h4>
                             <h4 class="text-center erp-title-en" style="margin-top: -60px; padding:15px;" t-if="doc.state == 'sale'">SALE ORDER</h4>
 
                             <!-- customer info -->
@@ -104,8 +104,8 @@
                                         <div class="col-5" t-if="doc.user_id">Salesperson</div>
                                         <div class="col-7">: <span t-esc="doc.user_id.partner_id.name"/></div>
                                     </div>
-                                    <div class="row erp-text">
-                                        <div class="col-5" t-if="doc.user_id">Contact Number</div>
+                                    <div class="row erp-text" t-if="doc.user_id.partner_id.phone">
+                                        <div class="col-5">Contact Number</div>
                                         <div class="col-7">: <span t-esc="doc.user_id.partner_id.phone"/></div>
                                     </div>
                                     <div class="row erp-text">
@@ -126,15 +126,15 @@
                             <table class="table table-sm o_main_table">
                                 <thead style="display: table-row-group">
                                     <tr class="erp-border border-black">
-                                        <th name="th_no" class="text-center erp-text-bold erp-border"><strong>No</strong></th>
-                                        <th name="th_description" class="text-center erp-text-bold erp-border"><strong>Item Description</strong></th>
-                                        <th name="th_quantity" class="text-center erp-text-bold erp-border"><strong>Qty</strong></th>
-                                        <th name="th_uom" class="text-center erp-text-bold erp-border"><strong>UoM</strong></th>
-                                        <th name="th_priceunit" class="text-center erp-text-bold erp-border"><strong>Unit Price</strong></th>
-                                        <th name="th_discount" t-if="display_discount" class="text-center erp-text-bold erp-border"><strong>Disc.%</strong></th>                                           
+                                        <th name="th_no" class="text-center erp-text erp-border"><strong>No</strong></th>
+                                        <th name="th_description" class="text-center erp-text erp-border"><strong>Item Description</strong></th>
+                                        <th name="th_quantity" class="text-center erp-text erp-border"><strong>Qty</strong></th>
+                                        <th name="th_uom" class="text-center erp-text erp-border"><strong>UoM</strong></th>
+                                        <th name="th_priceunit" class="text-center erp-text erp-border"><strong>Unit Price</strong></th>
+                                        <th name="th_discount" t-if="display_discount" class="text-center erp-text erp-border"><strong>Disc.%</strong></th>                                           
                                         <!-- <th name="th_subtotal" class="text-center"><span>Total</span></th>                                                                                     -->
                                         <!-- <th name="th_taxes" class="text-center erp-text erp-border">Taxes</th>                                         -->
-                                        <th name="th_total" class="text-center erp-text-bold erp-border"><strong>Amount</strong></th>                                       
+                                        <th name="th_total" class="text-center erp-text erp-border"><strong>Amount</strong></th>                                       
                                     </tr>
                                 </thead>
                                 <tbody class="sale_tbody" style="font-size:14px">
@@ -171,7 +171,7 @@
                                                 <td t-if="not line.is_downpayment" name="td_subtotal" class="text-end erp-text erp-border">
                                                     <!-- <span t-field="line.price_subtotal"/> -->
                                                     <span t-if="doc.currency_id.name == 'KHR'" t-esc="'{:,.2f}'.format(line.price_subtotal * doc.exchange_rate)"/>
-                                                    <span t-if="doc.currency_id.name != 'KHR'" t-esc="'{:,.2f}'.format(line.price_subtotal)" />
+                                                    <span t-if="doc.currency_id.name != 'KHR'" t-esc="'{:,.2f}'.format(line.price_subtotal)"/>
                                                 </td>
                                             </t>
                                             <t t-elif="line.display_type == 'line_section' or line.product_type == 'combo'">
@@ -230,7 +230,7 @@
                                                 <span t-field="doc.amount_untaxed"/>
                                             </th>
                                         </tr>                                    
-                                        <tr class="erp-text erp-border border-black">
+                                        <tr class="erp-text erp-border border-black" t-if="doc.amount_tax">
                                             <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
                                             <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
                                             <th class="erp-text text-end erp-border">
@@ -242,6 +242,15 @@
                                             <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
                                             <th class="erp-text text-end erp-border">
                                                 <span t-field="doc.amount_total"/>
+                                            </th>
+                                        </tr>
+                                        <tr class="erp-text erp-border border-black">
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>សរុបរួមជាប្រាក់រៀល - Total in KHR</span>
+                                            </th>
+                                            <th class="erp-text text-end erp-border">
+                                                <!-- <span t-esc="doc.amount_total * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.khr_currency_id}"/> -->
+                                                <span t-esc="doc.amount_total_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.khr_currency_id}"/>
                                             </th>
                                         </tr>
                                     </t>
@@ -305,7 +314,7 @@
                             </table>
                         
                             <div class="row" style="padding-top:20px">
-                                <!-- <div class="col-8 text-start erp-text">
+                                 <div class="col-9 text-start erp-text">
                                     <span><strong>Terms &amp; Conditions</strong></span><br/>
                                     <span>1. Minimum contract term is 24 months. After the initial contract expired,the circuit will be on month to month
                                         term and the termination notice is 30 days.<br/></span>
@@ -313,8 +322,8 @@
                                     <span>3. The Service charge is prepaid, required to pay after received the invoice 7 working days.</span><br/>
                                     <span>4. Standard installation lead time: 7 - 10 days</span><br/>
                                     <span>5. Price Validity is 30 days from the date of the offer</span>
-                                </div> -->
-                                <div class="col-9"/>
+                                </div>
+                                <!--<div class="col-9"/>-->
                                 <div class="col-3">
                                     <div style="text-align: center;">
                                         <img class="img img-responsive" t-att-src="'/custom_invoice_templates/static/img/erp_qr.png'" height="175" width="175"/>
@@ -405,7 +414,7 @@
                                 }
                             </style>
 
-                            <h4 class="text-center erp-title-en" style="margin-top:0px" t-if="doc.state in ['draft', 'sent']">SERVICE QUOTATION</h4>
+                            <h4 class="text-center erp-title-en" style="margin-top:0px" t-if="doc.state in ['draft', 'sent']">QUOTATION</h4>
                             <h4 class="text-center erp-title-en" style="margin-top:0px" t-if="doc.state == 'sale'">SALE ORDER</h4>
                             
                             <!-- customer info -->
@@ -454,8 +463,8 @@
                                         <div class="col-5" t-if="doc.user_id">Salesperson</div>
                                         <div class="col-7">: <span t-esc="doc.user_id.partner_id.name"/></div>
                                     </div>
-                                    <div class="row erp-text">
-                                        <div class="col-5" t-if="doc.user_id">Contact Number</div>
+                                    <div class="row erp-text" t-if="doc.user_id.partner_id.phone">
+                                        <div class="col-5">Contact Number</div>
                                         <div class="col-7">: <span t-esc="doc.user_id.partner_id.phone"/></div>
                                     </div>
                                     <div class="row erp-text">
@@ -475,15 +484,15 @@
                             <table class="table table-sm o_main_table">
                                 <thead style="display: table-row-group">
                                     <tr class="erp-border border-black">
-                                        <th name="th_no" class="text-center erp-text-bold erp-border"><strong>No</strong></th>
-                                        <th name="th_description" class="text-center erp-text-bold erp-border"><strong>Item Description</strong></th>
-                                        <th name="th_quantity" class="text-center erp-text-bold erp-border"><strong>Qty</strong></th>
-                                        <th name="th_uom" class="text-center erp-text-bold erp-border"><strong>UoM</strong></th>
-                                        <th name="th_priceunit" class="text-center erp-text-bold erp-border"><strong>Unit Price</strong></th>
-                                        <th name="th_discount" t-if="display_discount" class="text-center erp-text-bold erp-border"><strong>Disc.%</strong></th>                                           
+                                        <th name="th_no" class="text-center erp-text erp-border"><strong>No</strong></th>
+                                        <th name="th_description" class="text-center erp-text erp-border"><strong>Item Description</strong></th>
+                                        <th name="th_quantity" class="text-center erp-text erp-border"><strong>Qty</strong></th>
+                                        <th name="th_uom" class="text-center erp-text erp-border"><strong>UoM</strong></th>
+                                        <th name="th_priceunit" class="text-center erp-text erp-border"><strong>Unit Price</strong></th>
+                                        <th name="th_discount" t-if="display_discount" class="text-center erp-text erp-border"><strong>Disc.%</strong></th>                                           
                                         <!-- <th name="th_subtotal" class="text-center"><span>Total</span></th>                                                                                     -->
                                         <!-- <th name="th_taxes" class="text-center erp-text erp-border">Taxes</th>                                         -->
-                                        <th name="th_total" class="text-center erp-text-bold erp-border"><strong>Amount</strong></th>                                       
+                                        <th name="th_total" class="text-center erp-text erp-border"><strong>Amount</strong></th>                                       
                                     </tr>
                                 </thead>
                                 <tbody class="sale_tbody" style="font-size:14px">
@@ -520,7 +529,7 @@
                                                 <td t-if="not line.is_downpayment" name="td_subtotal" class="text-end erp-text erp-border">
                                                     <!-- <span t-field="line.price_subtotal"/> -->
                                                     <span t-if="doc.currency_id.name == 'KHR'" t-esc="'{:,.2f}'.format(line.price_subtotal * doc.exchange_rate)"/>
-                                                    <span t-if="doc.currency_id.name != 'KHR'" t-esc="'{:,.2f}'.format(line.price_subtotal)" />
+                                                    <span t-if="doc.currency_id.name != 'KHR'" t-esc="'{:,.2f}'.format(line.price_subtotal)"/>
                                                 </td>
                                             </t>
                                             <t t-elif="line.display_type == 'line_section' or line.product_type == 'combo'">
@@ -578,7 +587,7 @@
                                                 <span t-field="doc.amount_untaxed"/>
                                             </th>
                                         </tr>                                    
-                                        <tr class="erp-text erp-border border-black">
+                                        <tr class="erp-text erp-border border-black" t-if="doc.amount_tax">
                                             <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
                                             <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
                                             <th class="erp-text text-end erp-border">
@@ -590,6 +599,15 @@
                                             <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
                                             <th class="erp-text text-end erp-border">
                                                 <span t-field="doc.amount_total"/>
+                                            </th>
+                                        </tr>
+                                        <tr class="erp-text erp-border border-black">
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>សរុបរួមជាប្រាក់រៀល - Total in KHR</span>
+                                            </th>
+                                            <th class="erp-text text-end erp-border">
+                                                <!-- <span t-esc="doc.amount_total * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.khr_currency_id}"/> -->
+                                                <span t-esc="doc.amount_total_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.khr_currency_id}"/>
                                             </th>
                                         </tr>
                                     </t>
@@ -636,7 +654,7 @@
                             </table>
                             
                             <div class="row" style="padding-top:20px">
-                                <!-- <div class="col-8 text-start erp-text">
+                                <div class="col-9 text-start erp-text">
                                     <span><strong>Terms &amp; Conditions</strong></span><br/>
                                     <span>1. Minimum contract term is 24 months. After the initial contract expired,the circuit will be on month to month
                                         term and the termination notice is 30 days.<br/></span>
@@ -644,8 +662,8 @@
                                     <span>3. The Service charge is prepaid, required to pay after received the invoice 7 working days.</span><br/>
                                     <span>4. Standard installation lead time: 7 - 10 days</span><br/>
                                     <span>5. Price Validity is 30 days from the date of the offer</span>
-                                </div> -->
-                                <div class="col-9"/>
+                                </div>
+                                <!--<div class="col-9"/>-->
                                 <div class="col-3">
                                     <div style="text-align: center;">
                                         <img class="img img-responsive" t-att-src="'/custom_invoice_templates/static/img/erp_qr.png'" height="175" width="175"/>

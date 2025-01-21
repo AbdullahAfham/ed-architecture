@@ -13,7 +13,7 @@
                   <field name="attend_id" />
                 </xpath>
                 <xpath expr="//field[@name='tax_totals']" position="after">
-                  <field name="amount_total_khr" />
+                  <field name="amount_total_khr" widget="monetary" options="{'currency_field': 'khr_currency_id'}" readonly="0"/>
                 </xpath>
             </field>
         </record>

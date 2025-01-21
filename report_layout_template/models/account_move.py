@@ -12,7 +12,7 @@ class AccountInvoice(models.Model):
     exchange_date = fields.Date('Exchange Date', required=True,
                                 default=lambda self: fields.Date.to_string(date.today()))
     exchange_rate = fields.Float('Exchange Rate', required=True, store=True, readonly=True,
-                                 default=lambda self: self.khr_currency_id.rate)
+                             default=4050.00)
 
     @api.onchange('invoice_date')
     def onchange_exchange_date(self):

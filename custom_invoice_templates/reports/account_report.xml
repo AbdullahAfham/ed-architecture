@@ -156,7 +156,7 @@
 
         <!-- SERVICE QUOTATION -->
         <record id="sale_erp_service_quotation" model="ir.actions.report">
-            <field name="name">SERVICE QUOTATION</field>
+            <field name="name">QUOTATION</field>
             <field name="model">sale.order</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">custom_invoice_templates.report_service_quotation</field>
@@ -169,7 +169,7 @@
 
         <!-- SERVICE QUOTATION NO HEAD-->
         <record id="sale_erp_service_quotation_no_head" model="ir.actions.report">
-            <field name="name">SERVICE QUOTATION NO HEAD</field>
+            <field name="name">QUOTATION NO HEAD</field>
             <field name="model">sale.order</field>
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">custom_invoice_templates.report_service_quotation_no_head</field>
