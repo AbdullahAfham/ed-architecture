@@ -198,55 +198,36 @@
                                            </tr>
                                         </t>
                                     </t>
-                                    
-                                    <!-- <tr class="erp-text erp-border border-black">                                        
-                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
-                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
-                                        <th class="erp-text text-end erp-border">
-                                            <span t-field="doc.amount_untaxed"/>
-                                        </th>
-                                    </tr>                                    
-                                    <tr class="erp-text erp-border border-black">
-                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
-                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
-                                        <th class="erp-text text-end erp-border">
-                                            <span t-field="doc.amount_tax"/>
-                                        </th>
-                                    </tr>
-                                    <tr class="erp-text erp-border border-black">
-                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
-                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
-                                        <th class="erp-text text-end erp-border">
-                                            <span t-field="doc.amount_total"/>
-                                        </th>
-                                    </tr> -->
 
                                     <!-- === if currency_id == USD then display this === -->
                                     <t t-if="doc.currency_id.name == 'USD'">
                                         <tr class="erp-text erp-border border-black">                                        
-                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
-                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>សរុប - Subtotal</span>
+                                            </th>                               
                                             <th class="erp-text text-end erp-border">
                                                 <span t-field="doc.amount_untaxed"/>
                                             </th>
                                         </tr>                                    
-                                        <tr class="erp-text erp-border border-black" t-if="doc.amount_tax">
-                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
-                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
+                                        <tr class="erp-text erp-border border-black" t-if="doc.amount_tax">                                        
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span>
+                                            </th>
                                             <th class="erp-text text-end erp-border">
                                                 <span t-field="doc.amount_tax"/>
                                             </th>
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
-                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>សរុបរួមជាដុល្លារ - Grand Total in USD</span>
+                                            </th>
                                             <th class="erp-text text-end erp-border">
                                                 <span t-field="doc.amount_total"/>
                                             </th>
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
                                             <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
-                                                <span>សរុបរួមជាប្រាក់រៀល - Total in KHR</span>
+                                                <span>សរុបរួមជាប្រាក់រៀល - Grand Total in KHR</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
                                                 <!-- <span t-esc="doc.amount_total * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.khr_currency_id}"/> -->
@@ -294,27 +275,12 @@
                                     </t>
                                 <!-- === end === -->
 
-                                    <!--<tr class="erp-border border-black">-->
-                                    <!--    <th colspan="4" class="erp-text text-end erp-border">-->
-                                    <!--        <span>អត្រាប្ដូរប្រាក់ / Exchange Rate</span>-->
-                                    <!--    </th>-->
-                                    <!--    <th class="erp-text text-end erp-border">-->
-                                            <!--<span t-field="doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>-->
-                                    <!--    </th>-->
-                                    <!--</tr>-->
-                                    <!--<tr class="erp-border border-black">-->
-                                    <!--    <th colspan="4" class="erp-text text-end erp-border">-->
-                                    <!--        <span>សរុបរួមជាប្រាក់រៀល / Total in KHR</span>-->
-                                    <!--    </th>-->
-                                    <!--    <th class="erp-text text-end erp-border">-->
-                                            <!--<span t-field="o.amount_total_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>-->
-                                    <!--    </th>-->
-                                    <!--</tr>-->
+                                    
                                 </tbody>                                
                             </table>
                         
                             <div class="row" style="padding-top:20px">
-                                 <div class="col-9 text-start erp-text">
+                                <!-- <div class="col-9 text-start erp-text">
                                     <span><strong>Terms &amp; Conditions</strong></span><br/>
                                     <span>1. Minimum contract term is 24 months. After the initial contract expired,the circuit will be on month to month
                                         term and the termination notice is 30 days.<br/></span>
@@ -323,13 +289,21 @@
                                     <span>4. Standard installation lead time: 7 - 10 days</span><br/>
                                     <span>5. Price Validity is 30 days from the date of the offer</span>
                                 </div>
-                                <!--<div class="col-9"/>-->
                                 <div class="col-3">
                                     <div style="text-align: center;">
                                         <img class="img img-responsive" t-att-src="'/custom_invoice_templates/static/img/erp_qr.png'" height="175" width="175"/>
                                     </div>
+                                </div> -->
+                                <div class="col-9 erp-text" t-if="doc.bank_information_id and doc.bank_information_id.desc">
+                                    <p>
+                                        <span t-field="doc.bank_information_id.desc"/>
+                                    </p>
                                 </div>
-                                <!-- <div class="col-4" style="padding-bottom: 30px"/> -->
+                                <div class="col-3">
+                                    <div style="text-align: center;">
+                                        <img class="img img-responsive" t-if="doc.bank_information_id.qrcode_image" t-att-src="image_data_uri(doc.bank_information_id.qrcode_image)" alt="Logo" style="max-height: 175px"/>
+                                    </div>
+                                </div>
 
                             </div>
                             <div class="row" style="margin-top: 15px; page-break-inside: avoid;">
@@ -556,54 +530,35 @@
                                         </t>
                                     </t>
                                     
-                                    <!-- <tr class="erp-text erp-border border-black">                                        
-                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
-                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
-                                        <th class="erp-text text-end erp-border">
-                                            <span t-field="doc.amount_untaxed"/>
-                                        </th>
-                                    </tr>
-                                    <tr class="erp-text erp-border border-black">
-                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
-                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
-                                        <th class="erp-text text-end erp-border">
-                                            <span t-field="doc.amount_tax"/>
-                                        </th>
-                                    </tr>
-                                    <tr class="erp-text erp-border border-black">
-                                        <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
-                                        <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
-                                        <th class="erp-text text-end erp-border">
-                                            <span t-field="doc.amount_total"/>
-                                        </th>
-                                    </tr> -->
-
                                     <!-- === if currency_id == USD then display this === -->
                                     <t t-if="doc.currency_id.name == 'USD'">
                                         <tr class="erp-text erp-border border-black">                                        
-                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
-                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>សរុប - Subtotal</span>
+                                            </th>                               
                                             <th class="erp-text text-end erp-border">
                                                 <span t-field="doc.amount_untaxed"/>
                                             </th>
                                         </tr>                                    
-                                        <tr class="erp-text erp-border border-black" t-if="doc.amount_tax">
-                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
-                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span></th>
+                                        <tr class="erp-text erp-border border-black" t-if="doc.amount_tax">                                        
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>អាករលើតម្លៃបន្ថែម - VAT 10% (USD)</span>
+                                            </th>
                                             <th class="erp-text text-end erp-border">
                                                 <span t-field="doc.amount_tax"/>
                                             </th>
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
-                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាដុល្លារ - Grand Total in USD</span></th>
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>សរុបរួមជាដុល្លារ - Grand Total in USD</span>
+                                            </th>
                                             <th class="erp-text text-end erp-border">
                                                 <span t-field="doc.amount_total"/>
                                             </th>
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
                                             <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
-                                                <span>សរុបរួមជាប្រាក់រៀល - Total in KHR</span>
+                                                <span>សរុបរួមជាប្រាក់រៀល - Grand Total in KHR</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
                                                 <!-- <span t-esc="doc.amount_total * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.khr_currency_id}"/> -->
@@ -654,7 +609,7 @@
                             </table>
                             
                             <div class="row" style="padding-top:20px">
-                                <div class="col-9 text-start erp-text">
+                                <!-- <div class="col-9 text-start erp-text">
                                     <span><strong>Terms &amp; Conditions</strong></span><br/>
                                     <span>1. Minimum contract term is 24 months. After the initial contract expired,the circuit will be on month to month
                                         term and the termination notice is 30 days.<br/></span>
@@ -663,14 +618,22 @@
                                     <span>4. Standard installation lead time: 7 - 10 days</span><br/>
                                     <span>5. Price Validity is 30 days from the date of the offer</span>
                                 </div>
-                                <!--<div class="col-9"/>-->
                                 <div class="col-3">
                                     <div style="text-align: center;">
                                         <img class="img img-responsive" t-att-src="'/custom_invoice_templates/static/img/erp_qr.png'" height="175" width="175"/>
                                     </div>
-                                </div>
-                                <!-- <div class="col-4" style="padding-bottom: 30px"/> -->
+                                </div> -->
 
+                                <div class="col-9 erp-text" t-if="doc.bank_information_id and doc.bank_information_id.desc">
+                                    <p>
+                                        <span t-field="doc.bank_information_id.desc"/>
+                                    </p>
+                                </div>
+                                <div class="col-3">
+                                    <div style="text-align: center;">
+                                        <img class="img img-responsive" t-if="doc.bank_information_id.qrcode_image" t-att-src="image_data_uri(doc.bank_information_id.qrcode_image)" alt="Logo" style="max-height: 175px"/>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="row" style="margin-top: 15px; page-break-inside: avoid;">

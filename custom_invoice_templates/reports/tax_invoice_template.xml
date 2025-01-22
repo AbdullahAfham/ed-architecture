@@ -373,7 +373,7 @@
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
                                             <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
-                                                <span>សរុបរួមជាប្រាក់រៀល - Total in KHR</span>
+                                                <span>សរុបរួមជាប្រាក់រៀល - Grand Total in KHR</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
                                                 <span t-field="o.amount_total_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>
@@ -421,32 +421,14 @@
                             </table>
                             <!-- Bank Information-->
                             <div class="row">
-                                <div class="col-9">
-                                     <div class="erp-text">
-                                        <div>
-                                            <b>ព័ត៌មានអំពីការទូទាត់តាមធនាគារ</b>
-                                        </div>
-                                        <span>Bank Information for remittance of payment:
-                                        </span>
-                                    </div>
-                                    <br/>
-                                    <div>
-                                        <div class="erp-text">
-                                            <strong>Bank Name: ADVANCED BANK OF ASIA LIMITED (ABA Bank)</strong>
-                                        </div>
-                                        <div class="erp-text">SWIFT Code : ABAAKHPP</div>
-                                       <div class="erp-text">Beneficiarys Bank Address : 148 Preah Sihanouk Blvd,
-                                           Sangkat Boeung Keng Kang I,
-                                           <br/>
-                                           Khan Boeung Keng Kang, Phnom Penh, Cambodia.
-                                       </div>
-                                        <div class="erp-text">Beneficiary Account Name : EXPO DENZI CO., LTD</div>
-                                        <div class="erp-text">Beneficiary Account : 000 000 000</div>
-                                    </div> 
+                                <div class="col-9 erp-text" t-if="o.bank_information_id and o.bank_information_id.desc">
+                                    <p>
+                                        <span t-field="o.bank_information_id.desc"/>
+                                    </p>
                                 </div>
                                 <div class="col-3">
                                     <div style="text-align: center;">
-                                        <img class="img img-responsive" t-att-src="'/custom_invoice_templates/static/img/erp_qr.png'" height="175" width="175"/>
+                                        <img class="img img-responsive" t-if="o.bank_information_id.qrcode_image" t-att-src="image_data_uri(o.bank_information_id.qrcode_image)" alt="Logo" style="max-height: 175px"/>
                                     </div>
                                 </div>
                             </div>
