@@ -10,3 +10,5 @@ class AccountMoveInherit(models.Model):
         return note_id
     
     bank_information_id = fields.Many2one('bank.information', string='Note', default=_default_bank_information_id)
+    invoice_sale_represent_id = fields.Many2one('hr.employee', string="Sales Rep.", store=True, readonly=False, tracking=True)
+    input_narration = fields.Text(string="Terms and Conditions")

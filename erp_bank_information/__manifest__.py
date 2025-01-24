@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': "ERP Bank Information",
-    'version': '18.0',
+    'version': '18.0.0.1',
     'summary': """ Manage and Display Bank Information in Reports """,
     'description': """ Manage and Display Bank Information in Reports """,
     'author': 'ERP CAMBODIA',
