@@ -101,20 +101,25 @@
                                         <div class="col-7">: <span t-esc="doc.validity_date" t-options="{'widget': 'date'}"/></div>
                                     </div>
                                     <div class="row erp-text">
-                                        <div class="col-5" t-if="doc.user_id">Salesperson</div>
-                                        <div class="col-7">: <span t-esc="doc.user_id.partner_id.name"/></div>
-                                    </div>
-                                    <div class="row erp-text" t-if="doc.user_id.partner_id.phone">
-                                        <div class="col-5">Contact Number</div>
-                                        <div class="col-7">: <span t-esc="doc.user_id.partner_id.phone"/></div>
-                                    </div>
-                                    <div class="row erp-text">
-                                        <div class="col-12">
-                                            <span>Email: </span>
-                                            <span t-esc="doc.user_id.partner_id.email"/>
+                                        <div class="col-5">Salesperson</div>
+                                        <div class="col-7"> 
+                                            : <span t-if="doc.sale_represent_id" t-esc="doc.sale_represent_id.name"/>
+                                            <span t-elif="not doc.sale_represent_id" t-esc="doc.user_id.name"/>
                                         </div>
                                     </div>
-                                    
+                                    <div class="row erp-text" t-if="doc.sale_represent_id.work_phone or (not doc.sale_represent_id and doc.user_id.partner_id.phone)">
+                                        <div class="col-5">Contact Number</div>
+                                        <div class="col-7">
+                                           : <span t-if="doc.sale_represent_id and doc.sale_represent_id.work_phone" t-esc="doc.sale_represent_id.work_phone"/>
+                                            <span t-elif="not doc.sale_represent_id and doc.user_id.partner_id.phone" t-esc="doc.user_id.partner_id.phone"/>
+                                        </div>
+                                    </div>
+                                    <div class="row erp-text" t-if="doc.sale_represent_id.work_email or (not doc.sale_represent_id and doc.user_id.partner_id.email)">
+                                        <div class="col-12">Email:
+                                            <span t-if="doc.sale_represent_id and doc.sale_represent_id.work_email" t-esc="doc.sale_represent_id.work_email"/>
+                                            <span t-elif="not doc.sale_represent_id and doc.user_id.partner_id.email" t-esc="doc.user_id.partner_id.email"/>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <br/>
@@ -433,17 +438,23 @@
                                         <div class="col-7">: <span t-esc="doc.validity_date" t-options="{'widget': 'date'}"/></div>
                                     </div>
                                     <div class="row erp-text">
-                                        <div class="col-5" t-if="doc.user_id">Salesperson</div>
-                                        <div class="col-7">: <span t-esc="doc.user_id.partner_id.name"/></div>
+                                        <div class="col-5">Salesperson</div>
+                                        <div class="col-7"> 
+                                            : <span t-if="doc.sale_represent_id" t-esc="doc.sale_represent_id.name"/>
+                                            <span t-elif="not doc.sale_represent_id" t-esc="doc.user_id.name"/>
+                                        </div>
                                     </div>
-                                    <div class="row erp-text" t-if="doc.user_id.partner_id.phone">
+                                    <div class="row erp-text" t-if="doc.sale_represent_id.work_phone or (not doc.sale_represent_id and doc.user_id.partner_id.phone)">
                                         <div class="col-5">Contact Number</div>
-                                        <div class="col-7">: <span t-esc="doc.user_id.partner_id.phone"/></div>
+                                        <div class="col-7">
+                                           : <span t-if="doc.sale_represent_id and doc.sale_represent_id.work_phone" t-esc="doc.sale_represent_id.work_phone"/>
+                                            <span t-elif="not doc.sale_represent_id and doc.user_id.partner_id.phone" t-esc="doc.user_id.partner_id.phone"/>
+                                        </div>
                                     </div>
-                                    <div class="row erp-text">
-                                        <div class="col-12">
-                                            <span>Email: </span>
-                                            <span t-esc="doc.user_id.partner_id.email"/>
+                                    <div class="row erp-text" t-if="doc.sale_represent_id.work_email or (not doc.sale_represent_id and doc.user_id.partner_id.email)">
+                                        <div class="col-12">Email:
+                                            <span t-if="doc.sale_represent_id and doc.sale_represent_id.work_email" t-esc="doc.sale_represent_id.work_email"/>
+                                            <span t-elif="not doc.sale_represent_id and doc.user_id.partner_id.email" t-esc="doc.user_id.partner_id.email"/>
                                         </div>
                                     </div>
                                 </div>
