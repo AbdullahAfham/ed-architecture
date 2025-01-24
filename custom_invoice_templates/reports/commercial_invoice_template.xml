@@ -393,9 +393,21 @@
                                     </t>
                                 </tbody>
                             </table>
+
                             <!-- Bank Information-->
+                            <!-- manual input note -->
+                            <div t-if="o.input_narration" class="row" style="margin-top: 30px; margin-bottom: -30px;">
+                                <div class="col-9 erp-text">
+                                    <p>
+                                        <span t-field="o.input_narration"/>
+                                    </p>
+                                </div>
+                                <div class="col-3"/>
+                            </div>
+                            
+                            <!-- dynamic input note -->
                             <div class="row">
-                                <div class="row">
+                                <div class="row" style="margin-top: 30px;">
                                 <div class="col-9 erp-text" t-if="o.bank_information_id and o.bank_information_id.desc">
                                     <p>
                                         <span t-field="o.bank_information_id.desc"/>

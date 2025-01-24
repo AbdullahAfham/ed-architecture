@@ -199,7 +199,7 @@
                                         </t>
                                     </t>
 
-                                    <!-- === if currency_id == USD then display this === -->
+                                    <!-- === if currency_id == USD === -->
                                     <t t-if="doc.currency_id.name == 'USD'">
                                         <tr class="erp-text erp-border border-black">                                        
                                             <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
@@ -237,27 +237,31 @@
                                     </t>
                                     <!-- === end === -->
 
-                                    <!-- === if currency_id == KHR then convert the value from USD to riel by * doc.exchange_rate === -->
+                                    <!-- === if currency_id == KHR === -->
                                     <t t-if="doc.currency_id.name == 'KHR'">
-                                        <tr class="erp-text erp-border border-black">                                        
-                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
-                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
+                                        <tr class="erp-text erp-border border-black">                                                                                    
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>សរុប - Subtotal</span>
+                                            </th>
                                             <th class="erp-text text-end erp-border">
-                                                <span t-esc="doc.amount_untaxed * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                                <span t-esc="doc.amount_untaxed * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.khr_currency_id}"/>
                                             </th>
                                         </tr>                                    
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (Riel)</span></th>
-                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (Riel)</span></th>
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>អាករលើតម្លៃបន្ថែម - VAT 10% (KHR)</span>
+                                            </th>
                                             <th class="erp-text text-end erp-border">
-                                                <span t-esc="doc.amount_tax * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                                <span t-esc="doc.amount_tax * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.khr_currency_id}"/>
                                             </th>
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាប្រាក់រៀល - Grand Total in Riel</span></th>
-                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាប្រាក់រៀល - Grand Total in Riel</span></th>
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>សរុបរួមជាប្រាក់រៀល - Grand Total in KHR</span>
+                                            </th>
                                             <th class="erp-text text-end erp-border">
-                                                <span t-esc="doc.amount_total * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                                <!-- <span t-esc="doc.amount_total * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/> -->
+                                                <span t-esc="doc.amount_total_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.khr_currency_id}"/>
                                             </th>
                                         </tr>
                                     </t>
@@ -278,22 +282,18 @@
                                     
                                 </tbody>                                
                             </table>
-                        
-                            <div class="row" style="padding-top:20px">
-                                <!-- <div class="col-9 text-start erp-text">
-                                    <span><strong>Terms &amp; Conditions</strong></span><br/>
-                                    <span>1. Minimum contract term is 24 months. After the initial contract expired,the circuit will be on month to month
-                                        term and the termination notice is 30 days.<br/></span>
-                                    <span>2. Pricing is in US Dollars</span><br/>
-                                    <span>3. The Service charge is prepaid, required to pay after received the invoice 7 working days.</span><br/>
-                                    <span>4. Standard installation lead time: 7 - 10 days</span><br/>
-                                    <span>5. Price Validity is 30 days from the date of the offer</span>
+
+                            <!-- manual input note -->
+                            <div t-if="doc.input_note" class="row" style="margin-top: 30px; margin-bottom: -30px;">
+                                <div class="col-9 erp-text">
+                                    <p>
+                                        <span t-field="doc.input_note"/>
+                                    </p>
                                 </div>
-                                <div class="col-3">
-                                    <div style="text-align: center;">
-                                        <img class="img img-responsive" t-att-src="'/custom_invoice_templates/static/img/erp_qr.png'" height="175" width="175"/>
-                                    </div>
-                                </div> -->
+                                <div class="col-3"/>
+                            </div>
+                        
+                            <div class="row" style="margin-top: 30px;">
                                 <div class="col-9 erp-text" t-if="doc.bank_information_id and doc.bank_information_id.desc">
                                     <p>
                                         <span t-field="doc.bank_information_id.desc"/>
@@ -304,7 +304,6 @@
                                         <img class="img img-responsive" t-if="doc.bank_information_id.qrcode_image" t-att-src="image_data_uri(doc.bank_information_id.qrcode_image)" alt="Logo" style="max-height: 175px"/>
                                     </div>
                                 </div>
-
                             </div>
                             <div class="row" style="margin-top: 15px; page-break-inside: avoid;">
                                 <div class="col-4">
@@ -530,7 +529,7 @@
                                         </t>
                                     </t>
                                     
-                                    <!-- === if currency_id == USD then display this === -->
+                                    <!-- === if currency_id == USD === -->
                                     <t t-if="doc.currency_id.name == 'USD'">
                                         <tr class="erp-text erp-border border-black">                                        
                                             <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
@@ -568,27 +567,31 @@
                                     </t>
                                     <!-- === end === -->
 
-                                    <!-- === if currency_id == KHR then convert the value from USD to riel by * doc.exchange_rate === -->
+                                    <!-- === if currency_id == KHR === -->
                                     <t t-if="doc.currency_id.name == 'KHR'">
-                                        <tr class="erp-text erp-border border-black">                                        
-                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុប - Subtotal</span></th>
-                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុប - Subtotal</span></th>                                        
+                                        <tr class="erp-text erp-border border-black">                                                                                    
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>សរុប - Subtotal</span>
+                                            </th>
                                             <th class="erp-text text-end erp-border">
-                                                <span t-esc="doc.amount_untaxed * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                                <span t-esc="doc.amount_untaxed * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.khr_currency_id}"/>
                                             </th>
                                         </tr>                                    
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (Riel)</span></th>
-                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>អាករលើតម្លៃបន្ថែម - VAT 10% (Riel)</span></th>
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>អាករលើតម្លៃបន្ថែម - VAT 10% (KHR)</span>
+                                            </th>
                                             <th class="erp-text text-end erp-border">
-                                                <span t-esc="doc.amount_tax * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                                <span t-esc="doc.amount_tax * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.khr_currency_id}"/>
                                             </th>
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-if="not line.discount" colspan="5" class="text-end erp-border"><span>សរុបរួមជាប្រាក់រៀល - Grand Total in Riel</span></th>
-                                            <th t-if="line.discount" colspan="6" class="text-end erp-border"><span>សរុបរួមជាប្រាក់រៀល - Grand Total in Riel</span></th>
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
+                                                <span>សរុបរួមជាប្រាក់រៀល - Grand Total in KHR</span>
+                                            </th>
                                             <th class="erp-text text-end erp-border">
-                                                <span t-esc="doc.amount_total * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                                <!-- <span t-esc="doc.amount_total * doc.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/> -->
+                                                <span t-esc="doc.amount_total_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.khr_currency_id}"/>
                                             </th>
                                         </tr>
                                     </t>
@@ -608,22 +611,17 @@
                                 </tbody>                                
                             </table>
                             
-                            <div class="row" style="padding-top:20px">
-                                <!-- <div class="col-9 text-start erp-text">
-                                    <span><strong>Terms &amp; Conditions</strong></span><br/>
-                                    <span>1. Minimum contract term is 24 months. After the initial contract expired,the circuit will be on month to month
-                                        term and the termination notice is 30 days.<br/></span>
-                                    <span>2. Pricing is in US Dollars</span><br/>
-                                    <span>3. The Service charge is prepaid, required to pay after received the invoice 7 working days.</span><br/>
-                                    <span>4. Standard installation lead time: 7 - 10 days</span><br/>
-                                    <span>5. Price Validity is 30 days from the date of the offer</span>
+                            <!-- manual input note -->
+                            <div t-if="doc.input_note" class="row" style="margin-top: 30px; margin-bottom: -30px;">
+                                <div class="col-9 erp-text">
+                                    <p>
+                                        <span t-field="doc.input_note"/>
+                                    </p>
                                 </div>
-                                <div class="col-3">
-                                    <div style="text-align: center;">
-                                        <img class="img img-responsive" t-att-src="'/custom_invoice_templates/static/img/erp_qr.png'" height="175" width="175"/>
-                                    </div>
-                                </div> -->
+                                <div class="col-3"/>
+                            </div>
 
+                            <div class="row" style="margin-top: 30px">
                                 <div class="col-9 erp-text" t-if="doc.bank_information_id and doc.bank_information_id.desc">
                                     <p>
                                         <span t-field="doc.bank_information_id.desc"/>
