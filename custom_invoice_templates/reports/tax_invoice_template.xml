@@ -238,7 +238,8 @@
                                         </div>
                                         <div class="col-6">
                                             <div class="erp-text">
-                                                : <span t-esc="o.invoice_user_id.name"/>
+                                                : <span t-if="o.invoice_sale_represent_id" t-esc="o.invoice_sale_represent_id.name"/>
+                                                <span t-elif="not o.invoice_sale_represent_id" t-esc="o.invoice_user_id.name"/>
                                             </div>
                                         </div>
                                     </div>
@@ -373,7 +374,7 @@
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
                                             <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
-                                                <span>សរុបរួមជាប្រាក់រៀល - Total in KHR</span>
+                                                <span>សរុបរួមជាប្រាក់រៀល - Grand Total in KHR</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
                                                 <span t-field="o.amount_total_khr" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>
@@ -382,15 +383,15 @@
                                     </t>
                                     <t t-elif="o.currency_id.name == 'KHR'">
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-attf-colspan="{{ '5' if line.discount else '4' }}" class="text-end erp-border">
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
                                                 <span>សរុប - Subtotal</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
                                                 <span t-esc="round(o.amount_untaxed * o.exchange_rate, 2)" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>
                                             </th>
                                         </tr>
-                                        <tr class="erp-text erp-border border-black">
-                                            <th t-attf-colspan="{{ '5' if line.discount else '4' }}" class="text-end erp-border">
+                                        <tr t-if="o.amount_tax" class="erp-text erp-border border-black">
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
                                                 <span>អាករលើតម្លៃបន្ថែម - VAT 10% (KHR)</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
@@ -398,7 +399,7 @@
                                             </th>
                                         </tr>
                                         <tr class="erp-text erp-border border-black">
-                                            <th t-attf-colspan="{{ '5' if line.discount else '4' }}" class="text-end erp-border">
+                                            <th t-attf-colspan="{{ '6' if line.discount else '5' }}" class="text-end erp-border">
                                                 <span>សរុបរួមជាដុល្លារ - Grand Total in KHR</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
@@ -408,45 +409,38 @@
                                         </tr>
                                     </t>
 
-<!--                                    <tr class="erp-border border-black">-->
-<!--                                        <th colspan="5" class="erp-text text-end erp-border">-->
-<!--                                            <span>អត្រាប្ដូរប្រាក់ - Exchange Rate</span>-->
-<!--                                        </th>-->
-<!--                                        <th class="erp-text text-end erp-border">-->
-<!--                                            <span t-field="o.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>-->
-<!--                                        </th>-->
-<!--                                    </tr>-->
+                                    <!-- <tr class="erp-border border-black">
+                                       <th colspan="5" class="erp-text text-end erp-border">
+                                           <span>អត្រាប្ដូរប្រាក់ - Exchange Rate</span>
+                                       </th>
+                                       <th class="erp-text text-end erp-border">
+                                           <span t-field="o.exchange_rate" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.khr_currency_id}"/>
+                                       </th>
+                                    </tr> -->
                                      
                                 </tbody>
                             </table>
                             <!-- Bank Information-->
-                            <div class="row">
-                                <div class="col-9">
-                                     <div class="erp-text">
-                                        <div>
-                                            <b>ព័ត៌មានអំពីការទូទាត់តាមធនាគារ</b>
-                                        </div>
-                                        <span>Bank Information for remittance of payment:
-                                        </span>
-                                    </div>
-                                    <br/>
-                                    <div>
-                                        <div class="erp-text">
-                                            <strong>Bank Name: ADVANCED BANK OF ASIA LIMITED (ABA Bank)</strong>
-                                        </div>
-                                        <div class="erp-text">SWIFT Code : ABAAKHPP</div>
-                                       <div class="erp-text">Beneficiarys Bank Address : 148 Preah Sihanouk Blvd,
-                                           Sangkat Boeung Keng Kang I,
-                                           <br/>
-                                           Khan Boeung Keng Kang, Phnom Penh, Cambodia.
-                                       </div>
-                                        <div class="erp-text">Beneficiary Account Name : EXPO DENZI CO., LTD</div>
-                                        <div class="erp-text">Beneficiary Account : 000 000 000</div>
-                                    </div> 
+                            <!-- manual input note -->
+                            <div t-if="o.input_narration" class="row" style="margin-top: 30px; margin-bottom: -30px;">
+                                <div class="col-9 erp-text">
+                                    <p>
+                                        <span t-field="o.input_narration"/>
+                                    </p>
+                                </div>
+                                <div class="col-3"/>
+                            </div>
+
+                            <!-- dynamic input note -->
+                            <div class="row" style="margin-top: 30px;">
+                                <div class="col-9 erp-text" t-if="o.bank_information_id and o.bank_information_id.desc">
+                                    <p>
+                                        <span t-field="o.bank_information_id.desc"/>
+                                    </p>
                                 </div>
                                 <div class="col-3">
                                     <div style="text-align: center;">
-                                        <img class="img img-responsive" t-att-src="'/custom_invoice_templates/static/img/erp_qr.png'" height="175" width="175"/>
+                                        <img class="img img-responsive" t-if="o.bank_information_id.qrcode_image" t-att-src="image_data_uri(o.bank_information_id.qrcode_image)" alt="Logo" style="max-height: 175px"/>
                                     </div>
                                 </div>
                             </div>

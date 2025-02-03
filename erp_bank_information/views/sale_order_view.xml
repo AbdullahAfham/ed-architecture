@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+      <record id="view_sale_order_form_inherit" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+          <xpath expr="//field[@name='payment_term_id']" position="after">
+            <field name="bank_information_id"/>
+          </xpath>
+          <xpath expr="//group[@name='partner_details']/field[@name='partner_shipping_id']" position="after">
+            <field name="sale_represent_id"/>
+          </xpath>
+          <!-- replace note-->
+          <xpath expr="//group[@name='note_group']/group/field[@name='note']" position="replace">
+              <field colspan="2" name="input_note" nolabel="1" placeholder="Terms and conditions..."/>
+          </xpath>
+        </field>
+      </record>
+    </data>
+</odoo>
