@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+      <record id="view_sale_order_quotation_tree_inherit" model="ir.ui.view">
+        <field name="name">sale.order.tree.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="arch" type="xml">
+          <xpath expr="//field[@name='partner_id']" position="before">
+            <field name="date_order" optional="show" />
+          </xpath>
+          <xpath expr="//field[@name='create_date']" position="attributes">
+              <attribute name="optional">hide</attribute>
+            </xpath>
+        </field>
+      </record>
+
+      <record id="view_sale_order_quotation_form_inherit" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+          <!-- invisible quotation date -->
+          <xpath expr="//div[hasclass('o_td_label')][1]" position="attributes">
+            <attribute name="invisible">1</attribute>
+          </xpath>
+          <xpath expr="//field[@name='date_order'][1]" position="attributes">
+             <attribute name="invisible">1</attribute>
+          </xpath>
+          <!--  invisible order date  -->
+          <xpath expr="//div[hasclass('o_td_label')][2]" position="attributes">
+            <attribute name="invisible">1</attribute>
+          </xpath>
+          <xpath expr="//field[@name='date_order'][2]" position="attributes">
+             <attribute name="invisible">1</attribute>
+          </xpath>
+          <xpath expr="//field[@name='validity_date']" position="before">
+              <field name="date_order" readonly="state in ['cancel', 'sale']"/>
+          </xpath>
+        </field>
+      </record>
+    </data>
+</odoo>
