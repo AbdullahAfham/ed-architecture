@@ -8,6 +8,8 @@ class AccountInvoice(models.Model):
 
     khr_currency_id = fields.Many2one('res.currency', string='Khmer Riel', required=True, tracking=True,
                                 readonly=True, default=lambda self: self.env['res.currency'].search([('name', '=', 'KHR')]))
+    usd_currency_id = fields.Many2one('res.currency', string='USD', required=True, tracking=True,
+                                readonly=True, default=lambda self: self.env['res.currency'].search([('name', '=', 'USD')]))
     exchange_date = fields.Date('Exchange Date', required=True, default=lambda self: fields.Date.to_string(date.today()))                                
     exchange_rate = fields.Float('Exchange Rate', required=True, store=True, readonly=True, default=4050.00)
     amount_total_khr = fields.Monetary(string='Total in Riel', compute='_compute_amount_in_currencies', store=True)

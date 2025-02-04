@@ -414,7 +414,7 @@
                                                 <span>សរុបរួមជាដុល្លារ - Grand Total in USD</span>
                                             </th>
                                             <th class="erp-text text-end erp-border">
-                                                <span t-field="o.amount_total_usd" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                                <span t-field="o.amount_total_usd" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.usd_currency_id}"/>
                                             </th>
                                         </tr>
                                     </t>
