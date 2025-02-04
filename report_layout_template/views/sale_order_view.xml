@@ -17,12 +17,21 @@
           </xpath>
 
           <xpath expr="//group//field[@name='tax_totals']" position="after">
-            <field name="amount_total_khr" widget="monetary" options="{'currency_field': 'khr_currency_id'}" readonly="0"/>
+            <field name="amount_total_khr" 
+                   widget="monetary" 
+                   readonly="0"
+                   options="{'currency_field': 'khr_currency_id'}"
+                   invisible="is_pricelist_khr != False"/>
+            <field name="amount_total_usd" 
+                   widget="monetary" 
+                   readonly="0"
+                   options="{'currency_field': 'usd_currency_id'}"
+                   invisible="is_pricelist_usd != False"/>
           </xpath>
 
         </field>
       </record>
-
+      
       <record id="view_sale_order_quotation_tree_inherit" model="ir.ui.view">
         <field name="name">sale.order.tree.inherit</field>
         <field name="model">sale.order</field>
@@ -31,6 +40,7 @@
           <xpath expr="//field[@name='amount_total']" position="after">
             <field name="exchange_rate" optional="hide" />
             <field name="amount_total_khr" optional="show" widget="monetary" options="{'currency_field': 'khr_currency_id'}"/>
+            <field name="amount_total_usd" optional="show" widget="monetary" options="{'currency_field': 'khr_currency_id'}"/>
           </xpath>
         </field>
       </record>
