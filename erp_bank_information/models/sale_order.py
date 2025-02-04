@@ -12,12 +12,6 @@ class SaleOrderInherit(models.Model):
     bank_information_id = fields.Many2one('bank.information', string='Note', default=_default_bank_information_id)
     sale_represent_id = fields.Many2one('hr.employee', string='Sales Rep.', store=True, tracking=True)
     input_note = fields.Text(string="Terms and Conditions")
-
-    def _prepare_invoice(self):
-        invoice_vals = super(SaleOrderInherit, self)._prepare_invoice()
-        
-        invoice_vals['bank_information_id'] = self.bank_information_id.id
-        return invoice_vals
     
     def _prepare_invoice(self):
         value = super(SaleOrderInherit, self)._prepare_invoice()
