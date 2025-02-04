@@ -30,6 +30,7 @@
         'views/res_company_view.xml',
         'views/purhcase_order_view.xml',
         'views/sale_order_view.xml',
+        'views/account_move_view.xml',
         # 'views/report_invoice.xml',
         # 'views/account_report.xml',
 
