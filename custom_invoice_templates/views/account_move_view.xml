@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-
         <record id="account_move_form_inherit_attend" model="ir.ui.view">
             <field name="name">account.move.form.attend</field>
             <field name="model">account.move</field>
@@ -12,22 +11,7 @@
                 <xpath expr="//field[@name='partner_id']" position="after">
                   <field name="attend_id" />
                 </xpath>
-                <xpath expr="//field[@name='tax_totals']" position="after">
-                  <field name="amount_total_khr" widget="monetary" options="{'currency_field': 'khr_currency_id'}" readonly="0"/>
-                </xpath>
             </field>
         </record>
-
-      <record id="view_invoice_tree_inherit" model="ir.ui.view">
-        <field name="name">account.move.tree.inherit</field>
-        <field name="model">account.move</field>
-        <field name="inherit_id" ref="account.view_invoice_tree"/>
-        <field name="arch" type="xml">
-          <xpath expr="//field[@name='amount_residual_signed']" position="before">
-            <field name="exchange_rate" optional="hide" />
-            <field name="amount_total_khr" optional="show" widget="monetary" options="{'currency_field': 'khr_currency_id'}"/>
-          </xpath>
-        </field>
-      </record>
     </data>
 </odoo>
