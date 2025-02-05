@@ -31,6 +31,7 @@ class SaleOrderInherit(models.Model):
     def _compute_amount_in_currency(self):
         """Compute amounts in both USD and KHR based on the pricelist currency."""
         for order in self:
+            print(f"=== {order} {self}")
             if order.pricelist_id.currency_id.name == 'USD':
                 order.amount_total_khr = order.amount_total * order.exchange_rate
                 order.amount_total_usd = order.amount_total

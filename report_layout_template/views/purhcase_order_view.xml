@@ -8,16 +8,32 @@
         <field name="arch" type="xml">
           <xpath expr="//field[@name='currency_id']" position="after">
             <field name="khr_currency_id" invisible="1"/>
+            <field name="show_update_currency" invisible="1"/>
+
+            <label for="currency_id"/>
+              <div class="o_row">
+                <field name="currency_id" />
+                <button name="action_update_price" type="object" string="Update Prices" help="Recompute all prices based on this currency" 
+                  class="btn-link mb-1 px-0" icon="fa-refresh" confirm="This will update the unit price of all products based on the new currency." 
+                  invisible="not show_update_currency or state in ['purchase', 'done', 'cancel']"/>
+              </div>
+
             <field name="exchange_date"/>
             <field name="exchange_rate" readonly="0"/>
+            
           </xpath>
 
           <xpath expr="//field[@name='currency_id']" position="attributes">
-              <attribute name="invisible">True</attribute>
-            </xpath>
+            <attribute name="invisible">True</attribute>
+          </xpath>
 
           <xpath expr="//group//field[@name='tax_totals']" position="after">
-            <field name="amount_total_khr" widget="monetary" options="{'currency_field': 'khr_currency_id'}" readonly="0"/>
+            <field name="amount_total_khr" widget="monetary" readonly="0"
+                options="{'currency_field': 'usd_currency_id'}"
+                invisible="is_pricelist_khr != False"/>
+            <field name="amount_total_usd" widget="monetary" readonly="0"
+                options="{'currency_field': 'usd_currency_id'}"
+                invisible="is_pricelist_usd != False"/>
           </xpath>
 
         </field>
