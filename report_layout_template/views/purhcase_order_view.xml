@@ -10,12 +10,12 @@
             <field name="khr_currency_id" invisible="1"/>
             <field name="show_update_currency" invisible="1"/>
 
-            <label for="currency_id"/>
+            <label for="currency_id" />
               <div class="o_row">
-                <field name="currency_id" />
+                <field name="currency_id" readonly="state in ['cancel', 'done', 'purchase']"/>
                 <button name="action_update_price" type="object" string="Update Prices" help="Recompute all prices based on this currency" 
                   class="btn-link mb-1 px-0" icon="fa-refresh" confirm="This will update the unit price of all products based on the new currency." 
-                  invisible="not show_update_currency or state in ['purchase', 'done', 'cancel']"/>
+                  invisible="not show_update_currency"/>
               </div>
 
             <field name="exchange_date"/>
