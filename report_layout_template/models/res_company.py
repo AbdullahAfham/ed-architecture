@@ -25,3 +25,14 @@ class BaseDocumentLayout(models.TransientModel):
     khmer_address = fields.Char(related='company_id.khmer_address', readonly=True)
     street = fields.Char(related='company_id.street', readonly=True)
     city = fields.Char(related='company_id.city', readonly=True)
+
+
+from odoo import _, _lt, api, fields, models
+from datetime import date, datetime, time
+
+
+class AccountInvoice(models.Model):
+    _inherit = "account.move"
+
+    show_update_currency = fields.Boolean(string="Has Currency Changed", store=False)  # true if the currency was changed
+
