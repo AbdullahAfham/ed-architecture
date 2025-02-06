@@ -34,5 +34,6 @@ from datetime import date, datetime, time
 class AccountInvoice(models.Model):
     _inherit = "account.move"
 
+    has_active_pricelist = fields.Boolean(compute='_compute_has_active_pricelist')
     show_update_currency = fields.Boolean(string="Has Currency Changed", store=False)  # true if the currency was changed
 
