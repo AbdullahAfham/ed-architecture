@@ -25,7 +25,3 @@ class BaseDocumentLayout(models.TransientModel):
     khmer_address = fields.Char(related='company_id.khmer_address', readonly=True)
     street = fields.Char(related='company_id.street', readonly=True)
     city = fields.Char(related='company_id.city', readonly=True)
-
-
-from odoo import _, _lt, api, fields, models
-from datetime import date, datetime, time
