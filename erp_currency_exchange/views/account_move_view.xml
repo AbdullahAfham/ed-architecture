@@ -37,7 +37,6 @@
                   <field name="amount_total_usd" widget="monetary" readonly="0"
                       options="{'currency_field': 'khr_currency_id'}"
                       invisible="is_pricelist_usd != False"/>
-                      
                 </xpath>
 
             </field>

@@ -2,8 +2,7 @@
     'name': "ERP Currency Exchange",
     'version': "18.0",
     'sequence': 7,
-    'summary': """Adds multi-currency exchange functionality to invoices, sales and purchases, 
-        including automatic exchange rate calculations for USD and KHR""",
+    'summary': """Adds multi-currency exchange and automatic calculations for USD and KHR""",
     'description':  """Adds multi-currency exchange functionality to invoices, sales and purchase, 
         including automatic exchange rate calculations for USD and KHR""",
 
