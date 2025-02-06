@@ -25,6 +25,7 @@
         'web',
         'account',
         'report_layout_template',
+        'erp_currency_exchange',
     ],
     'data': [
         'reports/commercial_invoice_template.xml',
