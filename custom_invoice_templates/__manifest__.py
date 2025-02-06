@@ -24,6 +24,8 @@
     'depends': [
         'web',
         'account',
+        'purchase',
+        'sale',
         'report_layout_template',
     ],
     'data': [
