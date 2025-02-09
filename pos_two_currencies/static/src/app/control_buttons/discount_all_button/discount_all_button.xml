@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_two_currencies.DiscountAllButton">
+        <button t-attf-class="{{disableButton() ? '' : 'disabled'}}"  class="control-button btn btn-light rounded-0 fw-bolder" t-on-click="() => this.click()">
+            <i class="fa fa-percent me-1" />
+            <span> </span>
+            <span>Discount All</span>
+        </button>
+    </t>
+
+</templates>

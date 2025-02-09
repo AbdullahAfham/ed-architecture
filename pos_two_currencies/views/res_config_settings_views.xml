@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_inherit" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.pos_sale</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="point_of_sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <block id="pos_accounting_section" position="after">
+                <block id="pos_session" title="POS Session">
+                    <setting id="session_sequence_id" string="Session Sequence" help="This will identify the sequence number of the POS Session">
+                        <field name="session_sequence_id" options="{'no_create': True}"/>
+                    </setting>
+                </block>
+            </block>
+            <setting id="pos-loyalty" position="after">
+                <setting id="pos_disc_button" string="Discount All Button" help="Enable Discount All Button">
+                    <field name="pos_iface_disc_button" readonly="pos_has_active_session"/>
+                </setting>
+            </setting>
+            <block id="pos_accounting_section" position="inside">
+                <setting string="Exchange Rate In KHR per Dollar ($)" help="Exchange Rate In KHR per Dollar ($)">
+                    <field name="pos_exchange_rate" readonly="1"/>
+                </setting>
+            </block>
+        </field>
+    </record>
+
+</odoo>

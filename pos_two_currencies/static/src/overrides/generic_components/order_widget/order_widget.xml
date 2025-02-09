@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_two_currencies.OrderWidget" t-inherit="point_of_sale.OrderWidget" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('order-summary')]" position="replace">
+            <div t-if="props.total or props.tax" class="order-summary w-100 py-2 px-3 bg-100 text-end fw-bolder fs-2 lh-sm d-flex justify-content-between">
+                <div>
+                    Total:
+                    <span t-esc="props.total" class="total"/>
+                    <div t-if="props.khr"  class="fs-5 text-muted subentry">
+                        Total (KHR): <span t-esc="props.khr" class="tax"/>
+                    </div>
+                    <div t-if="props.tax" class="fs-6 text-muted subentry">
+                        Taxes: <span t-esc="props.tax" class="tax"/>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </t>
+
+</templates>

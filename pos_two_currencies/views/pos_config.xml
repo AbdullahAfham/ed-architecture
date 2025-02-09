@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="pos_config_form_view_inherit" model="ir.ui.view">
+        <field name="name">pos.config.form.view.inherit</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//setting[@id='other_devices']" position='after'>
+                <setting id="payment_methods_new" string="Payment Methods" help="Payment methods available">
+                    <field name="payment_method_ids" colspan="4" widget="many2many_tags" readonly="has_active_session" required="company_has_template" options="{'no_create': True}" />
+                    <div>
+                        <button name="%(point_of_sale.action_payment_methods_tree)d" icon="oi-arrow-right" type="action" string="Payment Methods" class="btn-link"/>
+                    </div>
+                </setting>
+                <setting string="Automatically validate order" help="Automatically validates orders paid with a payment terminal.">
+                    <field name="auto_validate_terminal_payment"/>
+                </setting>
+                <setting id="pricelist" string="Flexible Pricelists" help="Set multiple prices per product, automated discounts, etc.">
+                    <div class="row">
+                        <label string="Available" for="available_pricelist_ids" class="col-lg-4 o_light_label"/>
+                        <field name="available_pricelist_ids" widget="many2many_tags" readonly="has_active_session" domain="['|',('company_id', '=', company_id),('company_id', '=', False)]" />
+                    </div>
+                    <div class="row">
+                        <label string="Default" for="pricelist_id" class="col-lg-4 o_light_label"/>
+                        <field name="pricelist_id" domain="[('id', 'in', available_pricelist_ids)]" options="{'no_create': True}"/>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="action_pos_pos_store_config" model="ir.actions.act_window">
+        <field name="name">Point of Sale Config</field>
+        <field name="res_model">pos.config</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain"></field>
+        <field name="search_view_id" ref="point_of_sale.view_pos_config_search" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new PoS
+            </p><p>
+                Configure at least one Point of Sale.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_pos_store_config"
+        name="POS Configuration"
+        parent="point_of_sale.menu_point_of_sale"
+        sequence="4"
+        action="action_pos_pos_store_config"
+        groups="point_of_sale.group_pos_manager"/>
+
+</odoo>

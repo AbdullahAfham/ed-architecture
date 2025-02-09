@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pos_config_kanban" model="ir.ui.view">
+        <field name="name">pos.config.kanban.view.inherit</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_config_kanban"/>
+        <field name="arch" type="xml">
+            <field name="last_session_closing_date" position="after">
+                <field name="last_session_closing_cash_khr"/>
+            </field>
+            <xpath expr="//div[@t-if='record.last_session_closing_date.value']" position="before">
+                <div t-if="record.last_session_closing_date.value" invisible="not cash_control" class="row">
+                    <div class="col-6">
+                        <span>Balance (KHR)</span>
+                    </div>
+                    <field name="last_session_closing_cash_khr" widget="monetary" class="col-6"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

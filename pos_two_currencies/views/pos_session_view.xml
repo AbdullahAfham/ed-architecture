@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="pos_self_view_pos_session_form" model="ir.ui.view">
+        <field name="name">pos.self.session.form.view</field>
+        <field name="model">pos.session</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='move_id']" position="before">
+                <field name="open_employee_id" readonly="1" invisible="not open_employee_id"/>
+                <field name="close_employee_id" readonly="1" invisible="not close_employee_id"/>
+            </xpath>
+            <xpath expr="//field[@name='cash_register_balance_end_real']" position="after">
+                <field name="cash_register_balance_start_khr"/>
+                <field name="cash_register_balance_end_real_khr" invisible="state != 'closed'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
