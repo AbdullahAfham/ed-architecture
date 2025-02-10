@@ -23,7 +23,7 @@ patch(PosPayment.prototype, {
     },
     set_khr(payment_method, amount, khr_last) {
         // TODO: review Logic
-        const exchange_rate = this.pos.config.exchange_rate;
+        const exchange_rate = this.pos_order_id?.config?.exchange_rate;
         if (payment_method.name.includes("KHR")) {
             const total_khr = round_pr(amount*exchange_rate, 0);
             amount = round_pr(total_khr, 100)
@@ -40,10 +40,6 @@ patch(PosPayment.prototype, {
     },
     is_khr() {
         return this.payment_method.name.includes("KHR");
-    },
-    is_payment_qr() {
-        const name = this.payment_method.name.toLowerCase();
-        return name.includes("qr") || name.includes("kb");
     },
     export_as_JSON() {
         var json = super.export_as_JSON(...arguments);

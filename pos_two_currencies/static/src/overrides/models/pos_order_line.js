@@ -33,11 +33,6 @@ patch(PosOrderline.prototype, {
         json.price_total_discount = this.getPriceTotalDiscount();
         return json;
     },
-    clone() {
-        const orderline = super.clone(...arguments);
-        orderline.is_discount_vat = this.is_discount_vat;
-        return orderline;
-    },
     export_for_printing() {
         var json = super.export_for_printing(...arguments);
         json.is_discount_vat = this.is_discount_vat;

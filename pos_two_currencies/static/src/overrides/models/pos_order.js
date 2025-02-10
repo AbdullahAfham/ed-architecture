@@ -59,7 +59,7 @@ patch(PosOrder.prototype, {
     },
     get_total_with_tax_before_discount_khr() {
         const total = this.get_total_with_tax_before_discount();
-        const exchange_rate = this.pos.config.exchange_rate;
+        const exchange_rate = this.config.exchange_rate;
         const total_khr = total ? round_pr(total*exchange_rate, 0) : 0;
         const khr = total ? round_pr(total_khr, 100) : 0;
         return khr;
@@ -131,19 +131,17 @@ patch(PosOrder.prototype, {
         return round_pr(lines.reduce((function(sum, paymentLine) {
             var amount = paymentLine.get_amount();
             if (self.pos.is_usd){
-                const exchange_rate = paymentLine.pos.config.exchange_rate;
-                const currency_khr = paymentLine.pos.currency_khr ? paymentLine.pos.currency_khr : paymentLine.pos.currency;
+                const exchange_rate = self.config.exchange_rate;
+                // const currency_khr = self.pos.self ? paymentLine.pos.currency_khr : self.pos.currency;
                 if (paymentLine.payment_method.name.includes("KHR")) {
-                    amount = round_pr(amount/exchange_rate,0.01)
-                    // amount /= exchange_rate;
-                    // amount *= currency_khr.rate;
+                    amount = round_pr(amount/exchange_rate, 0.01)
                 }
             }
             if (paymentLine.is_done()) {
                 sum += amount;
             }
             return sum;
-        }), 0), 0.01);
+        }), 0), this.currency.rounding);
     },
     is_paid() {
         let allow_diff = 0;
@@ -165,9 +163,9 @@ patch(PosOrder.prototype, {
     },
     get_due(paymentline) {
         if (!paymentline) {
-            var due = round_pr(this.get_total_with_tax(),0.01) - round_pr(this.get_total_paid(),0.01);
+            var due = round_pr(this.get_total_with_tax(), this.currency.rounding) - round_pr(this.get_total_paid(), this.currency.rounding);
         } else {
-            var due = round_pr(this.get_total_with_tax(),0.01);
+            var due = round_pr(this.get_total_with_tax(), this.currency.rounding);
             var lines = this.payment_ids;
             for (var i = 0; i < lines.length; i++) {
                 if (lines[i] === paymentline) {
@@ -175,35 +173,30 @@ patch(PosOrder.prototype, {
                 } else {
                     var amount = lines[i].get_amount();
                     if (this.pos.is_usd){
-                        // if (true){
                         const exchange_rate = paymentline.pos.config.exchange_rate;
-                        // const currency_khr = paymentline.pos.currency_khr ? paymentline.pos.currency_khr : paymentline.pos.currency;
                         if (paymentline.payment_method.name.includes("KHR")) {
                             amount = round_pr(amount/exchange_rate,0.01)
-                            // amount /= exchange_rate;
-                            // amount *= currency_khr.rate;
                         }
                     }
-                    due -= round_pr(amount,0.01);
+                    due -= round_pr(amount, this.currency.rounding);
                 }
             }
         }
-        return round_pr(due, 0.01);
+        return round_pr(due, this.currency.rounding);
     },
     get_change(paymentline) {
+        const self = this;
         if (!paymentline) {
             var change = this.get_total_paid() - this.get_total_with_tax() - this.get_rounding_applied();
         } else {
             var change = -this.get_total_with_tax();
-            const exchange_rate = paymentline.pos.config.exchange_rate;
-            const currency_khr = paymentline.pos.currency_khr ? paymentline.pos.currency_khr : paymentline.pos.currency;
+            const exchange_rate = self.config.exchange_rate;
+            const currency_khr = self.pos.currency_khr ? self.pos.currency_khr : self.pos.currency;
             var lines = this.payment_ids;
             for (var i = 0; i < lines.length; i++) {
                 var amount = lines[i].get_amount();
                 if (paymentline.payment_method.name.includes("KHR")&&this.pos.is_usd){
-                    // if (paymentline.payment_method.name.includes("KHR")){
                     amount = round_pr(amount/exchange_rate,0.01)
-                    // amount/=exchange_rate;
                 }
                 change +=amount;
                 if (lines[i] === paymentline) {
@@ -219,10 +212,11 @@ patch(PosOrder.prototype, {
         const exchange_rate = this.pos.config.exchange_rate;
         var lines = this.payment_ids;
         var is_khr = this.is_khr;
-        if(!is_khr)
+        if(!is_khr) {
             if((lines.length > 0) && lines[lines.length-1].khr_last){
                 is_khr=true;
             }
+        }
         if(!is_khr){
             change = change - Math.floor(change/10)*10;
         }
@@ -233,10 +227,11 @@ patch(PosOrder.prototype, {
         var change = this.locked ? this.amount_return : this.get_change();
         var lines = this.payment_ids;
         var is_khr = this.is_khr;
-        if(!is_khr)
+        if(!is_khr) {
             if((lines.length > 0) && lines[lines.length-1].khr_last){
                 is_khr=true;
             }
+        }
         if(is_khr){
             change = 0;
         }
@@ -244,7 +239,7 @@ patch(PosOrder.prototype, {
     },
     get_total_khr() {
         const total = this.get_total_with_tax();
-        const exchange_rate = this.pos.config.exchange_rate;
+        const exchange_rate = this.config.exchange_rate;
         const total_khr = total ? round_pr(total*exchange_rate, 0) : 0;
         const khr = total ? round_pr(total_khr, 100) : 0;
         return khr;
@@ -259,7 +254,7 @@ patch(PosOrder.prototype, {
                 payment_method_id: payment_method,
             });
 
-            const exchange_rate = this.pos.config.exchange_rate;
+            const exchange_rate = this.config.exchange_rate;
             var due = this.get_due();
             if(payment_method.name.includes("KHR") && this.pos.is_usd){
                 due = round_pr(due*exchange_rate, 1)
@@ -268,7 +263,7 @@ patch(PosOrder.prototype, {
 
             this.payment_ids.add(newPaymentline);
             this.select_paymentline(newPaymentline);
-            if (this.pos.config.cash_rounding) {
+            if (this.config.cash_rounding) {
                 this.selected_paymentline.set_amount(0);
             }
             if (payment_method.payment_terminal) {

@@ -11,6 +11,7 @@ class PosConfigInherit(models.Model):
     exchange_rate = fields.Float(string='Exchange Rate', compute='_compute_exchange_rate')
     last_session_closing_cash_khr = fields.Float(compute='_compute_last_session')
     iface_disc_button = fields.Boolean(string='Discount All Button')
+    currency_khr = fields.Many2one('res.currency', string='Currency KHR', default=lambda self: self.env['res.currency'].search([('name', '=', "KHR")], limit=1))
 
     def get_order_sequence_number(self):
         return self.session_sequence_id.number_next_actual
@@ -34,10 +35,10 @@ class PosConfigInherit(models.Model):
                 pos_config.last_session_closing_cash_khr = 0
                 pos_config.last_session_closing_date = False
 
+    @api.depends('currency_khr.rate')
     def _compute_exchange_rate(self):
         for config in self:
-            currency_id = self.env['res.currency'].search([('name', '=', "KHR")], limit=1)
-            config.exchange_rate = currency_id and currency_id.rate or 4000
+            config.exchange_rate = self.currency_khr and self.currency_khr.rate or 4000
 
     def get_tables_order_count(self):
         self.ensure_one()

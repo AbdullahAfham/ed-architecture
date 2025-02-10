@@ -58,12 +58,11 @@ patch(PosStore.prototype, {
             return super.cashierHasPriceControlRights();
         }
     },
-    async _processData(loadedData) {
-        await super._processData(...arguments);
-        this.currency_khr = loadedData['currency_khr'];
-        this.currency_usd = loadedData['currency_param'];
-        this.order_sequence = 'order_sequence' in loadedData ? loadedData['order_sequence'] : {};
+    async afterProcessServerData() {
+        this.currency_usd = this.data.models["res.currency"].getFirst();
+        this.currency_khr = this.config.currency_khr ? this.config.currency_khr : null;
         this.is_usd = this.currency.id !== this.currency_khr?.id;
+        return await super.afterProcessServerData(...arguments);
     },
     formatCurrencyKHR(value, hasSymbol = true) {
         return formatMonetary(value, {

@@ -10,7 +10,7 @@ import {
 
 patch(PaymentScreenPaymentLines.prototype, {
     /**
-     * @override
+     * @TODO: Remove this method when the issue is fixed.
      */
     formatLineAmount(paymentline) {
         let amount = paymentline.get_amount();

@@ -734,40 +734,6 @@ class PosSessionInherit(models.Model):
         # self._post_cash_details_message('Opening', difference, notesUSD or notes)
         # self._post_cash_khr_details_message('Opening', difference_khr, notesKHR or notes)
 
-    def _get_pos_ui_stock_picking_type(self, params):
-        res = self.env['stock.picking.type'].search_read(**params['search_params'])
-        return res and res[0] or False
-
-    def _loader_params_loyalty_program(self):
-        vals = super()._loader_params_loyalty_program()
-        vals['search_params']['fields'] += ['apply_one']
-        return vals
-
-    def _pos_ui_models_to_load(self):
-        result = super()._pos_ui_models_to_load()
-        new_models_to_load = [model for model in ['pos.group.operation'] if model not in result]
-        result.extend(new_models_to_load)
-        return result
-
-    def _loader_params_account_tax(self):
-        result = super()._loader_params_account_tax()
-        result["search_params"]["fields"].append("is_discount_vat")
-        return result
-
-    def _pos_data_process(self, loaded_data):
-        super()._pos_data_process(loaded_data)
-        currency_khr_param = {
-            'domain': [('name', '=', 'KHR')],
-            'fields': ['name', 'symbol', 'position', 'rounding', 'rate', 'decimal_places'],
-        }
-        currency_param = {
-            'domain': [('id', '=', self.config_id.currency_id.id)],
-            'fields': ['name', 'symbol', 'position', 'rounding', 'rate', 'decimal_places'],
-        }
-
-        loaded_data['currency_khr'] = self.env['res.currency'].search_read(**currency_khr_param)[0]
-        loaded_data['currency_param'] = self.env['res.currency'].search_read(**currency_param)[0]
-
     def _create_combine_account_payment(self, payment_method, amounts, diff_amount):
         date = fields.Date.context_today(self)
         if payment_method and payment_method.journal_id:
@@ -862,21 +828,22 @@ class PosSessionInherit(models.Model):
                 # amount = amount * self.config_id.exchange_rate
         return super(PosSessionInherit, self)._get_split_statement_line_vals(statement, amount, payment)
 
-    def _get_pos_ui_hr_employee(self, params):
-        employees = self.env['hr.employee'].search_read(**params['search_params'])
-        employee_ids = [employee['id'] for employee in employees]
-        user_ids = [employee['user_id'] for employee in employees if employee['user_id']]
-        admin_ids = self.env['res.users'].browse(user_ids).filtered(lambda user: user.has_group('base.group_erp_manager')).mapped('id')
-
-        employees_barcode_pin = self.env['hr.employee'].browse(employee_ids).get_barcodes_and_pin_hashed()
-        bp_per_employee_id = {bp_e['id']: bp_e for bp_e in employees_barcode_pin}
-        for employee in employees:
-            if employee['user_id'] and employee['user_id'] in admin_ids:
-                employee['role'] = 'admin'
-            elif employee['id'] in self.config_id.advanced_employee_ids.ids:
-                employee['role'] = 'manager'
-            else:
-                employee['role'] = 'cashier'
-            employee['barcode'] = bp_per_employee_id[employee['id']]['barcode']
-            employee['pin'] = bp_per_employee_id[employee['id']]['pin']
-        return employees
+    # TODO: Check Cashier Access right
+    # def _get_pos_ui_hr_employee(self, params):
+    #     employees = self.env['hr.employee'].search_read(**params['search_params'])
+    #     employee_ids = [employee['id'] for employee in employees]
+    #     user_ids = [employee['user_id'] for employee in employees if employee['user_id']]
+    #     admin_ids = self.env['res.users'].browse(user_ids).filtered(lambda user: user.has_group('base.group_erp_manager')).mapped('id')
+    #
+    #     employees_barcode_pin = self.env['hr.employee'].browse(employee_ids).get_barcodes_and_pin_hashed()
+    #     bp_per_employee_id = {bp_e['id']: bp_e for bp_e in employees_barcode_pin}
+    #     for employee in employees:
+    #         if employee['user_id'] and employee['user_id'] in admin_ids:
+    #             employee['role'] = 'admin'
+    #         elif employee['id'] in self.config_id.advanced_employee_ids.ids:
+    #             employee['role'] = 'manager'
+    #         else:
+    #             employee['role'] = 'cashier'
+    #         employee['barcode'] = bp_per_employee_id[employee['id']]['barcode']
+    #         employee['pin'] = bp_per_employee_id[employee['id']]['pin']
+    #     return employees

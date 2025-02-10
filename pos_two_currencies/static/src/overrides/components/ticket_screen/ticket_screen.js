@@ -5,12 +5,6 @@ import { TicketScreen } from "@point_of_sale/app/screens/ticket_screen/ticket_sc
 import { patch } from "@web/core/utils/patch";
 
 patch(TicketScreen.prototype, {
-    showDisplayQueue() {
-        return this.pos.config.iface_waiting_queue;
-    },
-    getQueueNumber(order) {
-        return order.getQueueNumberDate();
-    },
     //@override
     _getSearchFields() {
         return Object.assign({}, {
