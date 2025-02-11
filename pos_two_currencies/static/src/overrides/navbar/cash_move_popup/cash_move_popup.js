@@ -4,7 +4,6 @@ import { patch } from "@web/core/utils/patch";
 import { useState } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { parseFloat } from "@web/views/fields/parsers";
-import { CashMoveReceipt } from "@point_of_sale/app/navbar/cash_move_popup/cash_move_receipt/cash_move_receipt";
 
 patch(CashMovePopup.prototype, {
     setup() {
@@ -19,6 +18,9 @@ patch(CashMovePopup.prototype, {
         });
     },
 
+    _prepare_try_cash_in_out_payload(type, amount, reason, extras) {
+        return [[this.pos.session.id], type, amount, reason, extras, amountKHR];
+    },
     async confirm() {
         const amount = parseFloat(this.state.amount);
         const amountKHR = parseFloat(this.state.amountKHR);
@@ -40,14 +42,13 @@ patch(CashMovePopup.prototype, {
         const translatedType = _t(type);
         const extras = { formattedAmount, formattedAmountKHR, translatedType };
         const reason = this.state.reason.trim();
-        await this.orm.call("pos.session", "try_cash_in_out", [
-            [this.pos.pos_session.id],
-            type,
-            amount,
-            reason,
-            extras,
-            amountKHR,
-        ]);
+        await this.pos.data.call(
+            "pos.session",
+            "try_cash_in_out",
+            this._prepare_try_cash_in_out_payload(type, amount, reason, extras, amountKHR),
+            {},
+            true
+        );
 
         if (amount) {
             await this.pos.logEmployeeMessage(
@@ -61,6 +62,7 @@ patch(CashMovePopup.prototype, {
                 "CASH_DRAWER_ACTION"
             );
         }
+
         // Dev: Remove print cashout receipt
         // await this.printer.print(CashMoveReceipt, {
         //     reason,
@@ -71,7 +73,6 @@ patch(CashMovePopup.prototype, {
         // });
 
         this.props.close();
-
         if (amount) {
             this.notification.add(
                 _t("Successfully made a cash %s of %s.", type, formattedAmount),

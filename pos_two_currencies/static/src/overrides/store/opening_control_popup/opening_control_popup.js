@@ -4,8 +4,8 @@ import { patch } from "@web/core/utils/patch";
 import { useState } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { parseFloat } from "@web/views/fields/parsers";
-import { MoneyDetailsKHRPopup } from "@pos_two_currencies/app/utils/money_details_khr_popup/money_details_khr_popup";
 import { MoneyDetailsPopup } from "@point_of_sale/app/utils/money_details_popup/money_details_popup";
+import { MoneyDetailsKHRPopup } from "@pos_two_currencies/app/utils/money_details_khr_popup/money_details_khr_popup";
 
 patch(OpeningControlPopup.prototype, {
     setup() {
@@ -16,11 +16,11 @@ patch(OpeningControlPopup.prototype, {
             notesKHR: "",
             notesUSD: "",
             openingCash: this.pos.formatCurrencyKHR(
-                this.pos.pos_session.cash_register_balance_start || 0,
+                this.pos.pos_session?.cash_register_balance_start || 0,
                 false
             ),
             openingCashKHR: this.pos.formatCurrencyKHR(
-                this.pos.pos_session.cash_register_balance_start_khr || 0,
+                this.pos.pos_session?.cash_register_balance_start || 0,
                 false
             ),
         });
@@ -73,7 +73,7 @@ patch(OpeningControlPopup.prototype, {
     async openDetailsKHRPopup() {
         const action = _t("Cash control - opening");
         this.hardwareProxy.openCashbox(action);
-        this.dialog.add(MoneyDetailsPopup, {
+        this.dialog.add(MoneyDetailsKHRPopup, {
             moneyDetails: this.moneyDetails,
             action: action,
             getPayload: (payload) => {

@@ -1,20 +1,15 @@
 /** @odoo-module */
 import { ClosePosPopup } from "@point_of_sale/app/navbar/closing_popup/closing_popup";
 import { patch } from "@web/core/utils/patch";
-import { useState } from "@odoo/owl";
 import { _t } from "@web/core/l10n/translation";
 import { parseFloat } from "@web/views/fields/parsers";
 import { MoneyDetailsKHRPopup } from "@pos_two_currencies/app/utils/money_details_khr_popup/money_details_khr_popup";
 import { MoneyDetailsPopup } from "@point_of_sale/app/utils/money_details_popup/money_details_popup";
-import { ErrorPopup } from "@point_of_sale/app/errors/popups/error_popup";
-import { ConnectionLostError } from "@web/core/network/rpc_service";
 import {
     roundPrecision as round_pr,
 } from "@web/core/utils/numbers";
-import {
-    deserializeDate,
-    formatDateTime,
-} from "@web/core/l10n/dates";
+import { ConnectionLostError } from "@web/core/network/rpc";
+import { deduceUrl } from "@point_of_sale/utils";
 
 ClosePosPopup.props = [
     ...ClosePosPopup.props,
@@ -52,6 +47,22 @@ patch(ClosePosPopup.prototype, {
         });
         return initialState;
     },
+    get cashKHRMoveData() {
+        const { total, moves } = this.props.default_cash_details_khr.moves.reduce(
+            (acc, move, i) => {
+                acc.total += move.amount;
+                acc.moves.push({
+                    id: i,
+                    name: move.name,
+                    amount: move.amount,
+                });
+                return acc;
+            },
+            { total: 0, moves: [] }
+        );
+        return { total, moves };
+    },
+
     getDifference(paymentId) {
         const counted = this.state.payments[paymentId].counted;
         if (!this.env.utils.isValidFloat(counted)) {
@@ -70,14 +81,33 @@ patch(ClosePosPopup.prototype, {
 
         return parseFloat(counted) - expectedAmount;
     },
+
     async closeSession() {
-        const cashier = this.pos.get_cashier();
-        this.customerDisplay?.update({ closeUI: true });
+        sessionStorage.removeItem("connected_cashier");
+        if (this.pos.config.customer_display_type === "proxy") {
+            const proxyIP = this.pos.getDisplayDeviceIP();
+            fetch(`${deduceUrl(proxyIP)}/hw_proxy/customer_facing_display`, {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ params: { action: "close" } }),
+            }).catch(() => {
+                console.log("Failed to send data to customer display");
+            });
+        }
+        // If there are orders in the db left unsynced, we try to sync.
+        const syncSuccess = await this.pos.push_orders_with_closing_popup();
+        if (!syncSuccess) {
+            return;
+        }
         if (this.pos.config.cash_control) {
-            const response = await this.orm.call(
+            const cashier = this.pos.get_cashier();
+            const response = await this.pos.data.call(
                 "pos.session",
                 "post_closing_cash_details",
-                [this.pos.pos_session.id],
+                [this.pos.session.id],
                 {
                     counted_cash: parseFloat(
                         this.state.payments[this.props.default_cash_details.id].counted
@@ -86,6 +116,7 @@ patch(ClosePosPopup.prototype, {
                         this.state.payments[this.props.default_cash_details_khr.id].counted
                     ),
                     employee_id: cashier?.id || false,
+
                 }
             );
 
@@ -95,8 +126,8 @@ patch(ClosePosPopup.prototype, {
         }
 
         try {
-            await this.orm.call("pos.session", "update_closing_control_state_session", [
-                this.pos.pos_session.id,
+            await this.pos.data.call("pos.session", "update_closing_control_state_session", [
+                this.pos.session.id,
                 this.state.notes,
                 this.state.notesUSD,
                 this.state.notesKHR,
@@ -111,34 +142,22 @@ patch(ClosePosPopup.prototype, {
         }
 
         try {
-            const bankPaymentMethodDiffPairs = this.props.other_payment_methods
+            const bankPaymentMethodDiffPairs = this.props.non_cash_payment_methods
                 .filter((pm) => pm.type == "bank")
                 .map((pm) => [pm.id, this.getDifference(pm.id)]);
-            const response = await this.orm.call("pos.session", "close_session_from_ui", [
-                this.pos.pos_session.id,
+            const response = await this.pos.data.call("pos.session", "close_session_from_ui", [
+                this.pos.session.id,
                 bankPaymentMethodDiffPairs,
             ]);
             if (!response.successful) {
                 return this.handleClosingError(response);
             }
-            window.location = "/web#action=point_of_sale.action_client_pos_menu";
+            location.reload();
         } catch (error) {
             if (error instanceof ConnectionLostError) {
-                // Cannot redirect to backend when offline, let error handlers show the offline popup
-                // FIXME POSREF: doing this means closing again when online will redo the beginning of the method
-                // although it's impossible to close again because this.closeSessionClicked isn't reset to false
-                // The application state is corrupted.
                 throw error;
             } else {
-                // FIXME POSREF: why are we catching errors here but not anywhere else in this method?
-                await this.popup.add(ErrorPopup, {
-                    title: _t("Closing session error"),
-                    body: _t(
-                        "An error has occurred when trying to close the session.\n" +
-                            "You will be redirected to the back-end to manually close the session."
-                    ),
-                });
-                window.location = "/web#action=point_of_sale.action_client_pos_menu";
+                await this.handleClosingControlError();
             }
         }
     },
@@ -154,45 +173,47 @@ patch(ClosePosPopup.prototype, {
     async openDetailsPopup() {
         const action = _t("Cash control - closing");
         this.hardwareProxy.openCashbox(action);
-        const { confirmed, payload } = await this.popup.add(MoneyDetailsPopup, {
+        this.dialog.add(MoneyDetailsPopup, {
             moneyDetails: this.moneyDetails,
             action: action,
-        });
-        if (confirmed) {
-            const { total, moneyDetailsNotes, moneyDetails } = payload;
-            this.state.payments[this.props.default_cash_details.id].counted =
-                this.env.utils.formatCurrency(total, false);
-            if (moneyDetailsNotes) {
-                this.state.noteUSD = moneyDetailsNotes;
-                if (this.state.noteKHR) {
-                    this.state.notes = `${moneyDetailsNotes}\n${this.state.noteKHR}`;
-                } else {
-                    this.state.notes = moneyDetailsNotes;
+            getPayload: (payload) => {
+                const { total, moneyDetailsNotes, moneyDetails } = payload;
+                this.state.payments[this.props.default_cash_details.id].counted =
+                    this.env.utils.formatCurrency(total, false);
+                if (moneyDetailsNotes) {
+                    this.state.noteUSD = moneyDetailsNotes;
+                    if (this.state.noteKHR) {
+                        this.state.notes = `${moneyDetailsNotes}\n${this.state.noteKHR}`;
+                    } else {
+                        this.state.notes = moneyDetailsNotes;
+                    }
                 }
-            }
-            this.moneyDetails = moneyDetails;
-        }
+                this.moneyDetails = moneyDetails;
+            },
+            context: "Closing",
+        });
     },
     async openDetailsKHRPopup() {
-        const action = _t("Cash control - opening");
+        const action = _t("Cash control - closing");
         this.hardwareProxy.openCashbox(action);
-        const { confirmed, payload } = await this.popup.add(MoneyDetailsKHRPopup, {
+        this.dialog.add(MoneyDetailsKHRPopup, {
             moneyDetails: this.moneyDetailsKHR,
             action: action,
-        });
-        if (confirmed) {
-            const { total, moneyDetails, moneyDetailsNotes } = payload;
-            this.state.payments[this.props.default_cash_details_khr.id].counted =
-                this.pos.formatCurrencyKHR(total, false);
-            if (moneyDetailsNotes) {
-                this.state.noteKHR = moneyDetailsNotes;
-                if (this.state.noteUSD) {
-                    this.state.notes = `${this.state.noteUSD}\n${moneyDetailsNotes}`;
-                } else {
-                    this.state.notes = moneyDetailsNotes;
+            getPayload: (payload) => {
+                const { total, moneyDetails, moneyDetailsNotes } = payload;
+                this.state.payments[this.props.default_cash_details_khr.id].counted =
+                    this.pos.formatCurrencyKHR(total, false);
+                if (moneyDetailsNotes) {
+                    this.state.noteKHR = moneyDetailsNotes;
+                    if (this.state.noteUSD) {
+                        this.state.notes = `${this.state.noteUSD}\n${moneyDetailsNotes}`;
+                    } else {
+                        this.state.notes = moneyDetailsNotes;
+                    }
                 }
-            }
-            this.moneyDetailsKHR = moneyDetails;
-        }
+                this.moneyDetailsKHR = moneyDetails;
+            },
+            context: "Closing",
+        });
     },
 });

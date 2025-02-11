@@ -5,9 +5,7 @@ import { patch } from "@web/core/utils/patch";
 import {
     roundPrecision as round_pr,
 } from "@web/core/utils/numbers";
-import { OrderReceipt } from "@point_of_sale/app/screens/receipt_screen/receipt/order_receipt";
 import { _t } from "@web/core/l10n/translation";
-import { ConfirmPopup } from "@point_of_sale/app/utils/confirm_popup/confirm_popup";
 
 patch(PaymentScreen.prototype, {
     setup() {

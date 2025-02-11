@@ -6,6 +6,7 @@ from markupsafe import Markup, escape
 from collections import defaultdict
 from odoo.tools.image import image_data_uri
 from odoo.tools import float_is_zero, float_compare, convert
+from odoo.tools import float_is_zero, float_compare, convert, plaintext2html
 
 class PosSessionInherit(models.Model):
     _inherit = 'pos.session'
@@ -416,7 +417,7 @@ class PosSessionInherit(models.Model):
 
             statement_line_khr_ids = statement_line_ids - statement_line_usd_ids
 
-            currency_id = self.env['res.currency'].search([('name', '=', "KHR")], limit=1)
+            currency_id = self.config_id.currency_khr
             date = fields.Date.context_today(self)
 
             cash_in_count_khr = 0
@@ -479,9 +480,9 @@ class PosSessionInherit(models.Model):
     def post_closing_cash_details(self, counted_cash, counted_cash_khr=0.0, cashier_name=None, employee_id=None):
         res = super(PosSessionInherit, self).post_closing_cash_details(counted_cash)
         if res.get('successful', False) and self.cash_journal_khr_id:
-            currency_id = self.env['res.currency'].search([('name', '=', "KHR")], limit=1)
+            currency_khr = self.config_id.currency_khr
             date = fields.Date.context_today(self)
-            self.cash_register_balance_end_real_khr = currency_id._convert(counted_cash_khr, self.currency_id, self.company_id, date, True)
+            self.cash_register_balance_end_real_khr = currency_khr._convert(counted_cash_khr, self.currency_id, self.company_id, date, True)
 
             if employee_id:
                 employee = self.env['hr.employee'].browse(employee_id)
@@ -495,14 +496,14 @@ class PosSessionInherit(models.Model):
 
     def _post_cash_khr_details_message(self, state, difference, notes):
         message = ""
-        currency_id = self.env['res.currency'].search([('name', '=', "KHR")], limit=1)
-        if not currency_id:
-            currency_id = self.currency_id
+        currency_khr = self.config_id.currency_khr
+        if not currency_khr:
+            currency_khr = self.currency_id
         if difference:
             message = f"{state} difference: " \
-                      f"{currency_id.symbol + ' ' if currency_id.position == 'before' else ''}" \
-                      f"{currency_id.round(difference)} " \
-                      f"{currency_id.symbol if currency_id.position == 'after' else ''}" + Markup('<br/>')
+                      f"{currency_khr.symbol + ' ' if currency_khr.position == 'before' else ''}" \
+                      f"{currency_khr.round(difference)} " \
+                      f"{currency_khr.symbol if currency_khr.position == 'after' else ''}" + Markup('<br/>')
         if notes:
             message += escape(notes).replace('\n', Markup('<br/>'))
         if message:
@@ -511,9 +512,9 @@ class PosSessionInherit(models.Model):
     def _post_statement_difference(self, amount, is_opening, cash_khr=0.0):
         super(PosSessionInherit, self)._post_statement_difference(amount, is_opening)
         if cash_khr:
-            currency_id = self.env['res.currency'].search([('name', '=', "KHR")], limit=1)
+            currency_khr = self.config_id.currency_khr
             date = self.statement_line_ids.sorted()[-1:].date or fields.Date.context_today(self)
-            amount = self.currency_id._convert(cash_khr, currency_id, self.company_id, date, True)
+            amount = self.currency_id._convert(cash_khr, currency_khr, self.company_id, date, True)
             # amount = cash_khr
 
             if self.config_id.cash_control:
@@ -709,30 +710,37 @@ class PosSessionInherit(models.Model):
         self._post_cash_details_message('Closing', self.cash_register_difference, notesUSD or notes)
         self._post_cash_khr_details_message('Closing', self.cash_register_difference_khr, notesKHR or notes)
 
-    def set_cashbox_pos(self, cashbox_value: int, notes: str, cashbox_value_khr=0.0, notesUSD="", notesKHR="", employee_id=None):
+    def set_opening_control(self, cashbox_value: int, notes: str, cashbox_value_khr=0.0, notesUSD="", notesKHR="", employee_id=None):
         self.state = 'opened'
-        self.opening_notes = notes
-        self.cash_register_balance_start = cashbox_value
 
-        currency_id = self.env['res.currency'].search([('name', '=', "KHR")], limit=1)
-        date = fields.Date.context_today(self)
-        if cashbox_value_khr != 0:
-            cashbox_value_khr = currency_id._convert(cashbox_value_khr, self.currency_id, self.company_id, date, True)
+        cash_payment_method_ids = self.config_id.payment_method_ids.filtered(lambda pm: pm.is_cash_count)
+        if cash_payment_method_ids:
+            self.opening_notes = notes
+            # difference = cashbox_value - self.cash_register_balance_start
+            self.cash_register_balance_start = cashbox_value
 
-        self.cash_register_balance_start_khr = cashbox_value_khr or 0.0
+            currency_khr = self.config_id.currency_khr
+            date = fields.Date.context_today(self)
+            if cashbox_value_khr != 0:
+                cashbox_value_khr = currency_khr._convert(cashbox_value_khr, self.currency_id, self.company_id, date, True)
+            self.cash_register_balance_start_khr = cashbox_value_khr or 0.0
 
-        if employee_id:
-            employee = self.env['hr.employee'].browse(employee_id)
-            if employee:
-                self.open_employee_id = employee.id
-                self.message_post(body=f'Opened by Cashier: {employee.name}')
+            if employee_id:
+                employee = self.env['hr.employee'].browse(employee_id)
+                if employee:
+                    self.open_employee_id = employee.id
+                    self.message_post(body=f'Opened by Cashier: {employee.name}')
 
-        # difference = cashbox_value - self.cash_register_balance_start
-        # difference_khr = cashbox_value_khr - self.cash_register_balance_start_khr
-        # self.sudo()._post_statement_difference(difference, True, difference_khr)
-        #
-        # self._post_cash_details_message('Opening', difference, notesUSD or notes)
-        # self._post_cash_khr_details_message('Opening', difference_khr, notesKHR or notes)
+            # difference = cashbox_value - self.cash_register_balance_start
+            # difference_khr = cashbox_value_khr - self.cash_register_balance_start_khr
+            # self.sudo()._post_statement_difference(difference, True, difference_khr)
+            #
+            # self._post_cash_details_message('Opening cash', self.cash_register_balance_start, difference, , notesUSD or notes)
+            # self._post_cash_khr_details_message('Opening cash', self.cash_register_balance_start, difference, , notesKHR or notes)
+        elif notes:
+            message = _('Opening control message: ')
+            message += notes
+            self.message_post(body=plaintext2html(message))
 
     def _create_combine_account_payment(self, payment_method, amounts, diff_amount):
         date = fields.Date.context_today(self)

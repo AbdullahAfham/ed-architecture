@@ -4,7 +4,6 @@ import { ReceiptScreen } from "@point_of_sale/app/screens/receipt_screen/receipt
 import { formatDateTime } from "@web/core/l10n/dates";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
-import { OfflineErrorPopup } from "@point_of_sale/app/errors/popups/offline_error_popup";
 import { OrderReceipt } from "@point_of_sale/app/screens/receipt_screen/receipt/order_receipt";
 import { onMounted } from "@odoo/owl";
 
@@ -30,53 +29,16 @@ patch(ReceiptScreen.prototype, {
         }
         return formatDateTime(date, { format: 'dd-MM-yyyy hh:mm a' });
     },
-    async printReceipt() {
-        this.buttonPrintReceipt.el.className = "fa fa-fw fa-spin fa-circle-o-notch";
-        const isPrinted = await this.printer.print(
+    async generateTicketImage(isBasicReceipt = false) {
+        await this.renderer.toJpeg(
             OrderReceipt,
             {
-                data: this.pos.get_order().export_for_printing(),
+                data: this.pos.orderExportForPrinting(this.pos.get_order()),
                 formatCurrency: this.env.utils.formatCurrency,
+                basic_receipt: isBasicReceipt,
                 formatCurrencyKHR: this.pos.formatCurrencyKHR,
             },
-            { webPrintFallback: true }
+            { addClass: "pos-receipt-print p-3" }
         );
-
-        if (isPrinted) {
-            this.currentOrder._printed = true;
-        }
-
-        if (this.buttonPrintReceipt.el) {
-            this.buttonPrintReceipt.el.className = "fa fa-print";
-        }
     },
-    async sendToCustomer(orderPartner, methodName) {
-        const ticketImage = await this.renderer.toJpeg(
-            OrderReceipt,
-            {
-                data: this.pos.get_order().export_for_printing(),
-                formatCurrency: this.env.utils.formatCurrency,
-                formatCurrencyKHR: this.pos.formatCurrencyKHR,
-            },
-            { addClass: "pos-receipt-print" }
-        );
-        const order = this.currentOrder;
-        const orderName = order.get_name();
-        const order_server_id = this.pos.validated_orders_name_server_id_map[orderName];
-        if (!order_server_id) {
-            this.popup.add(OfflineErrorPopup, {
-                title: _t("Unsynced order"),
-                body: _t(
-                    "This order is not yet synced to server. Make sure it is synced then try again."
-                ),
-            });
-            return Promise.reject();
-        }
-        await this.orm.call("pos.order", methodName, [
-            [order_server_id],
-            orderName,
-            orderPartner,
-            ticketImage,
-        ]);
-    }
 });

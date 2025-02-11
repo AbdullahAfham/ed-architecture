@@ -6,6 +6,7 @@ import { PosStore } from "@point_of_sale/app/store/pos_store";
 import { renderToString } from "@web/core/utils/render";
 import { memoize } from "@web/core/utils/functions";
 import { formatMonetary } from "@web/views/fields/formatters";
+import { OrderReceipt } from "@point_of_sale/app/screens/receipt_screen/receipt/order_receipt";
 
 /**
  * Gets a product image as a base64 string so that it can be sent to the
@@ -74,5 +75,20 @@ patch(PosStore.prototype, {
         const result = super.getReceiptHeaderData(...arguments);
         result.config_name = this.config.name;
         return result;
+    },
+    async printReceipt({ basic = false, order = this.get_order() } = {}) {
+        await this.printer.print(
+            OrderReceipt,
+            {
+                data: this.orderExportForPrinting(order),
+                formatCurrency: this.env.utils.formatCurrency,
+                basic_receipt: basic,
+                formatCurrencyKHR: this.pos.formatCurrencyKHR,
+            },
+            { webPrintFallback: true }
+        );
+        const nbrPrint = order.nb_print;
+        await this.data.write("pos.order", [order.id], { nb_print: nbrPrint + 1 });
+        return true;
     },
 });
