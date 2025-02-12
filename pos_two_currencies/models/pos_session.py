@@ -168,56 +168,6 @@ class PosSessionInherit(models.Model):
             data.update({'stock_expense': stock_expense})
         return data
 
-    # Override Parent Method
-    def _prepare_line(self, order_line):
-        """ Derive from order_line the order date, income account, amount and taxes information.
-
-        These information will be used in accumulating the amounts for sales and tax lines.
-        """
-        def get_income_account(order_line):
-            product = order_line.product_id
-            income_account = product.with_company(order_line.company_id)._get_product_accounts()['income'] or self.config_id.journal_id.default_account_id
-            if not income_account:
-                raise UserError(_('Please define income account for this product: "%s" (id:%d).',
-                                  product.name, product.id))
-            return order_line.order_id.fiscal_position_id.map_account(income_account)
-
-        company_domain = self.env['account.tax']._check_company_domain(order_line.order_id.company_id)
-        tax_ids = order_line.tax_ids_after_fiscal_position.filtered_domain(company_domain)
-        sign = -1 if order_line.qty >= 0 else 1
-        # Custom Code
-        price_unit = sign * order_line.price_unit
-        # End Custom Code
-        price = price_unit * (1 - (order_line.discount or 0.0) / 100.0)
-        # The 'is_refund' parameter is used to compute the tax tags. Ultimately, the tags are part
-        # of the key used for summing taxes. Since the POS UI doesn't support the tags, inconsistencies
-        # may arise in 'Round Globally'.
-        check_refund = lambda x: x.qty * x.price_unit < 0
-        is_refund = check_refund(order_line)
-
-        # Custom Code
-        tax_data = tax_ids.compute_all(price_unit=price_unit, quantity=abs(order_line.qty), currency=self.currency_id, is_refund=is_refund, fixed_multiplicator=sign)
-        # tax_data = tax_ids.compute_all(price_unit=price if order_line.is_discount_vat else price_unit, quantity=abs(order_line.qty), currency=self.currency_id, is_refund=is_refund, fixed_multiplicator=sign)
-        # End Custom Code
-
-        taxes = tax_data['taxes']
-        # For Cash based taxes, use the account from the repartition line immediately as it has been paid already
-        for tax in taxes:
-            tax_rep = self.env['account.tax.repartition.line'].browse(tax['tax_repartition_line_id'])
-            tax['account_id'] = tax_rep.account_id.id
-
-        # Custom Code
-        date_order = order_line.order_id.date_order
-        # End Custom Code
-        taxes = [{'date_order': date_order, **tax} for tax in taxes]
-        return {
-            'date_order': date_order,
-            'income_account_id': get_income_account(order_line).id,
-            'amount': order_line.price_subtotal,
-            'taxes': taxes,
-            'base_tags': tuple(tax_data['base_tags']),
-        }
-
     @api.depends('config_id', 'payment_method_ids')
     def _compute_cash_journal(self):
         for session in self:
@@ -235,17 +185,6 @@ class PosSessionInherit(models.Model):
             session.name = session.config_id.session_sequence_id.next_by_id()
 
         return sessions
-
-    def _get_balancing_close_default_account(self, balance=0):
-        propoerty_account = self.env['ir.property']._get('property_account_receivable_id', 'res.partner')
-        if not float_is_zero(balance, precision_rounding=0.01):
-            cash_journal_id = self.cash_journal_id
-            if cash_journal_id:
-                if balance < 0.0:
-                    propoerty_account = cash_journal_id.loss_account_id
-                else:
-                    propoerty_account = cash_journal_id.profit_account_id
-        return propoerty_account or self.env['account.account']
 
     def _close_session_action(self, amount_to_balance):
         # NOTE This can't handle `bank_payment_method_diffs` because there is no field in the wizard that can carry it.
@@ -599,7 +538,7 @@ class PosSessionInherit(models.Model):
                     pass
             except UserError:
                 record.env.cr.rollback()
-                balancing_account = record._get_balancing_close_default_account(amount_to_balance)
+                balancing_account = record._get_balancing_account()
                 if not balancing_account:
                     # If there is no balancing account, we force select Profit/Loss account
                     balancing_account = record.sudo().env['account.account'].browse(36)
@@ -672,7 +611,7 @@ class PosSessionInherit(models.Model):
                 self.env.cr.rollback()
 
                 amount_authorized_diff = self.config_id.amount_authorized_diff if self.config_id.set_maximum_difference else False
-                balancing_account = self._get_balancing_close_default_account(balance)
+                balancing_account = self._get_balancing_account()
                 # If balancing amount within the limit, we close the session automatically
                 if balancing_account and amount_authorized_diff and amount_authorized_diff > abs(balance):
                     return self._validate_session(balancing_account, balance, bank_payment_method_diffs)
