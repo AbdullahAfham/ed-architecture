@@ -12,6 +12,12 @@ class PosOrderLine(models.Model):
     is_discount_vat = fields.Boolean(string='Discount VAT', default=False)
     price_total_discount = fields.Float(string='Total Discount', digits=0, readonly=True)
 
+    @api.model
+    def _load_pos_data_fields(self, config_id):
+        fields = super()._load_pos_data_fields(config_id)
+        fields += ['is_discount_vat', 'price_total_discount']
+        return fields
+
     def _is_product_kit_fifo_avco(self):
         self.ensure_one()
         return self.product_id.is_kits and self.product_id.cost_method in ['fifo', 'average']
@@ -51,13 +57,6 @@ class PosOrderLine(models.Model):
                     round=False,
                 )
                 line.is_total_cost_computed = True
-
-    @api.model
-    def default_get(self, fields):
-        result = super().default_get(fields)
-        if 'is_discount_vat' in fields:
-            result['is_discount_vat'] = self.env.user.company_id.is_discount_vat
-        return result
 
     @api.onchange('qty', 'discount', 'price_unit', 'tax_ids')
     def _onchange_qty(self):

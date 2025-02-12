@@ -451,7 +451,7 @@ class PosSessionInherit(models.Model):
                 'id': default_cash_payment_method_khr_id.id
             } if default_cash_payment_method_khr_id else None
 
-            res['other_payment_methods'] = [{
+            res['non_cash_payment_methods'] = [{
                 'name': pm.name,
                 'amount': sum(orders.payment_ids.filtered(lambda p: p.payment_method_id == pm).mapped('amount')),
                 'number': len(orders.payment_ids.filtered(lambda p: p.payment_method_id == pm)),

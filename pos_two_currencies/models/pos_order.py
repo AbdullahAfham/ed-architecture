@@ -78,30 +78,6 @@ class PosOrder(models.Model):
             kit_fifo_avco_lines = order.lines.filtered(lambda l: l._is_product_kit_fifo_avco())
             kit_fifo_avco_lines._compute_kit_total_cost(stock_moves)
 
-    def _export_for_ui(self, order):
-        result = super(PosOrder, self)._export_for_ui(order)
-        result['is_khr'] = order.is_khr
-        result['discount_all'] = order.discount_all
-        result['origs_order_name'] = order.origs_order_name
-        result['order_no'] = order.order_no
-        result['order_name'] = order.name
-        return result
-
-    @api.model
-    def _get_fields_for_draft_order(self):
-        fields = super(PosOrder, self)._get_fields_for_draft_order()
-        fields.extend(['is_khr', 'discount_all', 'order_no'])
-        return fields
-
-    def _payment_fields(self, order, ui_paymentline):
-        result = super(PosOrder, self)._payment_fields(order, ui_paymentline)
-        result['khr'] = ui_paymentline.get("khr", 0.0)
-        payment_method_id = self.env['pos.payment.method'].browse(ui_paymentline['payment_method_id']).exists()
-        exchange_rate = order.session_id.config_id.exchange_rate
-        if payment_method_id and ("KHR" in payment_method_id.name):
-            result['amount'] = round(ui_paymentline['amount'] / exchange_rate, 4)
-        return result
-
     def _process_payment_lines(self, pos_order, order, pos_session, draft):
         """Create account.bank.statement.lines from the dictionary given to the parent function.
 
@@ -117,6 +93,8 @@ class PosOrder(models.Model):
         :type draft: bool.
         """
         prec_acc = order.currency_id.decimal_places
+        order.amount_paid = sum(order.payment_ids.mapped('amount'))
+
         exchange_rate = order.session_id.config_id.exchange_rate
         payment_method_ids = pos_session.payment_method_ids.filtered('is_cash_count')
         cash_khr = False
@@ -127,10 +105,6 @@ class PosOrder(models.Model):
             else:
                 cash_usd = payment_method_id
 
-        order._clean_payment_lines()
-        for payments in pos_order['statement_ids']:
-            order.add_payment(self._payment_fields(order, payments[2]))
-        order.amount_paid = sum(order.payment_ids.mapped('amount'))
         payment_methods = [payment_method.name for payment_method in order.payment_ids.mapped('payment_method_id')]
 
         if not draft and not float_is_zero(pos_order['amount_return'], prec_acc):
@@ -173,7 +147,7 @@ class PosOrder(models.Model):
 
     @api.model
     def _amount_line_tax(self, line, fiscal_position_id):
-        taxes = line.tax_ids.filtered(lambda t: t.company_id.id == line.order_id.company_id.id)
+        taxes = line.tax_ids.filtered_domain(self.env['account.tax']._check_company_domain(line.order_id.company_id))
         taxes = fiscal_position_id.map_tax(taxes)
         if line.is_discount_vat:
             price = line.price_unit * (1 - (line.discount or 0.0) / 100.0)

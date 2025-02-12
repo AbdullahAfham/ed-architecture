@@ -14,7 +14,7 @@ patch(PaymentScreenPaymentLines.prototype, {
      */
     formatLineAmount(paymentline) {
         let amount = paymentline.get_amount();
-        if (paymentline.name.includes("KHR")) {
+        if (paymentline.payment_method_id.name.includes("KHR")) {
             amount = round_pr(amount, 100)
             return this.pos.formatCurrencyKHR(amount);
         }

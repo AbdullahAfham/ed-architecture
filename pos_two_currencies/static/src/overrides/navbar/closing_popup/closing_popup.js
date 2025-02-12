@@ -38,7 +38,7 @@ patch(ClosePosPopup.prototype, {
             };
         }
 
-        this.props.other_payment_methods.forEach((pm) => {
+        this.props.non_cash_payment_methods.forEach((pm) => {
             if (pm.type === "bank") {
                 initialState.payments[pm.id] = {
                     counted: this.env.utils.formatCurrency(pm.amount, false),
@@ -70,7 +70,7 @@ patch(ClosePosPopup.prototype, {
         }
         let payment_method = paymentId === this.props.default_cash_details?.id
                 ? this.props.default_cash_details
-                : this.props.other_payment_methods.find((pm) => pm.id === paymentId);
+                : this.props.non_cash_payment_methods.find((pm) => pm.id === paymentId);
         let expectedAmount = 0.0;
         if (!payment_method) {
             payment_method = this.props.default_cash_details_khr;

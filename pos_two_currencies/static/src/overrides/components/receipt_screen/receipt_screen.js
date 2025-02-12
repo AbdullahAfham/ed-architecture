@@ -10,16 +10,12 @@ import { onMounted } from "@odoo/owl";
 patch(ReceiptScreen.prototype, {
     setup() {
         super.setup(...arguments);
-        if (!this.currentOrder?._printed) {
-            onMounted(this.printReceipt);
+        if (!this.currentOrder?.nb_print < 1) {
+            onMounted(() => this.pos.printReceipt());
         }
     },
     get khr_rate() {
-        return this.receiptEnv.order.pos.config.exchange_rate;
-    },
-    // Dev: For POS restaurant
-    get table() {
-        return this.props.order.getTable()?.name;
+        return this.pos.config.exchange_rate;
     },
     get date() {
         const now = luxon.DateTime.now();

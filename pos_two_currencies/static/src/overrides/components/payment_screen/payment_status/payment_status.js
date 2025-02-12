@@ -30,7 +30,7 @@ patch(PaymentScreenStatus.prototype, {
         var lines = this.props.order.get_paymentlines();
         var change = this.props.order.get_change();
         const exchange_rate = this.env.services.pos.config.exchange_rate;
-        if((lines.length > 0) && !lines[lines.length-1].name.includes("KHR")){
+        if((lines.length > 0) && !lines[lines.length-1].payment_method_id.name.includes("KHR")){
             change = change - Math.floor(change/10)*10;
             this.props.order.is_khr=false;
         }
@@ -40,7 +40,7 @@ patch(PaymentScreenStatus.prototype, {
     get changeText() {
         var lines = this.props.order.get_paymentlines();
         var change = this.props.order.get_change();
-        if((lines.length > 0) && lines[lines.length-1].name.includes("KHR")){
+        if((lines.length > 0) && lines[lines.length-1].payment_method_id.name.includes("KHR")){
             change = 0;
             this.props.order.is_khr=true;
         }

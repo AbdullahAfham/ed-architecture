@@ -28,9 +28,9 @@ patch(PaymentScreen.prototype, {
             }
 
             // Update Payment line status
-            var lines = this.paymentLines;
-            var khr_last = false;
-            if((lines.length > 0) && lines[lines.length-1].name.includes("KHR")){
+            const lines = this.paymentLines;
+            let khr_last = false;
+            if((lines.length > 0) && lines[lines.length-1].payment_method_id.name.includes("KHR")){
                 khr_last=true;
             }
 
