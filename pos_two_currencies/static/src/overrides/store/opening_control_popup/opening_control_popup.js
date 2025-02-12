@@ -74,7 +74,7 @@ patch(OpeningControlPopup.prototype, {
         const action = _t("Cash control - opening");
         this.hardwareProxy.openCashbox(action);
         this.dialog.add(MoneyDetailsKHRPopup, {
-            moneyDetails: this.moneyDetails,
+            moneyDetails: this.moneyDetailsKHR,
             action: action,
             getPayload: (payload) => {
                 if (payload) {

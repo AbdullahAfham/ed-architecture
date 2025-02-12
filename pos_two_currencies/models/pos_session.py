@@ -17,10 +17,6 @@ class PosSessionInherit(models.Model):
     cash_register_balance_start_khr = fields.Monetary(
         string="Starting Balance (KHR)",
         readonly=True)
-    cash_register_total_entry_encoding_khr = fields.Monetary(
-        compute='_compute_cash_balance',
-        string='Total Cash Transaction (KHR)',
-        readonly=True)
     cash_register_balance_end_khr = fields.Monetary(
         compute='_compute_cash_balance',
         string="Theoretical Closing Balance (KHR)",
@@ -44,7 +40,7 @@ class PosSessionInherit(models.Model):
             discount_account = tax.mapped('discount_account_id')
             if discount_account:
                 return discount_account
-        return self.company_id and self.company_id.account_discount_pos_id or None
+        return None
 
     def _prepare_discount_line(self, order_line):
         """ Derive from order_line the order date, income account, amount and taxes information.
@@ -178,13 +174,13 @@ class PosSessionInherit(models.Model):
             session.cash_journal_id = cash_payment_method_usd[:1].journal_id if cash_payment_method_usd else False
             session.cash_journal_khr_id = cash_payment_method_khr[:1].journal_id if cash_payment_method_khr else False
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        sessions = super().create(vals_list)
-        for session in sessions.filtered(lambda s: s.config_id and s.config_id.session_sequence_id):
-            session.name = session.config_id.session_sequence_id.next_by_id()
-
-        return sessions
+    # Apply from original module
+    # @api.model_create_multi
+    # def create(self, vals_list):
+    #     sessions = super().create(vals_list)
+    #     for session in sessions.filtered(lambda s: s.config_id and s.config_id.sequence_id):
+    #         session.name = session.config_id.sequence_id.next_by_id()
+    #     return sessions
 
     def _close_session_action(self, amount_to_balance):
         # NOTE This can't handle `bank_payment_method_diffs` because there is no field in the wizard that can carry it.
@@ -255,22 +251,16 @@ class PosSessionInherit(models.Model):
 
             if cash_payment_method:
                 total_cash_payment = 0.0
-                # last_session = session.search([('config_id', '=', session.config_id.id), ('id', '<', session.id)], limit=1)
-                result = self.env['pos.payment']._read_group(
-                    [('session_id', '=', session.id), ('payment_method_id', '=', cash_payment_method.id)],
-                    aggregates=['amount:sum'])
+                result = self.env['pos.payment']._read_group([('session_id', '=', session.id), ('payment_method_id', '=', cash_payment_method.id)], aggregates=['amount:sum'])
                 total_cash_payment = result[0][0] or 0.0
                 if session.state == 'closed':
-                    session.cash_register_total_entry_encoding = session.cash_real_transaction_usd + total_cash_payment
+                    total_cash = session.cash_real_transaction_usd + total_cash_payment
                 else:
-                    session.cash_register_total_entry_encoding = sum(
-                        statement_line_usd_ids.mapped('amount')) + total_cash_payment
+                    total_cash = sum(statement_line_usd_ids.mapped('amount')) + total_cash_payment
 
-                # session.cash_register_balance_end = last_session.cash_register_balance_end_real + session.cash_register_total_entry_encoding
-                session.cash_register_balance_end = session.cash_register_balance_start + session.cash_register_total_entry_encoding
+                session.cash_register_balance_end = session.cash_register_balance_start + total_cash
                 session.cash_register_difference = session.cash_register_balance_end_real - session.cash_register_balance_end
             else:
-                session.cash_register_total_entry_encoding = 0.0
                 session.cash_register_balance_end = 0.0
                 session.cash_register_difference = 0.0
 
@@ -278,24 +268,20 @@ class PosSessionInherit(models.Model):
             cash_payment_method_khr = cash_payment_methods.filtered(lambda pm: "KHR" in pm.name)[:1]
             if cash_payment_method_khr:
                 total_cash_payment_khr = 0.0
-                result = self.env['pos.payment']._read_group(
-                    [('session_id', '=', session.id), ('payment_method_id', '=', cash_payment_method_khr.id)],
-                    aggregates=['amount:sum'])
-                total_cash_payment_khr = result[0][0] or 0.0
+                result_khr = self.env['pos.payment']._read_group([('session_id', '=', session.id), ('payment_method_id', '=', cash_payment_method_khr.id)], aggregates=['amount:sum'])
+                total_cash_payment_khr = result_khr[0][0] or 0.0
                 if session.state == 'closed':
-                    session.cash_register_total_entry_encoding_khr = session.cash_real_transaction_khr + total_cash_payment_khr
+                    total_cash_khr = session.cash_real_transaction_khr + total_cash_payment_khr
                 else:
                     currency_id = self.env['res.currency'].search([('name', '=', "KHR")], limit=1)
                     date = fields.Date.context_today(session)
                     statement_amount = currency_id._convert(sum(statement_line_khr_ids.mapped('amount')),
                                                             session.currency_id, session.company_id, date, True)
-                    session.cash_register_total_entry_encoding_khr = statement_amount + total_cash_payment_khr
+                    total_cash_khr = statement_amount + total_cash_payment_khr
 
-                # session.cash_register_balance_end_khr = last_session.cash_register_balance_end_real + session.cash_register_total_entry_encoding
-                session.cash_register_balance_end_khr = session.cash_register_balance_start_khr + session.cash_register_total_entry_encoding_khr
+                session.cash_register_balance_end_khr = session.cash_register_balance_start_khr + total_cash_khr
                 session.cash_register_difference_khr = session.cash_register_balance_end_real_khr - session.cash_register_balance_end_khr
             else:
-                session.cash_register_total_entry_encoding_khr = 0.0
                 session.cash_register_balance_end_khr = 0.0
                 session.cash_register_difference_khr = 0.0
 
@@ -448,8 +434,8 @@ class PosSessionInherit(models.Model):
         if message:
             self.message_post(body=message)
 
-    def _post_statement_difference(self, amount, is_opening, cash_khr=0.0):
-        super(PosSessionInherit, self)._post_statement_difference(amount, is_opening)
+    def _post_statement_difference(self, amount, cash_khr=0.0):
+        super(PosSessionInherit, self)._post_statement_difference(amount)
         if cash_khr:
             currency_khr = self.config_id.currency_khr
             date = self.statement_line_ids.sorted()[-1:].date or fields.Date.context_today(self)
@@ -470,9 +456,8 @@ class PosSessionInherit(models.Model):
                         _('Please go on the %s journal and define a Loss Account. This account will be used to record cash difference.',
                           self.cash_journal_khr_id.name))
 
-                st_line_vals['payment_ref'] = _("Cash (KHR) difference observed during the counting (Loss)") + (_(' - opening') if is_opening else _(' - closing'))
-                if not is_opening:
-                    st_line_vals['counterpart_account_id'] = self.cash_journal_khr_id.loss_account_id.id
+                st_line_vals['payment_ref'] = _("Cash (KHR) difference observed during the counting (Loss) - closing")
+                st_line_vals['counterpart_account_id'] = self.cash_journal_khr_id.loss_account_id.id
             else:
                 # self.cash_register_difference  > 0.0
                 if not self.cash_journal_khr_id.profit_account_id:
@@ -480,11 +465,16 @@ class PosSessionInherit(models.Model):
                         _('Please go on the %s journal and define a Profit Account. This account will be used to record cash difference.',
                           self.cash_journal_khr_id.name))
 
-                st_line_vals['payment_ref'] = _("Cash (KHR) difference observed during the counting (Profit)") + (_(' - opening') if is_opening else _(' - closing'))
-                if not is_opening:
-                    st_line_vals['counterpart_account_id'] = self.cash_journal_khr_id.profit_account_id.id
+                st_line_vals['payment_ref'] = _("Cash (KHR) difference observed during the counting (Profit) - closing")
+                st_line_vals['counterpart_account_id'] = self.cash_journal_khr_id.profit_account_id.id
 
-            self.env['account.bank.statement.line'].create(st_line_vals)
+            created_line = self.env['account.bank.statement.line'].create(st_line_vals)
+
+            if created_line:
+                created_line.move_id.message_post(body=_(
+                    "Related Session: %(link)s",
+                    link=self._get_html_link()
+                ))
 
     def _create_account_move(self, balancing_account=False, amount_to_balance=0, bank_payment_method_diffs=None):
         """ Create account.move and account.move.line records for this session.
@@ -544,7 +534,7 @@ class PosSessionInherit(models.Model):
                     balancing_account = record.sudo().env['account.account'].browse(36)
                 return record._revalidate_session(balancing_account, balance, bank_payment_method_diffs)
 
-            record.sudo()._post_statement_difference(cash_difference_before_statements, False)
+            record.sudo()._post_statement_difference(cash_difference_before_statements)
             if record.move_id.line_ids:
                 record.move_id.sudo().with_company(record.company_id)._post()
                 #We need to write the price_subtotal and price_total here because if we do it earlier the compute functions will overwrite it here /account/models/account_move_line.py _compute_totals
@@ -563,7 +553,7 @@ class PosSessionInherit(models.Model):
         bank_payment_method_diffs = bank_payment_method_diffs or {}
         self.ensure_one()
         data = {}
-        sudo = self.user_has_groups('point_of_sale.group_pos_user')
+        sudo = self.env.user.has_group('point_of_sale.group_pos_user')
 
         statement_line_ids = self.sudo().statement_line_ids
         cash_journal_id = self.sudo().cash_journal_id
@@ -572,11 +562,12 @@ class PosSessionInherit(models.Model):
         currency_id = self.env['res.currency'].search([('name', '=', "KHR")], limit=1)
         date = fields.Date.context_today(self)
 
-        if self.order_ids.filtered(lambda o: o.state != 'cancel') or statement_line_ids:
-            self.cash_real_transaction_usd = sum(statement_line_usd_ids.mapped('amount')) or 0
+        if self.order_ids.filtered(lambda o: o.state != 'cancel') or self.sudo().statement_line_ids:
+            self.cash_real_transaction_usd = sum(statement_line_usd_ids.mapped('amount'))
             statement_amount = currency_id._convert(sum(statement_line_khr_ids.mapped('amount')),
                                                     self.currency_id, self.company_id, date, True)
             self.cash_real_transaction_khr = statement_amount or 0
+
             self.cash_real_transaction = self.cash_real_transaction_usd + self.cash_real_transaction_khr
             if self.state == 'closed':
                 raise UserError(_('This session is already closed.'))
@@ -618,23 +609,27 @@ class PosSessionInherit(models.Model):
 
                 return self._close_session_action(balance)
 
-            self.sudo()._post_statement_difference(cash_difference_before_statements, is_opening=False, cash_khr=cash_khr_difference_before_statements)
-
+            self.sudo()._post_statement_difference(cash_difference_before_statements, cash_khr=cash_khr_difference_before_statements)
             if self.move_id.line_ids:
                 self.move_id.sudo().with_company(self.company_id)._post(soft=False)
-                #We need to write the price_subtotal and price_total here because if we do it earlier the compute functions will overwrite it here /account/models/account_move_line.py _compute_totals
-                for dummy, amount_data in data['sales'].items():
-                    self.env['account.move.line'].browse(amount_data['move_line_id']).sudo().with_company(self.company_id).write({
-                        'price_subtotal': abs(amount_data['amount_converted']),
-                        'price_total': abs(amount_data['amount_converted']) + abs(amount_data['tax_amount']),
-                    })
                 # Set the uninvoiced orders' state to 'done'
                 self.env['pos.order'].search([('session_id', '=', self.id), ('state', '=', 'paid')]).write({'state': 'done'})
             else:
                 self.move_id.sudo().unlink()
             self.sudo().with_company(self.company_id)._reconcile_account_move_lines(data)
         else:
-            self.sudo()._post_statement_difference(self.cash_register_difference, False, cash_khr=self.cash_register_difference_khr)
+            self.sudo()._post_statement_difference(self.cash_register_difference, cash_khr=self.cash_register_difference_khr)
+
+        if self.config_id.order_edit_tracking:
+            edited_orders = self.order_ids.filtered(lambda o: o.is_edited)
+            if len(edited_orders) > 0:
+                body = _("Edited order(s) during the session:%s",
+                    Markup("<br/><ul>%s</ul>") % Markup().join(Markup("<li>%s</li>") % order._get_html_link() for order in edited_orders)
+                )
+                self.message_post(body=body)
+
+        # Make sure to trigger reordering rules
+        self.picking_ids.move_ids.sudo()._trigger_scheduler()
 
         self.write({'state': 'closed'})
         return True
@@ -672,7 +667,7 @@ class PosSessionInherit(models.Model):
 
             # difference = cashbox_value - self.cash_register_balance_start
             # difference_khr = cashbox_value_khr - self.cash_register_balance_start_khr
-            # self.sudo()._post_statement_difference(difference, True, difference_khr)
+            # self.sudo()._post_statement_difference(difference, difference_khr)
             #
             # self._post_cash_details_message('Opening cash', self.cash_register_balance_start, difference, , notesUSD or notes)
             # self._post_cash_khr_details_message('Opening cash', self.cash_register_balance_start, difference, , notesKHR or notes)
@@ -695,7 +690,7 @@ class PosSessionInherit(models.Model):
                     diff_amount = self.currency_id._convert(diff_amount, currency_id, self.company_id, date, True)
                     # diff_amount = diff_amount * self.config_id.exchange_rate
 
-        outstanding_account = payment_method.outstanding_account_id or self.company_id.account_journal_payment_debit_account_id
+        outstanding_account = payment_method.outstanding_account_id
         destination_account = self._get_receivable_account(payment_method)
 
         if float_compare(amounts['amount'], 0, precision_rounding=self.currency_id.rounding) < 0:
@@ -703,23 +698,22 @@ class PosSessionInherit(models.Model):
             outstanding_account, destination_account = destination_account, outstanding_account
 
         account_payment = self.env['account.payment'].create({
-            'date': date,
             'amount': abs(amounts['amount']),
             'journal_id': payment_method.journal_id.id,
             'force_outstanding_account_id': outstanding_account.id,
-            'destination_account_id':  destination_account.id,
-            'ref': _('Combine %s POS payments from %s', payment_method.name, self.name),
+            'destination_account_id': destination_account.id,
+            'memo': _('Combine %(payment_method)s POS payments from %(session)s', payment_method=payment_method.name, session=self.name),
             'pos_payment_method_id': payment_method.id,
             'pos_session_id': self.id,
             'company_id': self.company_id.id,
         })
+        account_payment.action_post()
 
         diff_amount_compare_to_zero = self.currency_id.compare_amounts(diff_amount, 0)
         if diff_amount_compare_to_zero != 0:
             self._apply_diff_on_account_payment_move(account_payment, payment_method, diff_amount)
 
-        account_payment.action_post()
-        return account_payment.move_id.line_ids.filtered(lambda line: line.account_id == account_payment.destination_account_id)
+        return account_payment.move_id.line_ids.filtered(lambda line: line.account_id == self._get_receivable_account(payment_method))
 
     def _create_split_account_payment(self, payment, amounts):
         payment_method = payment.payment_method_id
@@ -734,7 +728,8 @@ class PosSessionInherit(models.Model):
                                                                   date,
                                                                   True)
                     # amounts['amount'] = amounts['amount'] * self.config_id.exchange_rate
-        outstanding_account = payment_method.outstanding_account_id or self.company_id.account_journal_payment_debit_account_id
+
+        outstanding_account = payment_method.outstanding_account_id
         accounting_partner = self.env["res.partner"]._find_accounting_partner(payment.partner_id)
         destination_account = accounting_partner.property_account_receivable_id
 
@@ -743,18 +738,17 @@ class PosSessionInherit(models.Model):
             outstanding_account, destination_account = destination_account, outstanding_account
 
         account_payment = self.env['account.payment'].create({
-            'date': date,
             'amount': abs(amounts['amount']),
             'partner_id': payment.partner_id.id,
             'journal_id': payment_method.journal_id.id,
             'force_outstanding_account_id': outstanding_account.id,
             'destination_account_id': destination_account.id,
-            'ref': _('%s POS payment of %s in %s', payment_method.name, payment.partner_id.display_name, self.name),
+            'memo': _('%(payment_method)s POS payment of %(partner)s in %(session)s', payment_method=payment_method.name, partner=payment.partner_id.display_name, session=self.name),
             'pos_payment_method_id': payment_method.id,
             'pos_session_id': self.id,
         })
         account_payment.action_post()
-        return account_payment.move_id.line_ids.filtered(lambda line: line.account_id == account_payment.destination_account_id)
+        return account_payment.move_id.line_ids.filtered(lambda line: line.account_id == accounting_partner.property_account_receivable_id)
 
     def _get_combine_statement_line_vals(self, journal_id, amount, payment_method):
         if payment_method and payment_method.journal_id:

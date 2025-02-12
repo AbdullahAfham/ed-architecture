@@ -92,13 +92,15 @@ patch(PosOrderline.prototype, {
             };
         }
 
-        // const priceWithTax = taxesData.total_excluded + taxTotal;
+        const priceWithTax = taxesData.total_excluded + taxTotal;
         // const priceWithoutTax = price_include ? all_taxes.total_included - taxTotal : all_taxes.total_excluded;
-        // const priceWithoutTax = taxesData.total_excluded;
+        const priceWithoutTax = taxesData.total_excluded;
 
         return {
-            priceWithTax: taxesData.total_included,
-            priceWithoutTax: taxesData.total_excluded,
+            priceWithTax: priceWithTax,
+            priceWithoutTax: priceWithoutTax,
+            // priceWithTax: taxesData.total_included,
+            // priceWithoutTax: taxesData.total_excluded,
             priceWithTaxBeforeDiscount: taxesDataBeforeDiscount.total_included,
             priceWithoutTaxBeforeDiscount: taxesDataBeforeDiscount.total_excluded,
             tax: taxesData.total_included - taxesData.total_excluded,

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from . import account_tax
 from . import pos_config
 from . import pos_details_wizard
 from . import pos_order

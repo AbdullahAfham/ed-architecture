@@ -26,6 +26,7 @@
         'views/pos_payment_views.xml',
         'views/pos_session_view.xml',
         'views/res_config_settings_views.xml',
+        'views/account_view.xml',
         'views/views.xml',
     ],
 

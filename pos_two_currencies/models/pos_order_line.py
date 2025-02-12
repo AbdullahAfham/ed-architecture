@@ -9,7 +9,7 @@ from odoo.tools import float_compare, float_is_zero
 class PosOrderLine(models.Model):
     _inherit = "pos.order.line"
 
-    is_discount_vat = fields.Boolean(string='Discount VAT', default=False)
+    is_discount_vat = fields.Boolean(string='Discount VAT', default=True)
     price_total_discount = fields.Float(string='Total Discount', digits=0, readonly=True)
 
     @api.model

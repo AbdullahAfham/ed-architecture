@@ -7,14 +7,13 @@ import pytz
 class PosConfigInherit(models.Model):
     _inherit = 'pos.config'
 
-    session_sequence_id = fields.Many2one('ir.sequence', 'Session Sequence')
     exchange_rate = fields.Float(string='Exchange Rate', compute='_compute_exchange_rate')
     last_session_closing_cash_khr = fields.Float(compute='_compute_last_session')
     iface_disc_button = fields.Boolean(string='Discount All Button')
     currency_khr = fields.Many2one('res.currency', string='Currency KHR', default=lambda self: self.env.ref("base.KHR", raise_if_not_found=False).id, limit=1)
 
     def get_order_sequence_number(self):
-        return self.session_sequence_id.number_next_actual
+        return self.sequence_id.number_next_actual
 
     @api.depends('session_ids')
     def _compute_last_session(self):

@@ -1,8 +1,7 @@
-import { formatMonetary } from "@web/views/fields/formatters";
+import { formatCurrency as webFormatCurrency } from "@web/core/currency";
 
 export const formatCurrencyKHR = (value, currency, hasSymbol = true) => {
-    return formatMonetary(value, {
-        currencyId: currency?.id || 66,
-        noSymbol: !hasSymbol,
-    });
+        return webFormatCurrency(value, currency?.id || 66, {
+            noSymbol: !hasSymbol,
+        });
 };
