@@ -7,16 +7,14 @@ import {
     roundPrecision as round_pr,
     floatIsZero,
 } from "@web/core/utils/numbers";
+import { formatCurrencyKHR } from "@pos_two_currencies/app/utils/currency";
 
 patch(PaymentScreenPaymentLines.prototype, {
-    /**
-     * @TODO: Remove this method when the issue is fixed.
-     */
     formatLineAmount(paymentline) {
         let amount = paymentline.get_amount();
         if (paymentline.payment_method_id.name.includes("KHR")) {
             amount = round_pr(amount, 100)
-            return this.pos.formatCurrencyKHR(amount);
+            return formatCurrencyKHR(amount);
         }
         return this.env.utils.formatCurrency(amount);
     },

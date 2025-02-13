@@ -19,19 +19,6 @@ patch(PaymentScreenStatus.prototype, {
     get currency_khr() {
         return this.data.models["res.currency"].find(currency => currency.id === 66);
     },
-    get totalDueTextkhr() {
-        const total = this.props.order.get_total_with_tax() + this.props.order.get_rounding_applied();
-        const exchange_rate = this.props.order.config.exchange_rate;
-        const total_khr = total ? round_pr(total * exchange_rate, 0) : 0;
-        const khr = total ? round_pr(total_khr, 100) : 0;
-        return formatCurrencyKHR(khr);
-    },
-    get totalDueTextUSD() {
-        const total = this.props.order.get_total_with_tax() + this.props.order.get_rounding_applied();
-        const exchange_rate_usd = 1;
-        const khr = total ? round_pr(total*exchange_rate_usd,this.currency.rounding) : 0;
-        return formatCurrencyKHR(khr);
-    },
     get changeTextkhr() {
         var lines = this.props.order.payment_ids;
         var change = this.props.order.get_change();
