@@ -6,6 +6,7 @@ import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
 import { OrderReceipt } from "@point_of_sale/app/screens/receipt_screen/receipt/order_receipt";
 import { onMounted } from "@odoo/owl";
+import { formatCurrencyKHR } from "@pos_two_currencies/app/utils/currency";
 
 patch(ReceiptScreen.prototype, {
     setup() {
@@ -32,7 +33,7 @@ patch(ReceiptScreen.prototype, {
                 data: this.pos.orderExportForPrinting(this.pos.get_order()),
                 formatCurrency: this.env.utils.formatCurrency,
                 basic_receipt: isBasicReceipt,
-                formatCurrencyKHR: this.pos.formatCurrencyKHR,
+                formatCurrencyKHR: formatCurrencyKHR,
             },
             { addClass: "pos-receipt-print p-3" }
         );

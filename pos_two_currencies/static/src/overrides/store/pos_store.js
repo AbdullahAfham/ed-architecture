@@ -19,7 +19,7 @@ patch(PosStore.prototype, {
         await super.setup(...arguments);
     },
     cashierIsAdmin() {
-        return this.get_cashier().role == "admin";
+        return this.get_cashier().role == "manager";
     },
     cashierHasPriceControlRights() {
         if (this.cashierIsAdmin()) {
@@ -40,6 +40,13 @@ patch(PosStore.prototype, {
             noSymbol: !hasSymbol,
         });
     },
+    async get_order_sequence_number() {
+        return await this.data.call("pos.config", "get_order_sequence_number", [this.config.id]);
+    },
+    async push_single_order(order) {
+        order.sequence_number = await this.get_order_sequence_number();
+        return super.push_single_order(...arguments);
+    },
     getReceiptHeaderData(order) {
         const result = super.getReceiptHeaderData(...arguments);
         result.config_name = this.config.name;
@@ -52,7 +59,7 @@ patch(PosStore.prototype, {
                 data: this.orderExportForPrinting(order),
                 formatCurrency: this.env.utils.formatCurrency,
                 basic_receipt: basic,
-                formatCurrencyKHR: this.pos.formatCurrencyKHR,
+                formatCurrencyKHR: this.formatCurrencyKHR,
             },
             { webPrintFallback: true }
         );

@@ -50,19 +50,6 @@ class PosOrder(models.Model):
         totalCount = self.search_count(real_domain)
         return {'ordersInfo': list(orders_info.items())[::-1], 'totalCount': totalCount}
 
-    @api.model
-    def _order_fields(self, ui_order):
-        order_fields = super(PosOrder, self)._order_fields(ui_order)
-        order_fields['is_khr'] = ui_order.get('is_khr', False)
-        order_fields['discount_all'] = ui_order.get('discount_all', False)
-        order_fields['order_no'] = ui_order.get('order_no', False)
-        order_fields['origs_order_name'] = ui_order.get('origs_order_name', False)
-        name = ui_order.get('order_name', False)
-
-        if name:
-            order_fields['name'] = self.check_sequence_store(pos_session_id=ui_order['pos_session_id'], pos_reference=ui_order['name'], name=name)
-        return order_fields
-
     # Override Parent to add costing for kit
     def _compute_total_cost_at_session_closing(self, stock_moves):
         """

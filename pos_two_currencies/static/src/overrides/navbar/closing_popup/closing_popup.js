@@ -170,6 +170,12 @@ patch(ClosePosPopup.prototype, {
             this.moneyDetailsKHR = null;
         }
     },
+    autoFillCashKHRCount() {
+        const count = this.props.default_cash_details_khr.amount;
+        this.state.payments[this.props.default_cash_details_khr.id].counted =
+            this.pos.formatCurrencyKHR(count, false)
+        this.setManualCashKHRInput(count);
+    },
     async openDetailsPopup() {
         const action = _t("Cash control - closing");
         this.hardwareProxy.openCashbox(action);

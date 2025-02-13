@@ -12,6 +12,15 @@
                 </div>
             </div>
         </xpath>
+        <xpath expr="//div[@class='mb-3']/div" position="after">
+            <div class="d-flex w-100 gap-2 mt-1">
+                <Input tModel="[state.payments[props.default_cash_details_khr.id], 'counted']"
+                    callback.bind="(value) =>  this.setManualCashInput(value)"
+                    isValid.bind="env.utils.isValidFloat" class="'cash-input w-100'"/>
+                <button class="icon fa fa-money btn btn-secondary" t-on-click="openDetailsKHRPopup" />
+                <button class="icon fa fa-clone btn btn-secondary" t-on-click="autoFillCashKHRCount" />
+            </div>
+        </xpath>
         <xpath expr="//div[hasclass('payment-methods-overview')]" position="inside">
             <div t-if="pos.config.cash_control &amp;&amp; props.default_cash_details_khr" class="w-100 mb-3">
                 <t t-set="diff" t-value="getDifference(props.default_cash_details_khr.id)" />

@@ -149,7 +149,7 @@ patch(PosOrder.prototype, {
              // Dev: Allow Maximum diff is 40R
             allow_diff = 0.01;
         }
-        return this.get_due() <= allow_diff && this.check_paymentlines_rounding();
+        return this.get_due() <= allow_diff;
     },
     set_is_khr (is_khr){
         this.is_khr = is_khr;

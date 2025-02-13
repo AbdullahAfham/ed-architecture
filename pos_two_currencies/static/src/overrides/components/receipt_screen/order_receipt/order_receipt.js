@@ -6,6 +6,6 @@ import { patch } from "@web/core/utils/patch";
 patch(OrderReceipt, {
     props: {
         ...OrderReceipt.props,
-        formatCurrencyKHR: Function,
+        formatCurrencyKHR: { type: Function, optional: true },
     },
 });

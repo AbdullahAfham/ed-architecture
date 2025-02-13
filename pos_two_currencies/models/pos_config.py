@@ -13,7 +13,8 @@ class PosConfigInherit(models.Model):
     currency_khr = fields.Many2one('res.currency', string='Currency KHR', default=lambda self: self.env.ref("base.KHR", raise_if_not_found=False).id, limit=1)
 
     def get_order_sequence_number(self):
-        return self.sequence_id.number_next_actual
+        sequence_id = self.sequence_id
+        return sequence_id.get_next_char(sequence_id.number_next_actual)
 
     @api.depends('session_ids')
     def _compute_last_session(self):
