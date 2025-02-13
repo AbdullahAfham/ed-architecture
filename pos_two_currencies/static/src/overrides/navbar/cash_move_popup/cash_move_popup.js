@@ -18,7 +18,7 @@ patch(CashMovePopup.prototype, {
         });
     },
 
-    _prepare_try_cash_in_out_payload(type, amount, reason, extras) {
+    _prepare_try_cash_in_out_payload(type, amount, reason, extras, amountKHR) {
         return [[this.pos.session.id], type, amount, reason, extras, amountKHR];
     },
     async confirm() {

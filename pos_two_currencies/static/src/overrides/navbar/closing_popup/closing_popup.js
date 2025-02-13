@@ -113,7 +113,7 @@ patch(ClosePosPopup.prototype, {
                         this.state.payments[this.props.default_cash_details.id].counted
                     ),
                     counted_cash_khr: parseFloat(
-                        this.state.payments[this.props.default_cash_details?.id].counted
+                        this.state.payments[this.props.default_cash_details_khr.id].counted
                     ),
                     employee_id: cashier?.id || false,
 

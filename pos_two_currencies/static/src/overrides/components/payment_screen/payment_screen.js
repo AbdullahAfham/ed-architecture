@@ -40,15 +40,14 @@ patch(PaymentScreen.prototype, {
                 for (let line of this.paymentLines) {
                     if(line.is_khr()){
                         const exchange_rate = this.pos.config.exchange_rate;
-                        const currency_khr = this.pos.currency_khr ? this.pos.currency_khr : this.pos.currency;
                         const amount = round_pr(line.amount/exchange_rate, 0.01);
                         // const payment_method_usd = this.pos.payment_methods.find(o => o.name.includes("USD"));
                         // this.currentOrder.remove_paymentline(line);
                         // this.currentOrder.add_paymentline(payment_method_usd);
                         // this.currentOrder.selected_paymentline.set_amount(amount);
-                        // this.currentOrder.selected_paymentline.set_khr(line.payment_method,khr_last);
+                        // this.currentOrder.selected_paymentline.set_khr(line.payment_method_id,khr_last);
                         // line.set_amount(amount);
-                        line.set_khr(line.payment_method, amount, khr_last);
+                        line.set_khr(line.payment_method_id, amount, khr_last);
                     }
                 }
             }
