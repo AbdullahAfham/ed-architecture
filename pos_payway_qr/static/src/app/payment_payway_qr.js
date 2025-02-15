@@ -23,8 +23,8 @@ export class PaymentPayWayQR extends PaymentInterface {
         this.paymentLineResolvers = {};
     }
 
-    send_payment_request(cid, check_status = false) {
-        super.send_payment_request(cid);
+    send_payment_request(uuid, check_status = false) {
+        super.send_payment_request(uuid);
         var order = this.pos.get_order();
 
         // Send Response to Customer Display
@@ -35,12 +35,12 @@ export class PaymentPayWayQR extends PaymentInterface {
         if (check_status && order.uiState.PaymentScreen.payWayPaymentData) {
             return this._payway_qr_check_status();
         }
-        return this._payway_qr_pay(cid);
+        return this._payway_qr_pay(uuid);
     }
 
-    send_payment_cancel(order, cid) {
-        super.send_payment_cancel(order, cid);
-        return this._payway_qr_cancel(order, cid);
+    send_payment_cancel(order, uuid) {
+        super.send_payment_cancel(order, uuid);
+        return this._payway_qr_cancel(order, uuid);
     }
 
     pending_payway_qr_line() {
@@ -48,10 +48,10 @@ export class PaymentPayWayQR extends PaymentInterface {
     }
 
     _call_payway_qr(data, action) {
-        return this.env.services.orm.silent
-            .call("pos.payment.method",
+        return this.pos.data
+            .silentCall("pos.payment.method",
                 action,
-                [[this.payment_method.id], data]
+                [[this.payment_method_id.id], data]
             )
             .catch(this._handle_odoo_connection_failure.bind(this));
     }
@@ -81,10 +81,10 @@ export class PaymentPayWayQR extends PaymentInterface {
 
         if (response.check_status) {
             line.set_payment_status("waitingCard");
-            if (response && response.data_webhook && response.pos_session_id === this.pos.pos_session.id) {
+            if (response && response.data_webhook && response.pos_session_id === order.session_id.id) {
                 this.handlePayWayStatusResponse(response);
             }
-            return this.waitForPayWayQRPaymentConfirmation();
+            return this.waitForPayWayPaymentConfirmation();
         }
 
         // Save Response to Customer Display
@@ -114,13 +114,13 @@ export class PaymentPayWayQR extends PaymentInterface {
                 this._show_error(response.status?.message || _t("Payment ERROR!"));
             }
         }
-        return this.waitForPayWayQRPaymentConfirmation();
+        return this.waitForPayWayPaymentConfirmation();
     }
 
-    _payway_qr_pay(cid) {
+    _payway_qr_pay(uuid) {
         var order = this.pos.get_order();
 
-        var line = order.payment_ids.find((paymentLine) => paymentLine.cid === cid);
+        var line = order.payment_ids.find((paymentLine) => paymentLine.uuid === uuid);
         if (line.amount < 0) {
             this._show_error(_t("Cannot process transactions with negative amount."));
             return false;
@@ -129,7 +129,7 @@ export class PaymentPayWayQR extends PaymentInterface {
 
         var data = {
             "name": order.uid,
-            "pos_session_id": this.pos.pos_session.id,
+            "pos_session_id": order.session_id.id,
             "order_lines": order.get_orderlines().map((line) => ({
                 "product_name": line.get_full_product_name(),
                 "quantity": line.get_quantity(),
@@ -148,7 +148,7 @@ export class PaymentPayWayQR extends PaymentInterface {
         var order = this.pos.get_order();
         var data = {
             "name": order.uid,
-            "pos_session_id": this.pos.pos_session.id,
+            "pos_session_id": order.session_id.id,
         };
         return this._call_payway_qr(data, 'payway_qr_check_payment_status').then((res) => {
             return this._payway_qr_handle_response({...res, check_status: true});
@@ -165,6 +165,10 @@ export class PaymentPayWayQR extends PaymentInterface {
         // return this._call_payway_qr(data, 'payway_qr_send_payment_cancel').then((data) => {
         //     this._payway_qr_handle_response({...data, cancel: true});
         // });
+        const resolver = this.paymentLineResolvers?.[this.pending_payway_qr_line()?.uuid];
+        if (resolver) {
+            resolver(false);
+        }
         return true;
     }
 
@@ -177,10 +181,10 @@ export class PaymentPayWayQR extends PaymentInterface {
         const order = this.pos.get_order();
 
         if (!notification) {
-            notification = await this.env.services.orm.silent.call(
+            notification = await this.pos.data.silentCall(
                 "pos.payment.method",
                 "get_latest_payway_qr_status",
-                [[this.payment_method.id]]
+                [[this.payment_method_id.id]]
             );
         }
 
@@ -208,7 +212,7 @@ export class PaymentPayWayQR extends PaymentInterface {
         // In case this resolver is lost ( for example on a refresh ) we
         // we use the handle_payment_response method on the payment line
         if (!(notification?.data_webhook && notification.data_webhook?.payment_status === PAYMENT_STATUS.pending)) {
-            const resolver = this.paymentLineResolvers?.[line.cid];
+            const resolver = this.paymentLineResolvers?.[line.uuid];
             if (resolver) {
                 resolver(isPaymentSuccessful);
             } else {
@@ -227,7 +231,7 @@ export class PaymentPayWayQR extends PaymentInterface {
 
     pending_payway_qr_line_success(notification) {
         const transactionId = notification?.transactionId || notification?.data_webhook?.transaction_id;
-        const order = this.pos.orders.find(o => o.uid === transactionId);
+        const order = this.pos.get_open_orders().find(o => o.uid === transactionId);
         const line = order ? order.payment_ids.find(
             (paymentLine) =>
                 paymentLine.payment_method?.use_payment_terminal === "payway_qr" &&
@@ -241,11 +245,11 @@ export class PaymentPayWayQR extends PaymentInterface {
         const paymentAmount = parseFloat(notification.data_webhook.payment_amount) || 0;
         if (floatIsZero(line.amount - paymentAmount, this.pos.currency.decimal_places)) {
             return true;
-        } else if (paymentAmount > 0 && this.payment_method?.payment_terminal && !order.payment_ids.filter(p => p.transaction_id === notification.data_webhook.transaction_id)?.length) {
+        } else if (paymentAmount > 0 && this.payment_method_id?.payment_terminal && !order.payment_ids.filter(p => p.transaction_id === notification.data_webhook.transaction_id)?.length) {
             if (paymentAmount < line.amount) {
                 const newPaymentline = this.models["pos.payment"].create({
                     pos_order_id: order,
-                    payment_method_id: payment_method,
+                    payment_method_id: this.payment_method_id,
                 });
 
                 newPaymentline.set_amount(paymentAmount);
@@ -264,9 +268,9 @@ export class PaymentPayWayQR extends PaymentInterface {
         line.cardholder_name = notification.FullName || "";
     }
 
-    waitForPayWayQRPaymentConfirmation() {
+    waitForPayWayPaymentConfirmation() {
         return new Promise((resolve) => {
-            this.paymentLineResolvers[this.pending_payway_qr_line()?.cid] = resolve;
+            this.paymentLineResolvers[this.pending_payway_qr_line()?.uuid] = resolve;
         });
     }
 

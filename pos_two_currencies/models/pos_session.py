@@ -419,16 +419,16 @@ class PosSessionInherit(models.Model):
 
         return res
 
-    def _post_cash_khr_details_message(self, state, difference, notes):
+    def _post_cash_khr_details_message(self, state, expected, difference, notes):
         message = ""
         currency_khr = self.config_id.currency_khr
         if not currency_khr:
             currency_khr = self.currency_id
         if difference:
-            message = f"{state} difference: " \
-                      f"{currency_khr.symbol + ' ' if currency_khr.position == 'before' else ''}" \
-                      f"{currency_khr.round(difference)} " \
-                      f"{currency_khr.symbol if currency_khr.position == 'after' else ''}" + Markup('<br/>')
+            message = (state + " difference: " + self.currency_id.format(difference) + '\n' +
+               state + " expected: " +currency_khr.format(expected) + '\n' +
+               state + " counted: " +currency_khr.format(expected + difference) + '\n')
+
         if notes:
             message += escape(notes).replace('\n', Markup('<br/>'))
         if message:
@@ -641,8 +641,8 @@ class PosSessionInherit(models.Model):
             raise UserError(_('This session is already closed.'))
         # Prevent the session to be opened again.
         self.write({'state': 'closing_control', 'stop_at': fields.Datetime.now(), 'closing_notes': notes})
-        self._post_cash_details_message('Closing', self.cash_register_difference, notesUSD or notes)
-        self._post_cash_khr_details_message('Closing', self.cash_register_difference_khr, notesKHR or notes)
+        self._post_cash_details_message('Closing', self.cash_register_balance_end, self.cash_register_difference, notesUSD or notes)
+        self._post_cash_khr_details_message('Closing', self.cash_register_balance_end_khr, self.cash_register_difference_khr, notesKHR or notes)
 
     def set_opening_control(self, cashbox_value: int, notes: str, cashbox_value_khr=0.0, notesUSD="", notesKHR="", employee_id=None):
         self.state = 'opened'

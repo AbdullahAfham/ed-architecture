@@ -19,6 +19,7 @@ class PosOrder(models.Model):
     discount_all = fields.Float(string='Discount (%)', digits='Discount')
     order_no = fields.Char(string='Order No')
     origs_order_name = fields.Char(string='Original Order Name')
+    uid = fields.Char(string="Transaction ID", readonly=True, copy=False)
 
     @api.model
     def search_paid_order_ids(self, config_id, domain, limit, offset):
