@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+<!--    Refactor this-->
+<!--    <t t-inherit="point_of_sale.PaymentScreenMethods" t-inherit-mode="extension">-->
+<!--        <xpath expr="//PaymentScreenPaymentLines" position="attributes">-->
+<!--            <attribute name="sendPaymentStatus.bind">sendPaymentStatus</attribute>-->
+<!--        </xpath>-->
+<!--    </t>-->
+<!--    <t t-inherit="point_of_sale.PaymentScreenPaymentLines" t-inherit-mode="extension">-->
+<!--        <xpath expr="//t[@t-elif=&#34;line.payment_status == 'waitingCard'&#34;]" position="replace">-->
+<!--            <t t-elif="line.payment_status == 'waitingCard'">-->
+<!--                <div class="electronic_status">-->
+<!--                    Waiting for Payment-->
+<!--                </div>-->
+<!--                <div style="flex-grow: 1; text-align: center; padding: 16px;" class="button send_payment_check_status text-bg-primary" title="Check Payment Status" t-on-click="() => this.props.sendPaymentStatus(line)">-->
+<!--                    Check Status-->
+<!--                </div>-->
+<!--                <div class="button send_payment_cancel" title="Cancel Payment Request" t-on-click="() => this.props.sendPaymentCancel(line)">-->
+<!--                    Cancel-->
+<!--                </div>-->
+<!--            </t>-->
+<!--        </xpath>-->
+<!--    </t>-->
+
+</templates>
