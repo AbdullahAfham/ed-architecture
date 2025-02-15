@@ -1,8 +1,7 @@
 /** @odoo-module */
 
 import { PosOrderline } from "@point_of_sale/app/models/pos_order_line";
-
-import { formatMonetary } from "@web/views/fields/formatters";
+import { formatCurrency } from "@point_of_sale/app/models/utils/currency";
 import { patch } from "@web/core/utils/patch";
 import {
     getTaxesAfterFiscalPosition,
@@ -115,26 +114,26 @@ patch(PosOrderline.prototype, {
         }
         return price;
     },
-    // getDisplayData() {
-    //     let displayBorder = !this.isPartOfCombo();
-    //     if (this.comboParent && this.comboParent.combo_line_ids?.length > 1) {
-    //         const combo_line_ids = this.comboParent.combo_line_ids;
-    //         // Display border on Last combo line
-    //         displayBorder = combo_line_ids[combo_line_ids.length - 1] === this.id;
-    //     }
-    //
-    //     let price = this.get_display_price();
-    //     let unitPrice = this.get_all_prices(1).priceWithTaxBeforeDiscount;
-    //     if (this.comboLines?.length) {
-    //         price += this.comboLines.reduce((sum, line) => sum + line.get_display_price(), 0);
-    //         unitPrice += this.comboLines.reduce((sum, line) => sum + line.get_all_prices(1).priceWithTaxBeforeDiscount, 0);
-    //     }
-    //
-    //     return {
-    //         ...super.getDisplayData(),
-    //         displayBorder,
-    //         priceNoSymbol: this.env.utils.formatCurrency(price, false),
-    //         unitPriceNoSymbol: this.env.utils.formatCurrency(unitPrice, false),
-    //     };
-    // },
+    getDisplayData() {
+        let displayBorder = !this.isPartOfCombo();
+        if (this.comboParent && this.comboParent.combo_line_ids?.length > 1) {
+            const combo_line_ids = this.comboParent.combo_line_ids;
+            // Display border on Last combo line
+            displayBorder = combo_line_ids[combo_line_ids.length - 1] === this.id;
+        }
+
+        let price = this.get_display_price();
+        let unitPrice = this.get_all_prices(1).priceWithTaxBeforeDiscount;
+        if (this.comboLines?.length) {
+            price += this.comboLines.reduce((sum, line) => sum + line.get_display_price(), 0);
+            unitPrice += this.comboLines.reduce((sum, line) => sum + line.get_all_prices(1).priceWithTaxBeforeDiscount, 0);
+        }
+
+        return {
+            ...super.getDisplayData(),
+            displayBorder,
+            priceNoSymbol: formatCurrency(price, false),
+            unitPriceNoSymbol: formatCurrency(unitPrice, false),
+        };
+    },
 });

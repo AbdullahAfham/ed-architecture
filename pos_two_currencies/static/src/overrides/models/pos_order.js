@@ -101,7 +101,8 @@ patch(PosOrder.prototype, {
             changeKHR: this.changeTextkhr(),
             // barcodeUrl: this.getBarcodeUrl(this.origs_order_name || this.uid),
             // origs_order_name: this.origs_order_name || false,
-            name: this.uid,
+            name: this.pos_reference,
+            order_name: this.name,
             company: json_company,
         };
     },
@@ -131,8 +132,9 @@ patch(PosOrder.prototype, {
             self.payment_ids.reduce(function (sum, paymentLine) {
                 let amount = paymentLine.get_amount();
                 const exchange_rate = self.config.exchange_rate;
-                if (paymentLine.payment_method_id.name.toUpperCase().includes("KHR")) {
-                    amount = round_pr(amount/exchange_rate, 0.01)
+                // [DEV]: Already convert when validate payment
+                if ((self.state === "draft")&& paymentLine.payment_method_id.name.toUpperCase().includes("KHR")) {
+                    amount = round_pr(amount / exchange_rate, self.currency.rounding)
                 }
                 if (paymentLine.is_done()) {
                     sum += amount;
@@ -184,7 +186,8 @@ patch(PosOrder.prototype, {
     get_change(paymentline) {
         const self = this;
         if (!paymentline) {
-            var change = this.get_total_paid() - this.get_total_with_tax() - this.get_rounding_applied();
+            var change =
+                this.get_total_paid() - this.get_total_with_tax() - this.get_rounding_applied();
         } else {
             var change = -this.get_total_with_tax();
             const exchange_rate = self.config.exchange_rate;
@@ -200,10 +203,10 @@ patch(PosOrder.prototype, {
                 }
             }
         }
-        return round_pr(Math.max(0,change), 0.01);
+        return round_pr(Math.max(0,change), this.currency.rounding);
     },
     changeTextkhr() {
-        var change = this.locked ? this.amount_return : this.get_change();
+        var change = this.amount_return;
         const exchange_rate = this.config.exchange_rate;
         var lines = this.payment_ids;
         var is_khr = this.is_khr;
@@ -219,7 +222,7 @@ patch(PosOrder.prototype, {
         return khr;
     },
     changeText() {
-        var change = this.locked ? this.amount_return : this.get_change();
+        var change = this.amount_return;
         var lines = this.payment_ids;
         var is_khr = this.is_khr;
         if(!is_khr) {
