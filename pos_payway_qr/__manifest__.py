@@ -19,8 +19,12 @@ Allow Connection between POS and PayWay QR API
     'website': "https://leykimteng.pages.dev",
 
     'assets': {
-        'point_of_sale._assets_pos': [
-            'pos_payway_qr/static/src/**/*',
+        'point_of_sale.assets_prod': [
+            'pos_payway_qr/static/src/app/**/*',
+            'pos_payway_qr/static/src/overrides/pos_overrides/**/*',
+        ],
+        'point_of_sale.customer_display_assets': [
+            'pos_payway_qr/static/src/overrides/customer_display_overrides/**/*',
         ],
     },
 

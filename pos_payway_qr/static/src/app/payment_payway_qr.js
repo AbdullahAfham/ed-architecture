@@ -32,7 +32,7 @@ export class PaymentPayWayQR extends PaymentInterface {
             order.uiState.PaymentScreen = {};
         }
 
-        if (check_status && order.uiState.PaymentScreen.payWayPaymentData) {
+        if (check_status && order.payWayPaymentData) {
             return this._payway_qr_check_status();
         }
         return this._payway_qr_pay(uuid);
@@ -89,17 +89,16 @@ export class PaymentPayWayQR extends PaymentInterface {
 
         // Save Response to Customer Display
         if (!response.cancel && response?.qrString && response?.amount) {
-            order.uiState.PaymentScreen.payWayPaymentData = {
-                store: this.pos.config.acc_holder_name,
+            order.payWayPaymentData = {
+                store: this.pos.config.name,
                 isUSD: response.amount.includes(".") || true,
                 amount: response.amount,
                 qrCode: response.qrString,
                 qrImage: response.qrImage,
-                order,
             };
             line.set_payment_status("waitingCard");
         } else {
-            delete order.uiState.PaymentScreen.payWayPaymentData;
+            delete order.payWayPaymentData;
             line.set_payment_status("retry");
             if (response.status) {
                 let message;
@@ -121,7 +120,7 @@ export class PaymentPayWayQR extends PaymentInterface {
         var order = this.pos.get_order();
 
         var line = order.payment_ids.find((paymentLine) => paymentLine.uuid === uuid);
-        if (line.amount < 0) {
+        if (line?.amount < 0) {
             this._show_error(_t("Cannot process transactions with negative amount."));
             return false;
         }
@@ -156,8 +155,8 @@ export class PaymentPayWayQR extends PaymentInterface {
     }
 
     async _payway_qr_cancel(order) {
-        if (order.uiState.PaymentScreen) {
-            delete order.uiState.PaymentScreen.payWayPaymentData;
+        if (order.payWayPaymentData) {
+            delete order.payWayPaymentData;
         }
 
         // [Dev]: We can't cancel the payment from the POS side
@@ -255,7 +254,6 @@ export class PaymentPayWayQR extends PaymentInterface {
                 newPaymentline.set_amount(paymentAmount);
                 newPaymentline.set_payment_status("done"); // Force the payment status to done
                 this.handleSuccessResponse(newPaymentline, notification);
-                order.payment_ids.add(newPaymentline);
             } else {
                 return true;
             }
