@@ -374,7 +374,7 @@ class PosSessionInherit(models.Model):
                 'payment_amount': total_default_cash_payment_amount_khr_currency,
                 'moves': cash_in_out_list_khr,
                 'id': default_cash_payment_method_khr_id.id
-            } if default_cash_payment_method_khr_id else None
+            } if default_cash_payment_method_khr_id else res['default_cash_details']
 
             res['non_cash_payment_methods'] = [{
                 'name': pm.name,
