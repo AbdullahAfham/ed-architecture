@@ -22,7 +22,8 @@ patch(PosStore.prototype, {
         await super.setup(...arguments);
     },
     cashierIsAdmin() {
-        return this.get_cashier().role == "manager";
+        const cashier = this.get_cashier();
+        return (cashier._role == "manager") || (cashier._role == "manager");
     },
     cashierHasPriceControlRights() {
         if (this.cashierIsAdmin()) {
