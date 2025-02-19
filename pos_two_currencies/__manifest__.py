@@ -30,7 +30,7 @@
         'views/views.xml',
     ],
 
-    # Frontend assets
+    # Frontend assets,
     'assets': {
         'web.assets_backend': [
             'pos_two_currencies/static/src/web/**/*',
