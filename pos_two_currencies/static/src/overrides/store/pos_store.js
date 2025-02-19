@@ -55,7 +55,8 @@ patch(PosStore.prototype, {
         const result = super.getReceiptHeaderData(...arguments);
         result.config_name = this.config.name;
         return result;
-    },createNewOrder(data = {}) {
+    },
+    createNewOrder(data = {}) {
         const fiscalPosition = this.models["account.fiscal.position"].find((fp) => {
             return fp.id === this.config.default_fiscal_position_id?.id;
         });

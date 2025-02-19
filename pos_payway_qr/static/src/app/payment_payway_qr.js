@@ -231,12 +231,7 @@ export class PaymentPayWayQR extends PaymentInterface {
     pending_payway_qr_line_success(notification) {
         const transactionId = notification?.transactionId || notification?.data_webhook?.transaction_id;
         const order = this.pos.get_open_orders().find(o => o.uid === transactionId);
-        const line = order ? order.payment_ids.find(
-            (paymentLine) =>
-                paymentLine.payment_method?.use_payment_terminal === "payway_qr" &&
-                !paymentLine.is_done()
-        ) : null;
-
+        const line = this.pending_payway_qr_line();
         if (!order || !transactionId || !line || !notification?.data_webhook) {
             return false;
         }

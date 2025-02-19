@@ -215,6 +215,10 @@
 }
 
 .aba-dialog .modal-payway-border {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     border-radius: 18px;
     border: 14px solid #fff;
 }
@@ -264,6 +268,7 @@
 }
 
 .aba-dialog .modal-body {
+    width: 90%;
     position: relative !important;
     -webkit-box-flex: 1 !important;
     -webkit-flex: 1 1 auto !important;

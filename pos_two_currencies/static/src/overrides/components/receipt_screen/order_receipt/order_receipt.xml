@@ -4,7 +4,7 @@
     <t t-name="pos_two_currencies.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
         <xpath expr="//div[hasclass('pos-receipt')]" position="replace">
             <div class="pos-receipt">
-                <img t-attf-src="/web/image?model=res.company&amp;id={{props.data.company.id}}&amp;field=logo" alt="Logo" class="pos-receipt-logo"/>
+                <img t-attf-src="/web/image?model=res.company&amp;id={{props.data.headerData.company.id}}&amp;field=logo" alt="Logo" class="pos-receipt-logo"/>
                 <ReceiptHeader data="props.data.headerData" />
 <!--                <div style="font-size:0.83em;" >លេខតុ/Table No: <t t-esc="table"/></div>-->
                 <t t-if="props.data.order_name">
