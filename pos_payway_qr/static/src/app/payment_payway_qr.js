@@ -91,7 +91,7 @@ export class PaymentPayWayQR extends PaymentInterface {
         if (!response.cancel && response?.qrString && response?.amount) {
             order.payWayPaymentData = {
                 store: this.pos.config.name,
-                isUSD: response.amount.includes(".") || true,
+                isKHR: line.payment_method_id.payway_currency_id?.name === "KHR",
                 amount: response.amount,
                 qrCode: response.qrString,
                 qrImage: response.qrImage,
@@ -136,6 +136,7 @@ export class PaymentPayWayQR extends PaymentInterface {
                 "discount": line.get_discount(),
             })),
             "total": line.amount,
+            "is_khr": line.payment_method_id.payway_currency_id?.name === "KHR",
         };
         
         return this._call_payway_qr(data, 'payway_qr_send_payment_request').then((res) => {

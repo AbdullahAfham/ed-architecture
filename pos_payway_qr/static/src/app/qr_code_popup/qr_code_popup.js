@@ -7,7 +7,7 @@ export class QRPopup extends ConfirmationDialog {
         ...ConfirmationDialog.props,
         line: Object,
         order: Object,
-        isUSD: { type: Boolean, optional: true },
+        isKHR: { type: Boolean, optional: true },
         qrCode: { type: String, optional: true },
         qrImage: { type: String, optional: true },
     };
@@ -29,7 +29,7 @@ export class QRPopup extends ConfirmationDialog {
         this.props.order.uiState["PaymentScreen"] = {
             qrPaymentData: {
                 name: this.props.title,
-                isUSD: this.amount.includes(".") || true,
+                isKHR: this.amount.includes(".") || true,
                 amount: this.amount,
                 qrCode: this.props.qrString,
                 qrImage: this.props.qrImage,

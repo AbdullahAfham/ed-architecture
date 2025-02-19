@@ -41,11 +41,12 @@ class PosPaymentMethod(models.Model):
     ], string="Test mode", help="Run transactions in the test environment.", default='sandbox')
     payway_qr_webhook_endpoint = fields.Char(string="Webhook URL", compute='_compute_payway_qr_webhook_endpoint', readonly=True)
     payway_qr_latest_response = fields.Json() # used to buffer the latest asynchronous notification from PayWay.
+    payway_currency_id = fields.Many2one('res.currency', string='PayWay Currency', domain=lambda self: [('id', 'in', [self.env.ref('base.USD').id, self.env.ref('base.KHR').id])])
 
     @api.model
     def _load_pos_data_fields(self, config_id):
         params = super()._load_pos_data_fields(config_id)
-        params += ['payway_qr_key']
+        params += ['payway_qr_key', 'payway_currency_id']
         return params
 
     def _is_write_forbidden(self, fields):
@@ -171,8 +172,9 @@ class PosPaymentMethod(models.Model):
         tran_id = PosData.get('name', '')
         amount = PosData.get('total', 0)
         order_lines = PosData.get('order_lines', [])
+        is_khr = PosData.get('is_khr', False)
+        amount = "{:.0f}".format(amount) if is_khr else "{:.2f}".format(amount)
         pos_session_id = PosData.get('pos_session_id', False)
-
         # pos_session_sudo = self.env["pos.session"].sudo().browse(int(pos_session_id)).exists()
 
         merchant_id = self.payway_qr_merchant_id
@@ -180,19 +182,20 @@ class PosPaymentMethod(models.Model):
             'req_time': fields.Datetime.now().strftime('%Y%m%d%H%M%S'),
             'merchant_id': merchant_id,
             'tran_id': tran_id,
-            'amount': "{:.2f}".format(amount),
+            'amount': amount,
             'items': self.get_order_items_base64(order_lines),
             'payment_option': '',
             'language': lang,
             'return_url': base64.b64encode(self.payway_qr_webhook_endpoint.encode('utf-8')).decode('utf-8'),
             'cancel_url': '',
             'continue_success_url': '',
+            'currency': 'KHR' if is_khr else 'USD',
             'return_params': json.dumps({'pos_session_id': pos_session_id}),
             'lifetime': '3', # 3 minutes
         }
-        
+
         _logger.warning(f"===payway_qr_send_payment_request values: {values}")
-        
+
         return self._call_payway_qr(endpoint, 'post', {
             **values,
             'hash': self._payway_calculate_signature(values, incoming=False, pos_session_id=pos_session_id),

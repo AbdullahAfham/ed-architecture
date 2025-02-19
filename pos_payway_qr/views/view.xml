@@ -10,6 +10,7 @@
                 <field name="payway_qr_merchant_id" invisible="use_payment_terminal != 'payway_qr'" required="use_payment_terminal == 'payway_qr'"/>
                 <field name="payway_qr_key" invisible="use_payment_terminal != 'payway_qr'" required="use_payment_terminal == 'payway_qr'"/>
                 <field name="payway_qr_test_mode" invisible="use_payment_terminal != 'payway_qr'" required="use_payment_terminal == 'payway_qr'"/>
+                <field name="payway_currency_id" invisible="use_payment_terminal != 'payway_qr'" required="use_payment_terminal == 'payway_qr'"/>
                 <field name="payway_qr_webhook_endpoint" widget="url" invisible="use_payment_terminal != 'payway_qr'" readonly="1"/>
             </xpath>
         </field>

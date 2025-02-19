@@ -12,6 +12,7 @@ SIGNATURE_KEYS = {
         'return_url',
         'cancel_url',
         'continue_success_url',
+        'currency',
         'return_params',
         'lifetime',
     ],
