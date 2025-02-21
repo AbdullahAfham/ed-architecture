@@ -84,7 +84,9 @@ class PosPaymentMethod(models.Model):
         # Send a notification to the point of sale channel to indicate that the transaction are finish
         pos_session_sudo = self.env["pos.session"].browse(int(data.get('pos_session_id', False)))
         if pos_session_sudo:
-            self.env['bus.bus']._sendone(pos_session_sudo._get_bus_channel_name(), 'PAYWAY_QR_LATEST_RESPONSE', pos_session_sudo.config_id.id)
+            pos_session_sudo.config_id._notify('PAYWAY_QR_LATEST_RESPONSE', {
+                'config_id': pos_session_sudo.config_id.id
+            })
 
     def get_order_items_base64(self, order_lines):
         key = 0

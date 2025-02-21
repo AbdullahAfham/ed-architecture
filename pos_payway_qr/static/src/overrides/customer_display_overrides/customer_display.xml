@@ -9,7 +9,7 @@
                             <div class="col text-end">Total (USD)</div>
                             <div class="col text-end" t-esc="order.amount"/>
                         </div>
-                        <div class="row fs-5 fw-bolder">
+                        <div class="row fs-2 fw-bolder">
                             <div class="col text-end">(KHR)</div>
                             <div class="col text-end" t-esc="order.amountKHR"/>
                         </div>
