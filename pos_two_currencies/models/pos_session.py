@@ -402,15 +402,15 @@ class PosSessionInherit(models.Model):
             session.write(values)
         return True
 
-    def post_closing_cash_details(self, counted_cash, counted_cash_khr=0.0, cashier_name=None, employee_id=None):
+    def post_closing_cash_details(self, counted_cash, counted_cash_khr=0.0, cashier_name=None, user_id=None):
         res = super(PosSessionInherit, self).post_closing_cash_details(counted_cash)
         if res.get('successful', False) and self.cash_journal_khr_id:
             currency_khr = self.config_id.currency_khr
             date = fields.Date.context_today(self)
             self.cash_register_balance_end_real_khr = currency_khr._convert(counted_cash_khr, self.currency_id, self.company_id, date, True)
 
-            if employee_id:
-                employee = self.env['hr.employee'].browse(employee_id)
+            if user_id:
+                employee = self.env['hr.employee'].search([('user_id', '=', user_id)], limit=1)
                 if employee:
                     self.close_employee_id = employee.id
                     self.message_post(body=f'Closed by Cashier: {employee.name}')
