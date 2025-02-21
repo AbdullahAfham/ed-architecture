@@ -187,7 +187,6 @@ export class PaymentPayWayQR extends PaymentInterface {
                 [[this.payment_method_id.id]]
             );
         }
-        console.log("handlePayWayStatusResponse----", notification);
 
         if (!notification) {
             return this._handle_odoo_connection_failure();
