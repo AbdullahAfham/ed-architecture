@@ -207,6 +207,9 @@ patch(PosOrder.prototype, {
     },
     changeTextkhr() {
         var change = this.amount_return;
+        if (!this.finalized && !change) {
+            change = this.get_change();
+        }
         const exchange_rate = this.config.exchange_rate;
         var lines = this.payment_ids;
         var is_khr = this.is_khr;
@@ -223,6 +226,9 @@ patch(PosOrder.prototype, {
     },
     changeText() {
         var change = this.amount_return;
+        if (!this.finalized && !change) {
+            change = this.get_change();
+        }
         var lines = this.payment_ids;
         var is_khr = this.is_khr;
         if(!is_khr) {
