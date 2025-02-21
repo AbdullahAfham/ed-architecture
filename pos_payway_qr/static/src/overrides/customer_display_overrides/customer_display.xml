@@ -10,7 +10,7 @@
                             <div class="col text-end" t-esc="order.amount"/>
                         </div>
                         <div class="row fs-2 fw-bolder">
-                            <div class="col text-end">(KHR)</div>
+                            <div class="col text-end">Total (KHR)</div>
                             <div class="col text-end" t-esc="order.amountKHR"/>
                         </div>
                         <div t-foreach="order.paymentLines or []" t-as="line" t-key="line_index" class="row">

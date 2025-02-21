@@ -6,6 +6,7 @@ patch(PosStore.prototype, {
         await super.setup(...arguments);
         this.onNotified?.("PAYWAY_QR_LATEST_RESPONSE", () => {
             const currentOrder = this.get_order();
+            console.log("PAYWAY_QR_LATEST_RESPONSE----", currentOrder);
             if (currentOrder) {
                 this.getPendingPaymentLine(
                     "payway_qr"
