@@ -15,7 +15,7 @@ patch(PosStore.prototype, {
     /**
      * @override
      */
-    async setup(env) {
+    async setup() {
         this.currency_khr = null;
         this.currency_usd = null;
         this.is_usd = true;

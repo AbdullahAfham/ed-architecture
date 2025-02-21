@@ -81,7 +81,7 @@ class PosPaymentMethod(models.Model):
             return {'error': _("There are some issues between us and PayWay QR API, try again later. %s", resp.json().get('status'))}
 
     def _send_payway_qr_notification(self, data):
-        # Send a notification to the point of sale channel to indicate that the transaction are finish
+        # Send a notification to the point of sale channel to indicate that the transaction is finish
         pos_session_sudo = self.env["pos.session"].browse(int(data.get('pos_session_id', False)))
         if pos_session_sudo:
             pos_session_sudo.config_id._notify('PAYWAY_QR_LATEST_RESPONSE', {

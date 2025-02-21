@@ -617,7 +617,7 @@ class PosSessionInherit(models.Model):
         self._post_cash_details_message('Closing', self.cash_register_balance_end, self.cash_register_difference, notesUSD or notes)
         self._post_cash_khr_details_message('Closing', self.cash_register_balance_end_khr, self.cash_register_difference_khr, notesKHR or notes)
 
-    def set_opening_control(self, cashbox_value: int, notes: str, cashbox_value_khr=0.0, notesUSD="", notesKHR="", employee_id=None):
+    def set_opening_control(self, cashbox_value: int, notes: str, cashbox_value_khr=0.0, notesUSD="", notesKHR="", user_id=None):
         self.state = 'opened'
 
         cash_payment_method_ids = self.config_id.payment_method_ids.filtered(lambda pm: pm.is_cash_count)
@@ -632,8 +632,8 @@ class PosSessionInherit(models.Model):
                 cashbox_value_khr = currency_khr._convert(cashbox_value_khr, self.currency_id, self.company_id, date, True)
             self.cash_register_balance_start_khr = cashbox_value_khr or 0.0
 
-            if employee_id:
-                employee = self.env['hr.employee'].browse(employee_id)
+            if user_id:
+                employee = self.env['hr.employee'].search([('user_id', '=', user_id)], limit=1)
                 if employee:
                     self.open_employee_id = employee.id
                     self.message_post(body=f'Opened by Cashier: {employee.name}')
