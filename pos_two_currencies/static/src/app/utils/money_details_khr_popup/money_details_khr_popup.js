@@ -78,7 +78,7 @@ export class MoneyDetailsKHRPopup extends Component {
         if (moneyDetailsNotes) {
             moneyDetailsNotes += _t(
                 "Total: %s",
-                this.env.utils.formatCurrency(this.computeTotal())
+                this.pos.formatCurrencyKHR(this.computeTotal())
             );
         }
         this.props.getPayload({

@@ -83,7 +83,7 @@ patch(ClosePosPopup.prototype, {
     },
 
     async closeSession() {
-        sessionStorage.removeItem("connected_cashier");
+        this.pos._resetConnectedCashier();
         if (this.pos.config.customer_display_type === "proxy") {
             const proxyIP = this.pos.getDisplayDeviceIP();
             fetch(`${deduceUrl(proxyIP)}/hw_proxy/customer_facing_display`, {
@@ -115,7 +115,7 @@ patch(ClosePosPopup.prototype, {
                     counted_cash_khr: parseFloat(
                         this.state.payments[this.props.default_cash_details_khr.id].counted
                     ),
-                    employee_id: cashier?.id || false,
+                    user_id: cashier?.id || false,
 
                 }
             );
@@ -145,13 +145,20 @@ patch(ClosePosPopup.prototype, {
             const bankPaymentMethodDiffPairs = this.props.non_cash_payment_methods
                 .filter((pm) => pm.type == "bank")
                 .map((pm) => [pm.id, this.getDifference(pm.id)]);
-            const response = await this.pos.data.call("pos.session", "close_session_from_ui", [
-                this.pos.session.id,
-                bankPaymentMethodDiffPairs,
-            ]);
+            const response = await this.pos.data.call(
+                "pos.session",
+                "close_session_from_ui",
+                [this.pos.session.id, bankPaymentMethodDiffPairs],
+                {
+                    context: {
+                        login_number: odoo.login_number,
+                    },
+                }
+            );
             if (!response.successful) {
                 return this.handleClosingError(response);
             }
+            localStorage.removeItem(`pos.session.${odoo.pos_config_id}`);
             location.reload();
         } catch (error) {
             if (error instanceof ConnectionLostError) {

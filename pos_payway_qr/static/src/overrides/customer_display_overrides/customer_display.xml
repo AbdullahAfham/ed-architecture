@@ -29,7 +29,7 @@
                 </div>
         </xpath>
         <xpath expr="//div[hasclass('o_customer_display')]" position="inside">
-            <div t-if="order.payWayPaymentData?.store" class="popups aba-dialog">
+            <div t-if="order.payWayPaymentData?.store and !order.finalized" class="popups aba-dialog">
                 <div role="dialog" class="modal-dialog modal-pay-way">
                     <div class="popup">
                         <div class="modal-payway-border">
