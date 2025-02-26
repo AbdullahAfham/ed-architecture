@@ -21,18 +21,27 @@ patch(CashMovePopup.prototype, {
     _prepare_try_cash_in_out_payload(type, amount, reason, extras, amountKHR) {
         return [[this.pos.session.id], type, amount, reason, extras, amountKHR];
     },
+    get isOnlyUSD() {
+        return this.pos.config?.is_khr_currency && !this.pos.config?.is_one_currency;
+    },
+    get isOnlyKHR() {
+        return this.pos.config?.is_one_currency && this.pos.config?.is_khr_currency;
+    },
+    get isBothCurrency() {
+        return !this.pos.config?.is_one_currency;
+    },
     async confirm() {
         const amount = parseFloat(this.state.amount);
         const amountKHR = parseFloat(this.state.amountKHR);
         const formattedAmount = this.env.utils.formatCurrency(amount);
         const formattedAmountKHR = this.pos.formatCurrencyKHR(amountKHR);
         if (!amount || !amountKHR) {
-            if (!amount) {
+            if (!amount && !amountKHR) {
                 this.notification.add(_t("Cash in/out of %s is ignored.", formattedAmount), 3000);
             }
-            if (!amountKHR) {
-                this.notification.add(_t("Cash in/out of %s is ignored.", formattedAmountKHR), 3000);
-            }
+            // if (!amountKHR) {
+            //     this.notification.add(_t("Cash in/out of %s is ignored.", formattedAmountKHR), 3000);
+            // }
             if (!amount && !amountKHR) {
                 return this.props.close();
             }

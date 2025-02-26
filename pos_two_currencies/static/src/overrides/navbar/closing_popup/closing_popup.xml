@@ -12,40 +12,105 @@
                 </div>
             </div>
         </xpath>
-        <xpath expr="//div[@class='mb-3']/div" position="after">
-            <div class="d-flex w-100 gap-2 mt-1">
-                <Input tModel="[state.payments[props.default_cash_details_khr.id], 'counted']"
-                    callback.bind="(value) =>  this.setManualCashInput(value)"
-                    isValid.bind="env.utils.isValidFloat" class="'cash-input w-100'"/>
-                <button class="icon fa fa-money btn btn-secondary" t-on-click="openDetailsKHRPopup" />
-                <button class="icon fa fa-clone btn btn-secondary" t-on-click="autoFillCashKHRCount" />
+        <xpath expr="//t[@t-if='pos.config.module_pos_hr']" position="attributes">
+            <attribute name="t-if">false</attribute>
+        </xpath>
+
+<!--        Rewrite Cash Count for handle empty each currency -->
+        <xpath expr="//div[@class='mb-3']" position="replace">
+            <div t-if="pos.config.cash_control" class="mb-3">
+                <label class="form-label">Cash Count</label>
+                <t t-if="props.default_cash_details">
+                    <div class="d-flex w-100 gap-2 mt-1">
+                        <Input tModel="[state.payments[props.default_cash_details.id], 'counted']"
+                            callback.bind="(value) =>  this.setManualCashInput(value)"
+                            isValid.bind="env.utils.isValidFloat" class="'cash-input w-100'"/>
+                        <button class="icon fa fa-money btn btn-secondary" t-on-click="openDetailsPopup" />
+                        <button class="icon fa fa-clone btn btn-secondary" t-on-click="autoFillCashCount" />
+                    </div>
+                </t>
+                <t t-if="props.default_cash_details_khr">
+                    <div class="d-flex w-100 gap-2 mt-1">
+                        <Input tModel="[state.payments[props.default_cash_details_khr.id], 'counted']"
+                            callback.bind="(value) =>  this.setManualCashInput(value)"
+                            isValid.bind="env.utils.isValidFloat" class="'cash-input w-100'"/>
+                        <button class="icon fa fa-money btn btn-secondary" t-on-click="openDetailsKHRPopup" />
+                        <button class="icon fa fa-clone btn btn-secondary" t-on-click="autoFillCashKHRCount" />
+                    </div>
+                </t>
             </div>
         </xpath>
-        <xpath expr="//div[hasclass('payment-methods-overview')]" position="inside">
-            <div t-if="pos.config.cash_control &amp;&amp; props.default_cash_details_khr" class="w-100 mb-3">
-                <t t-set="diff" t-value="getDifference(props.default_cash_details_khr.id)" />
-                <t t-set="counted" t-value="state.payments[props.default_cash_details_khr.id]?.counted || '0'" />
-                <div class="d-flex align-items-center justify-content-between fs-3">
-                    <span t-esc="props.default_cash_details_khr.name" />
-                    <span t-esc="formatKHR(props.default_cash_details_khr.amount)" />
+
+        <xpath expr="//div[hasclass('payment-methods-overview')]" position="replace">
+            <div class="payment-methods-overview">
+                <div t-if="pos.config.cash_control &amp;&amp; props.default_cash_details" class="w-100 mb-3">
+                    <t t-set="diff" t-value="getDifference(props.default_cash_details.id)" />
+                    <t t-set="counted" t-value="state.payments[props.default_cash_details.id]?.counted || '0'" />
+                    <div class="d-flex align-items-center justify-content-between fs-3">
+                        <span t-esc="props.default_cash_details.name" />
+                        <span t-esc="env.utils.formatCurrency(props.default_cash_details.amount)" />
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2">
+                        <span>Opening</span>
+                        <span t-esc="env.utils.formatCurrency(props.default_cash_details.opening)" />
+                    </div>
+                    <div t-if="props.default_cash_details.payment_amount" class="d-flex align-items-center justify-content-between text-muted border-start ps-2">
+                        <span>Payments in <t t-esc="props.default_cash_details.name"/></span>
+                        <span class="align-top" t-esc="env.utils.formatCurrency(Math.abs(props.default_cash_details.payment_amount))"/>
+                    </div>
+                    <t t-set="moveData" t-value="cashMoveData"/>
+                    <PaymentMethodBreakdown title.translate="Cash In / Out" total_amount="cashMoveData.total" transactions="cashMoveData.moves"/>
+                    <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2">
+                        <span>Counted</span>
+                        <span t-esc="env.utils.formatCurrency(env.utils.parseValidFloat(counted))" />
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2" t-att-class="{'text-danger fw-bold': diff}">
+                        <span>Difference</span>
+                        <span class="cash-difference" t-esc="env.utils.formatCurrency(diff)" />
+                    </div>
                 </div>
-                <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2">
-                    <span>Opening</span>
-                    <span t-esc="formatKHR(props.default_cash_details_khr.opening)" />
+                <div t-if="pos.config.cash_control &amp;&amp; props.default_cash_details_khr" class="w-100 mb-3">
+                    <t t-set="diff" t-value="getDifference(props.default_cash_details_khr.id)" />
+                    <t t-set="counted" t-value="state.payments[props.default_cash_details_khr.id]?.counted || '0'" />
+                    <div class="d-flex align-items-center justify-content-between fs-3">
+                        <span t-esc="props.default_cash_details_khr.name" />
+                        <span t-esc="formatKHR(props.default_cash_details_khr.amount)" />
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2">
+                        <span>Opening</span>
+                        <span t-esc="formatKHR(props.default_cash_details_khr.opening)" />
+                    </div>
+                    <div t-if="props.default_cash_details_khr.payment_amount" class="d-flex align-items-center justify-content-between text-muted border-start ps-2">
+                        <span>Payments in <t t-esc="props.default_cash_details_khr.name"/></span>
+                        <span class="align-top" t-esc="formatKHR(props.default_cash_details_khr.payment_amount)"/>
+                    </div>
+                    <t t-set="moveData" t-value="cashKHRMoveData"/>
+                    <PaymentMethodBreakdown isKHR="true" title.translate="Cash KHR In / Out" total_amount="cashKHRMoveData.total" transactions="cashKHRMoveData.moves"/>
+                    <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2">
+                        <span>Counted</span>
+                        <span t-esc="formatKHR(env.utils.parseValidFloat(counted))" />
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2" t-att-class="{'text-danger fw-bold': diff}">
+                        <span>Difference</span>
+                        <span class="cash-difference" t-esc="formatKHR(diff)" />
+                    </div>
                 </div>
-                <div t-if="props.default_cash_details_khr.payment_amount" class="d-flex align-items-center justify-content-between text-muted border-start ps-2">
-                    <span>Payments in <t t-esc="props.default_cash_details_khr.name"/></span>
-                    <span class="align-top" t-esc="formatKHR(props.default_cash_details_khr.payment_amount)"/>
-                </div>
-                <t t-set="moveData" t-value="cashKHRMoveData"/>
-                <PaymentMethodBreakdown title.translate="Cash KHR In / Out" total_amount="cashKHRMoveData.total" transactions="cashKHRMoveData.moves"/>
-                <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2">
-                    <span>Counted</span>
-                    <span t-esc="formatKHR(env.utils.parseValidFloat(counted))" />
-                </div>
-                <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2" t-att-class="{'text-danger fw-bold': diff}">
-                    <span>Difference</span>
-                    <span class="cash-difference" t-esc="formatKHR(diff)" />
+                <div class="w-100 mb-3" t-foreach="props.non_cash_payment_methods" t-as="pm" t-key="pm.id">
+                    <t t-set="_showDiff" t-value="pm.type === 'bank' and pm.number !== 0" />
+                    <t t-set="diff" t-value="_showDiff ? getDifference(pm.id) : 0" />
+                    <t t-set="counted" t-value="_showDiff ? env.utils.parseValidFloat(state.payments[pm.id].counted) : 0" />
+                    <div class="d-flex align-items-center justify-content-between fs-3">
+                        <span t-esc="pm.name" />
+                        <span t-esc="env.utils.formatCurrency(pm.amount)" />
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2">
+                        <span>Counted</span>
+                        <span t-esc="env.utils.formatCurrency(counted)" />
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between text-muted border-start ps-2" t-att-class="{'text-danger fw-bold': diff}">
+                        <span>Difference</span>
+                        <span t-esc="env.utils.formatCurrency(diff)" />
+                    </div>
                 </div>
             </div>
         </xpath>

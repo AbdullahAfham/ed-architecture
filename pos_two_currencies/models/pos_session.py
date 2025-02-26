@@ -168,8 +168,8 @@ class PosSessionInherit(models.Model):
     def _compute_cash_journal(self):
         for session in self:
             cash_payment_methods = session.payment_method_ids.filtered('is_cash_count')
-            cash_payment_method_usd = cash_payment_methods.filtered(lambda pm: "KHR" not in pm.name)
-            cash_payment_method_khr = cash_payment_methods.filtered(lambda pm: "KHR" in pm.name)
+            cash_payment_method_usd = cash_payment_methods.filtered(lambda pm: pm.name and "khr" not in pm.name.lower())
+            cash_payment_method_khr = cash_payment_methods.filtered(lambda pm: pm.name and "khr" in pm.name.lower())
 
             session.cash_journal_id = cash_payment_method_usd[:1].journal_id if cash_payment_method_usd else False
             session.cash_journal_khr_id = cash_payment_method_khr[:1].journal_id if cash_payment_method_khr else False
@@ -212,7 +212,7 @@ class PosSessionInherit(models.Model):
 
     def try_cash_in_out(self, _type, amount, reason, extras, amount_khr=0.0):
         sign = 1 if _type == 'in' else -1
-        sessions = self.filtered('cash_journal_id')
+        sessions = self.filtered(lambda s: s.cash_journal_id or s.cash_journal_khr_id)
         if not sessions:
             raise UserError(_("There is no cash payment method for this PoS Session"))
 
@@ -228,11 +228,12 @@ class PosSessionInherit(models.Model):
                 for session in sessions
             ])
         if amount_khr != 0:
+            amount = self.config_id.currency_khr._convert(amount_khr, self.currency_id, self.company_id, fields.Date.context_today(self), round=False)
             self.env['account.bank.statement.line'].create([
                 {
                     'pos_session_id': session.id,
                     'journal_id': session.cash_journal_khr_id.id,
-                    'amount': sign * amount_khr,
+                    'amount': sign * amount,
                     'date': fields.Date.context_today(self),
                     'payment_ref': '-'.join([session.name, extras['translatedType'], reason]),
                 }
@@ -243,7 +244,7 @@ class PosSessionInherit(models.Model):
     def _compute_cash_balance(self):
         for session in self:
             cash_payment_methods = session.payment_method_ids.filtered('is_cash_count')
-            cash_payment_method = cash_payment_methods.filtered(lambda pm: "KHR" not in pm.name)[:1]
+            cash_payment_method = cash_payment_methods.filtered(lambda pm: pm.name and "khr" not in pm.name.lower())[:1]
             statement_line_ids = session.sudo().statement_line_ids
             cash_journal_id = session.sudo().cash_journal_id
             statement_line_usd_ids = statement_line_ids.filtered(lambda sl: sl.journal_id == cash_journal_id)
@@ -265,7 +266,7 @@ class PosSessionInherit(models.Model):
                 session.cash_register_difference = 0.0
 
             # Cash KHR
-            cash_payment_method_khr = cash_payment_methods.filtered(lambda pm: "KHR" in pm.name)[:1]
+            cash_payment_method_khr = cash_payment_methods.filtered(lambda pm: pm.name and "khr" in pm.name.lower())[:1]
             if cash_payment_method_khr:
                 total_cash_payment_khr = 0.0
                 result_khr = self.env['pos.payment']._read_group([('session_id', '=', session.id), ('payment_method_id', '=', cash_payment_method_khr.id)], aggregates=['amount:sum'])
@@ -293,8 +294,8 @@ class PosSessionInherit(models.Model):
             orders = self._get_closed_orders()
             payments = orders.payment_ids.filtered(lambda p: p.payment_method_id.type != "pay_later")
             cash_payment_method_ids = self.payment_method_ids.filtered(lambda pm: pm.type == 'cash')
-            cash_payment_method_usd_ids = cash_payment_method_ids.filtered(lambda pm: "KHR" not in pm.name)
-            cash_payment_method_khr_ids = cash_payment_method_ids.filtered(lambda pm: "KHR" in pm.name)
+            cash_payment_method_usd_ids = cash_payment_method_ids.filtered(lambda pm: pm.name and "khr" not in pm.name.lower())
+            cash_payment_method_khr_ids = cash_payment_method_ids.filtered(lambda pm: pm.name and "khr" in pm.name.lower())
 
             # Cash USD
             default_cash_payment_method_id = cash_payment_method_usd_ids[0] if cash_payment_method_usd_ids else None
@@ -357,10 +358,10 @@ class PosSessionInherit(models.Model):
                     name = f'Cash out {cash_out_count_khr}'
                 cash_in_out_list_khr.append({
                     'name': cash_move.payment_ref if cash_move.payment_ref else name,
-                    'amount': currency_id._convert(cash_move.amount, self.currency_id, self.company_id, date, True),
+                    'amount': self.currency_id._convert(cash_move.amount, currency_id, self.company_id, date, True),
                 })
             current_open_khr = self.cash_register_balance_start_khr
-            statement_amount = currency_id._convert(sum(statement_line_khr_ids.mapped('amount')), self.currency_id, self.company_id, date, True)
+            statement_amount = sum(statement_line_khr_ids.mapped('amount'))
             amount_khr = (current_open_khr + total_default_cash_payment_amount_khr + statement_amount)
 
             amount_khr_currency = self.currency_id._convert(amount_khr, currency_id, self.company_id, date, True)
@@ -403,8 +404,30 @@ class PosSessionInherit(models.Model):
         return True
 
     def post_closing_cash_details(self, counted_cash, counted_cash_khr=0.0, cashier_name=None, user_id=None):
-        res = super(PosSessionInherit, self).post_closing_cash_details(counted_cash)
-        if res.get('successful', False) and self.cash_journal_khr_id:
+
+        """
+        Calling this method will try store the cash details during the session closing.
+
+        :param counted_cash: float, the total cash the user counted from its cash register
+        If successful, it returns {'successful': True}
+        Otherwise, it returns {'successful': False, 'message': str, 'redirect': bool}.
+        'redirect' is a boolean used to know whether we redirect the user to the back end or not.
+        When necessary, error (i.e. UserError, AccessError) is raised which should redirect the user to the back end.
+        """
+        self.ensure_one()
+        check_closing_session = self._cannot_close_session()
+        if check_closing_session:
+            open_order_ids = self.get_session_orders().filtered(lambda o: o.state == 'draft').ids
+            check_closing_session['open_order_ids'] = open_order_ids
+            return check_closing_session
+
+        if not self.cash_journal_id and not self.cash_journal_khr_id:
+            # The user is blocked anyway, this user error is mostly for developers that try to call this function
+            raise UserError(_("There is no cash register in this session."))
+
+        self.cash_register_balance_end_real = counted_cash
+
+        if self.cash_journal_khr_id:
             currency_khr = self.config_id.currency_khr
             date = fields.Date.context_today(self)
             self.cash_register_balance_end_real_khr = currency_khr._convert(counted_cash_khr, self.currency_id, self.company_id, date, True)
@@ -416,8 +439,7 @@ class PosSessionInherit(models.Model):
                     self.message_post(body=f'Closed by Cashier: {employee.name}')
             if cashier_name:
                 self.message_post(body=f'Closed by Cashier: {cashier_name}')
-
-        return res
+        return {'successful': True}
 
     def _post_cash_khr_details_message(self, state, expected, difference, notes):
         message = ""
@@ -741,23 +763,3 @@ class PosSessionInherit(models.Model):
                 amount = self.currency_id._convert(amount, currency_id, self.company_id, date, True)
                 # amount = amount * self.config_id.exchange_rate
         return super(PosSessionInherit, self)._get_split_statement_line_vals(statement, amount, payment)
-
-    # TODO: Check Cashier Access right
-    # def _get_pos_ui_hr_employee(self, params):
-    #     employees = self.env['hr.employee'].search_read(**params['search_params'])
-    #     employee_ids = [employee['id'] for employee in employees]
-    #     user_ids = [employee['user_id'] for employee in employees if employee['user_id']]
-    #     admin_ids = self.env['res.users'].browse(user_ids).filtered(lambda user: user.has_group('base.group_erp_manager')).mapped('id')
-    #
-    #     employees_barcode_pin = self.env['hr.employee'].browse(employee_ids).get_barcodes_and_pin_hashed()
-    #     bp_per_employee_id = {bp_e['id']: bp_e for bp_e in employees_barcode_pin}
-    #     for employee in employees:
-    #         if employee['user_id'] and employee['user_id'] in admin_ids:
-    #             employee['role'] = 'admin'
-    #         elif employee['id'] in self.config_id.advanced_employee_ids.ids:
-    #             employee['role'] = 'manager'
-    #         else:
-    #             employee['role'] = 'cashier'
-    #         employee['barcode'] = bp_per_employee_id[employee['id']]['barcode']
-    #         employee['pin'] = bp_per_employee_id[employee['id']]['pin']
-    #     return employees

@@ -11,6 +11,16 @@ class PosConfigInherit(models.Model):
     last_session_closing_cash_khr = fields.Float(compute='_compute_last_session')
     iface_disc_button = fields.Boolean(string='Discount All Button')
     currency_khr = fields.Many2one('res.currency', string='Currency KHR', default=lambda self: self.env.ref("base.KHR", raise_if_not_found=False).id, limit=1)
+    is_one_currency = fields.Boolean(string='One Currency', default=False)
+    is_khr_currency = fields.Boolean(string='KHR Currency', compute='_compute_is_khr_currency')
+
+    @api.depends('is_one_currency', 'payment_method_ids')
+    def _compute_is_khr_currency(self):
+        for config in self:
+            if config.is_one_currency:
+                config.is_khr_currency = any(config.payment_method_ids.mapped(lambda m: m.is_cash_count and m.name and 'khr' in m.name.lower()))
+            else:
+                config.is_khr_currency = False
 
     def get_order_sequence_number(self):
         sequence_id = self.sequence_id
