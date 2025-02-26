@@ -17,28 +17,28 @@
         <xpath expr="//div[hasclass('payment-status-container')]" position="replace">
             <div class="payment-status-container d-flex flex-column-reverse justify-content-between fs-2">
                 <div t-if="this.props.order.get_due() gte 0 and props.order.get_change() === 0" class="payment-status-remaining d-flex justify-content-between row">
-                    <div class="d-flex justify-content-between flex-grow-1">
-                        <span class="label pe-2">Remaining</span>
+                    <div t-if="isOnlyUSD || isBothCurrency" class="d-flex justify-content-between flex-grow-1">
+                        <span class="label pe-2">Remaining (USD)</span>
                         <span class="amount align-self-end pe-5" t-att-class="{ 'highlight text-danger fw-bolder': props.order.get_due() > 0 }">
                             <t t-esc="remainingText" />
                         </span>
                     </div>
-                    <div class="d-flex justify-content-between flex-grow-1">
-                        <span class="label pe-2">(KHR)</span>
+                    <div t-if="isOnlyKHR || isBothCurrency" class="d-flex justify-content-between flex-grow-1">
+                        <span class="label pe-2">Remaining (KHR)</span>
                         <span class="amount align-self-end pe-5" t-att-class="{ 'highlight text-danger fw-bolder': props.order.get_due() > 0 }">
                             <t t-esc="remainingTextKHR" />
                         </span>
                     </div>
                 </div>
                 <div t-else="" class="payment-status-change d-flex justify-content-between row">
-                    <div class="d-flex justify-content-between flex-grow-1">
-                        <span class="label pe-2">Change</span>
+                    <div t-if="isOnlyUSD || isBothCurrency" class="d-flex justify-content-between flex-grow-1">
+                        <span class="label pe-2">Change (USD)</span>
                         <span class="amount align-self-end pe-5" t-att-class="{ 'highlight text-success fw-bolder': props.order.get_change() > 0 }">
                             <t t-esc="changeText" />
                         </span>
                     </div>
-                    <div class="d-flex justify-content-between flex-grow-1">
-                        <span class="label pe-2">+ (KHR)</span>
+                    <div t-if="isOnlyKHR || isBothCurrency" class="d-flex justify-content-between flex-grow-1">
+                        <span class="label pe-2"><t t-if="isOnlyKHR">Change (KHR)</t><t t-else="">+ (KHR)</t></span>
                         <span class="amount align-self-end pe-5" t-att-class="{ 'highlight text-success fw-bolder': props.order.get_change() > 0 }">
                             <t t-esc="changeTextkhr" />
                         </span>

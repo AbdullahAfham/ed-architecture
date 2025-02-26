@@ -19,6 +19,15 @@ patch(PaymentScreenStatus.prototype, {
     get currency_khr() {
         return this.data.models["res.currency"].find(currency => currency.id === 66);
     },
+    get isOnlyUSD() {
+        return this.props.order.config?.is_khr_currency && !this.props.order.config?.is_one_currency;
+    },
+    get isOnlyKHR() {
+        return this.props.order.config?.is_one_currency && this.props.order.config?.is_khr_currency;
+    },
+    get isBothCurrency() {
+        return !this.props.order.config?.is_one_currency;
+    },
     get changeTextkhr() {
         var lines = this.props.order.payment_ids;
         var change = this.props.order.get_change();
@@ -38,6 +47,14 @@ patch(PaymentScreenStatus.prototype, {
             this.props.order.is_khr=true;
         }
         return this.env.utils.formatCurrency(Math.floor(change/10)*10);
+    },
+    get remainingText() {
+        const { order_has_zero_remaining, order_remaining, order_sign } =
+            this.props.order.taxTotals;
+        if (order_has_zero_remaining) {
+            return this.env.utils.formatCurrency(0);
+        }
+        return this.env.utils.formatCurrency(this.props.order.get_due() > 0 ? this.props.order.get_due() : 0);
     },
     get remainingTextKHR() {
         const exchange_rate = this.props.order.config.exchange_rate;
