@@ -29,7 +29,6 @@
         'views/account_view.xml',
         'views/views.xml',
     ],
-
     # Frontend assets,
     'assets': {
         'web.assets_backend': [
