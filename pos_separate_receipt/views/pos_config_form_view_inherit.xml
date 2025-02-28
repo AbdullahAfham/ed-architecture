@@ -1,0 +1,48 @@
+<odoo>
+    <record id="view_pos_config_form_khr_qr_inherit" model="ir.ui.view">
+        <field name="name">pos.config.form.view.khr.qr.inherit</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='has_active_session']" position="after">
+                <field name="logo_image" widget="image" class="oe_avatar"/>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <div class="row mt16 o_settings_container">
+                    <div id="information_left" class="col-6 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <label for="pos_khmer_name"/>
+                            <div style="font-size: small">
+                                <field name="pos_khmer_name"/>
+                            </div>
+                            <label for="khmer_address"/>
+                            <div style="font-size: small">
+                                <field name="khmer_address"/>
+                            </div>
+                            <label for="phone_number"/>
+                            <div style="font-size: small">
+                                <field name="phone_number"/>
+                            </div>
+                            <label for="vat_number"/>
+                            <div style="font-size: small">
+                                <field name="vat_number"/>
+                            </div>
+                            <label for="acc_holder_name"/>
+                            <div style="font-size: small">
+                                <field name="acc_holder_name"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="information_right" class="col-6 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <label for="qr_image"/>
+                            <div style="font-size: small">
+                                <field name="qr_image" widget="image"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>
