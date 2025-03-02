@@ -26,7 +26,7 @@ patch(OpeningControlPopup.prototype, {
         });
     },
     get isOnlyUSD() {
-        return this.pos.config?.is_khr_currency && !this.pos.config?.is_one_currency;
+        return this.pos.config?.is_one_currency && !this.pos.config?.is_khr_currency;
     },
     get isOnlyKHR() {
         return this.pos.config?.is_one_currency && this.pos.config?.is_khr_currency;

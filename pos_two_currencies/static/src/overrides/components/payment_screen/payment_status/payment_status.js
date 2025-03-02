@@ -20,7 +20,7 @@ patch(PaymentScreenStatus.prototype, {
         return this.data.models["res.currency"].find(currency => currency.id === 66);
     },
     get isOnlyUSD() {
-        return this.props.order.config?.is_khr_currency && !this.props.order.config?.is_one_currency;
+        return this.props.order.config?.is_one_currency && !this.props.order.config?.is_khr_currency;
     },
     get isOnlyKHR() {
         return this.props.order.config?.is_one_currency && this.props.order.config?.is_khr_currency;
