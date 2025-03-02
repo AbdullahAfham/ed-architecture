@@ -21,6 +21,7 @@
         'security/ir.model.access.csv',
         'security/res_groups.xml',
         'security/ir_rule_data.xml',
+        'reports/sale_details_template.xml',
         'views/point_of_sale_dashboard.xml',
         'views/pos_config.xml',
         'views/pos_payment_views.xml',
@@ -28,6 +29,7 @@
         'views/res_config_settings_views.xml',
         'views/account_view.xml',
         'views/views.xml',
+        'views/pos_details.xml',
     ],
     # Frontend assets,
     'assets': {
