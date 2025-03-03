@@ -30,9 +30,9 @@ class SaleQuotationAPI(http.Controller):
         if not partner_id:
             return invalid_response_http("Bad Request", 'Customer is required.', status=400)
         
-        normal_sale_type = get_table_model('sale.order.type').search([('code', '=', 'normal')], limit=1)
-        if not normal_sale_type:
-            return invalid_response_http("Not Found", 'Normal Sale Type not found.', status=404)  
+        # normal_sale_type = get_table_model('sale.order.type').search([('code', '=', 'normal')], limit=1)
+        # if not normal_sale_type:
+        #     return invalid_response_http("Not Found", 'Normal Sale Type not found.', status=404)  
         
         try:
             # combine a given `date` with current `time`
@@ -47,9 +47,9 @@ class SaleQuotationAPI(http.Controller):
                 'partner_id': partner_id,
                 'date_order': date_order,
                 'commitment_date': date_deliver,
-                'employee_id': employee.id,
+                # 'employee_id': employee.id,
                 'company_id': employee.company_id.id,
-                'type_id': normal_sale_type.id,
+                # 'type_id': normal_sale_type.id,
                 'order_line': [
                     Command.create({
                         'product_id': product['id'],
@@ -125,13 +125,13 @@ class SaleQuotationAPI(http.Controller):
                 date_deliver = _combine_date_with_current_time(date_deliver)
                 values_to_update.update({'commitment_date': date_deliver})
 
-            normal_sale_type = get_table_model('sale.order.type').search([('code', '=', 'normal')], limit=1)
-            if not normal_sale_type:
-                return invalid_response_http("Not Found", 'Normal Sale Type not found.', status=404)  
+            # normal_sale_type = get_table_model('sale.order.type').search([('code', '=', 'normal')], limit=1)
+            # if not normal_sale_type:
+            #     return invalid_response_http("Not Found", 'Normal Sale Type not found.', status=404)  
             
             # Because of `_compute_sale_type_id` will be invoked when `partner_id` changed
             # This will ensure the `type_id` wouldn't change
-            values_to_update.update({'type_id': normal_sale_type.id})
+            # values_to_update.update({'type_id': normal_sale_type.id})
 
             # Either adding a new one or update the existing one
             order_lines = []
@@ -219,10 +219,10 @@ class SaleQuotationAPI(http.Controller):
 
             # current user is `Created by` or `Employee` of sale.order, and it has a type of Normal Order.
             domain = [
-                '&', '|',
+                # '&', '|',
                 ('create_uid', '=', uid),
-                ('employee_id', 'in', current_user.employee_ids.ids),
-                ('type_id.code', '=', 'normal'),
+                # ('employee_id', 'in', current_user.employee_ids.ids),
+                # ('type_id.code', '=', 'normal'),
             ]
 
             if sale_quotation_id:
