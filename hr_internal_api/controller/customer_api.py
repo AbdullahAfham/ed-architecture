@@ -75,7 +75,7 @@ class CustomerAPI(http.Controller):
         # ])
 
         return {
-            'owner_name': customer.owner_name or "",
+            'owner_name': "",
             'outlet_type': _get_selection_string_value(customer, 'outlet_type'),
             'channel_type': _get_selection_string_value(customer, 'channel_type'),
             'volume_classification': _get_selection_string_value(customer, 'volume_classification'),
