@@ -16,6 +16,6 @@ class MobileModule(models.Model):
         string="Company",
         required=True,
         default=_company_get,
-        track_visibility="onchange",
+        tracking=True,
     )
 

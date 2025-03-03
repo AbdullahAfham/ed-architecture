@@ -27,8 +27,7 @@ class ERPMobileUsers(models.Model):
     parent_id = fields.Many2one('res.partner', 'Company')
     login_date = fields.Datetime(string="Latest authentication")
     state = fields.Selection([('new', 'Never Login'),
-                              ('confirm', 'Confirmed')], string='Status', default='new',
-                             track_visibility='always')
+                              ('confirm', 'Confirmed')], string='Status', default='new', tracking=True)
 
 
 class ERPMobileCompany(models.Model):
@@ -47,8 +46,7 @@ class ERPMobileCompany(models.Model):
     description = fields.Text('Description')
     mobile_user_ids = fields.One2many('erp.mobile.users', 'mobile_account_id', string="Users")
     state = fields.Selection([('new', 'New'),
-                              ('confirm', 'Confirmed')], string='Status', default='new',
-                             track_visibility='always')
+                              ('confirm', 'Confirmed')], string='Status', default='new', tracking=True)
     qr_code_uuid = fields.Char("UUID")
     qr_code_img = fields.Image("QR Code", max_width=1024, max_height=1024, store=True, copy=False)
     date_localization = fields.Date("Updated On")
