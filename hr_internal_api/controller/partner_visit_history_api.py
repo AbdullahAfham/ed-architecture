@@ -174,7 +174,7 @@ class PartnerVisitHistoryAPI(http.Controller):
                 [('company_id', 'in', current_user.company_ids.ids)],
                 expression.OR([
                     [('create_uid', '=', uid)],
-                    [('employee_id', 'in', current_user.employee_ids.ids)],
+                    # [('employee_id', 'in', current_user.employee_ids.ids)],
                 ])
             ])
 
