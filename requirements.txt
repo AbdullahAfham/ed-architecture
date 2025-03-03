@@ -1,0 +1,4 @@
+# thid-party libraries required for custom addons
+
+geopy==2.4.1
+firebase_admin==6.6.0
