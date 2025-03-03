@@ -41,10 +41,10 @@ class CustomerAPI(http.Controller):
                 'id': customer.id,
                 'name_en': customer.khmer_name or customer.name,
                 'name_km': customer.name,
-                'dms_code': customer.dms_code or "",
+                'dms_code': "",
                 'phone': customer.phone or "",
                 'address': " ".join(customer._display_address(without_company=True).split()),    # remove white-space
-                'outlet_grade': int(customer.outlet_grade),
+                'outlet_grade': int(1), # int(customer.outlet_grade),
                 'image_url': f'/web/image/res.partner/{customer.id}/image_1024',
             } for customer in customers]
 

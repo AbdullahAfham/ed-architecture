@@ -38,7 +38,7 @@ class PaymentAPI(http.Controller):
                 'name': payment.name,
                 'name_en': payment.partner_id.khmer_name or payment.partner_id.name,
                 'name_km': payment.partner_id.name,
-                'dms_code': payment.partner_id.dms_code or "",
+                'dms_code': "",
                 'payment_date': payment.date and payment.date.strftime('%Y-%m-%d') or "",
                 'amount': payment.amount,
                 'state': _get_selection_string_value(payment, 'state'),
@@ -68,7 +68,7 @@ class PaymentAPI(http.Controller):
             {
                 "key": "dms_code",
                 "label": "DMS code",
-                "value": payment.partner_id.dms_code or "",
+                "value": "",
                 "is_highlight": False
             },
             {

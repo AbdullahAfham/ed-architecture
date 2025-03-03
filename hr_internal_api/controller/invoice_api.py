@@ -42,7 +42,7 @@ class InvoiceAPI(http.Controller):
                 'name': invoice.name,
                 'name_en': invoice.partner_id.khmer_name or invoice.partner_id.name,
                 'name_km': invoice.partner_id.name,
-                'dms_code': invoice.partner_id.dms_code or "",
+                'dms_code': "",
                 'invoice_date': invoice.invoice_date and invoice.invoice_date.strftime('%Y-%m-%d') or "",
                 'amount_total': invoice.amount_total,
                 'state': _get_selection_string_value(invoice, 'status_in_payment'),
@@ -73,7 +73,7 @@ class InvoiceAPI(http.Controller):
                 {
                     "key": "dms_code",
                     "label": "DMS code",
-                    "value": invoice.partner_id.dms_code or "",
+                    "value": "",
                     "is_highlight": False
                 },
                 {
@@ -163,7 +163,7 @@ class InvoiceAPI(http.Controller):
                 'name': invoice.name,
                 'name_en': invoice.partner_id.khmer_name or invoice.partner_id.name,
                 'name_km': invoice.partner_id.name,
-                'dms_code': invoice.partner_id.dms_code or "",
+                'dms_code': "",
                 'invoice_date': invoice.invoice_date and invoice.invoice_date.strftime('%Y-%m-%d') or "",
                 'amount_total': invoice.amount_total,
                 'state': _get_selection_string_value(invoice, 'status_in_payment'),

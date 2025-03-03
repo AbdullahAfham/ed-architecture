@@ -346,7 +346,7 @@ class QuickSaleAPI(http.Controller):
             "partner_id": sale.partner_id.id,
             "name_en": sale.partner_id.khmer_name or sale.partner_id.name,
             "name_km": sale.partner_id.name,
-            "dms_code": sale.partner_id.dms_code or "",
+            "dms_code": "",
             "date_order": sale.date_order and sale.date_order.strftime('%Y-%m-%d') or "",
             "date_deliver": sale.commitment_date and sale.commitment_date.strftime('%Y-%m-%d') or "",
             "warehouse_id": sale.warehouse_id.id,
@@ -366,7 +366,7 @@ class QuickSaleAPI(http.Controller):
                 {
                     "key": "dms_code",
                     "label": "DMS code",
-                    "value": sale.partner_id.dms_code or "",
+                    "value": "",
                     "is_highlight": False
                 },
                 {
