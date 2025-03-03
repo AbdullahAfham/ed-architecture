@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_separate_receipt.CustomerFacingDisplayNoOrder" t-inherit="point_of_sale.CustomerFacingDisplayNoOrder" t-inherit-mode="extension">
+        <!-- remove background image -->
+        <xpath expr="//div[hasclass('pos-customer_facing_display')]" position="replace">
+            <div class="pos-customer_facing_display pos-no-order pos-palette_01" t-attf-style="background-image: #{backgroundImageURL};">
+                <div class="pos-no-order" t-attf-style="background-image: #{backgroundImageURL};">
+                    <!-- <div class="pos-company_logo" t-attf-style="background-image:url(/logo?company=#{pos.company.id})" /> -->
+                </div>
+            </div>
+        </xpath>
+    </t>
+
+    <t t-name="pos_separate_receipt.CustomerFacingDisplayOrder" t-inherit="point_of_sale.CustomerFacingDisplayOrder" t-inherit-mode="extension">
+        <!-- remove background image -->
+        <xpath expr="//div[hasclass('pos-payment_info')]" position="attributes">
+            <attribute name="t-attf-style"></attribute>
+        </xpath>
+
+        <xpath expr="//div[hasclass('pos-payment_info')]//div[hasclass('pos-company_logo')]" position="replace">
+            <!-- add logo_image -->
+            <t t-set="pos_config_logo_image_url" t-value="pos.config.logo_image ? 'url(/web/image/pos.config/' + pos.config.id + '/logo_image)' : 'none'" />
+            <div class="pos-company_logo" t-attf-style="background-image: {{pos_config_logo_image_url}};" />
+
+            <!-- add qr_image -->
+            <t t-set="pos_config_qr_image_url" t-value="pos.config.qr_image ? 'url(/web/image/pos.config/' + pos.config.id + '/qr_image)' : 'none'" />
+            <div class="pos-company_logo" t-attf-style="background-image: {{pos_config_qr_image_url}};" />
+        </xpath>
+
+    </t>
+
+</templates>
+
+

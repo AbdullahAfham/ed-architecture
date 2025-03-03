@@ -81,10 +81,12 @@ class PosPaymentMethod(models.Model):
             return {'error': _("There are some issues between us and PayWay QR API, try again later. %s", resp.json().get('status'))}
 
     def _send_payway_qr_notification(self, data):
-        # Send a notification to the point of sale channel to indicate that the transaction are finish
+        # Send a notification to the point of sale channel to indicate that the transaction is finish
         pos_session_sudo = self.env["pos.session"].browse(int(data.get('pos_session_id', False)))
         if pos_session_sudo:
-            self.env['bus.bus']._sendone(pos_session_sudo._get_bus_channel_name(), 'PAYWAY_QR_LATEST_RESPONSE', pos_session_sudo.config_id.id)
+            pos_session_sudo.config_id._notify('PAYWAY_QR_LATEST_RESPONSE', {
+                'config_id': pos_session_sudo.config_id.id
+            })
 
     def get_order_items_base64(self, order_lines):
         key = 0
@@ -217,8 +219,13 @@ class PosPaymentMethod(models.Model):
         tran_id = webhook_data.get('tran_id', False)
         return_params = webhook_data.get('return_params', "{}")
         pos_session_id = json.loads(return_params).get('pos_session_id', False)
-        # pos_session_sudo = self.env["pos.session"].sudo().browse(int(pos_session_id)).exists()
-        merchant_id = self.payway_qr_merchant_id
+        pos_session_sudo = self.env["pos.session"].sudo().browse(int(pos_session_id)).exists()
+        payment_method_id = self
+        if pos_session_sudo and pos_session_sudo.config_id and pos_session_sudo.config_id.payment_method_ids:
+            payment_method_ids = pos_session_sudo.config_id.payment_method_ids.filtered(lambda pm: pm.use_payment_terminal == 'payway_qr')
+            if self not in payment_method_ids:
+                payment_method_id = payment_method_ids[0]
+        merchant_id = payment_method_id.payway_qr_merchant_id
 
         values = {
             'language': lang,
@@ -227,19 +234,19 @@ class PosPaymentMethod(models.Model):
             'tran_id': tran_id,
         }
 
-        response = self._call_payway_qr(endpoint, 'post', {
+        response = payment_method_id._call_payway_qr(endpoint, 'post', {
             **values,
-            'hash': self._payway_calculate_signature(values, incoming=True, pos_session_id=pos_session_id),
+            'hash': payment_method_id._payway_calculate_signature(values, incoming=True, pos_session_id=pos_session_id),
         })
 
         if response.get('data', False):
             data_webhook = response.get('data', {})
             data_webhook['transaction_id'] = tran_id
             data = {'pos_session_id': pos_session_id, 'transaction_id': tran_id, 'data_webhook': data_webhook}
-            self.payway_qr_latest_response = data
-            self._send_payway_qr_notification(data)
+            payment_method_id.payway_qr_latest_response = data
+            payment_method_id._send_payway_qr_notification(data)
         else:
-            self._send_payway_qr_notification(
+            payment_method_id._send_payway_qr_notification(
                 {'error': _(
                     "There are some issues between us and PayWay QR API, try again later. %s",
                     response.get('status', "Error")

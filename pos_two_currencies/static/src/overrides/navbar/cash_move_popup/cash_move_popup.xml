@@ -1,13 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
     <t t-name="pos_two_currencies.CashMovePopup" t-inherit="point_of_sale.CashMovePopup" t-inherit-mode="extension">
-        <xpath expr="//div[hasclass('input-amount')]" position="inside">
-            <Input tModel="[state, 'amountKHR']"
-                icon="{type: 'string', value: pos.currency_khr.symbol}"
-                iconOnLeftSide="pos.currency_khr.position === 'before'"
-                isValid.bind="env.utils.isValidFloat"
-                autofocus="true"
-                getRef="(ref) => this.inputRef = ref" />
+        <xpath expr="//div[hasclass('input-amount')]" position="replace">
+            <div class="input-amount d-flex mb-2 gap-2">
+                <div class="input-group" t-att-class="{ 'w-50' : this.ui.isSmall }">
+                    <button t-on-click="() => this.onClickButton('in')" t-attf-class="input-type btn btn-secondary lh-lg #{this.ui.isSmall ? 'btn-md' : 'btn-lg'} #{state.type === 'in' ? 'highlight btn-success' : '' }">
+                        Cash In
+                    </button>
+                    <button t-on-click="() => this.onClickButton('out')" t-attf-class="input-type btn btn-secondary lh-lg #{this.ui.isSmall ? 'btn-md' : 'btn-lg'} #{state.type === 'out' ? 'red-highlight btn-danger' : '' }">
+                        Cash Out
+                    </button>
+                </div>
+                <div t-if="isOnlyUSD || isBothCurrency"  t-attf-class="{{this.ui.isSmall ? 'mw-50 h-50' : 'w-25'}}">
+                    <Input tModel="[state, 'amount']"
+                        icon="{type: 'string', value: pos.currency.symbol}"
+                        iconOnLeftSide="pos.currency.position === 'before'"
+                        isValid.bind="env.utils.isValidFloat"
+                        autofocus="true"
+                        getRef="(ref) => this.inputRef = ref" />
+                </div>
+                <div t-if="isOnlyKHR || isBothCurrency"  t-attf-class="{{this.ui.isSmall ? 'mw-50 h-50' : 'w-25'}}">
+                    <Input tModel="[state, 'amountKHR']"
+                        icon="{type: 'string', value: pos.currency_khr.symbol}"
+                        iconOnLeftSide="pos.currency_khr.position === 'before'"
+                        isValid.bind="env.utils.isValidFloat"
+                        autofocus="true"
+                        getRef="(ref) => this.inputRef = ref" />
+                </div>
+            </div>
         </xpath>
     </t>
 </templates>

@@ -2,7 +2,7 @@
 <templates id="template" xml:space="preserve">
     <t t-name="pos_two_currencies.OpeningControlPopup" t-inherit="point_of_sale.OpeningControlPopup" t-inherit-mode="extension">
         <xpath expr="//div[hasclass('cash-input-sub-section')]" position="replace">
-            <div class="cash-input-sub-section input-group d-flex gap-1">
+            <div t-if="isOnlyUSD || isBothCurrency" class="cash-input-sub-section input-group d-flex gap-1">
                 <span class="input-group-text bg-secondary">Cash USD</span>
                 <Input tModel="[state, 'openingCash']"
                     isValid.bind="env.utils.isValidFloat"
@@ -12,7 +12,7 @@
                     <i class="fa fa-money fa-2x" role="img" title="Open the money details popup"/>
                 </div>
             </div>
-            <div class="cash-input-sub-section input-group d-flex gap-1">
+            <div t-if="isOnlyKHR || isBothCurrency" class="cash-input-sub-section input-group d-flex gap-1">
                 <span class="input-group-text bg-secondary">Cash KHR</span>
                 <Input tModel="[state, 'openingCashKHR']"
                     isValid.bind="env.utils.isValidFloat"

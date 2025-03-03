@@ -217,6 +217,9 @@ export class PaymentPayWayQR extends PaymentInterface {
                 resolver(isPaymentSuccessful);
             } else {
                 line.handle_payment_response(isPaymentSuccessful);
+                if (this.pos.paymentTerminalInProgress) {
+                    this.pos.paymentTerminalInProgress = false;
+                }
             }
         }
     }

@@ -21,11 +21,20 @@ patch(ClosePosPopup.prototype, {
         super.setup();
         this.session_name = this.pos.config?.display_name || '';
     },
+    get isOnlyUSD() {
+        return this.pos.config?.is_one_currency && !this.pos.config?.is_khr_currency;
+    },
+    get isOnlyKHR() {
+        return this.pos.config?.is_one_currency && this.pos.config?.is_khr_currency;
+    },
+    get isBothCurrency() {
+        return !this.pos.config?.is_one_currency;
+    },
     // Override Parent Method
     getInitialState() {
         const initialState = { notes: "", noteUSD: "", noteKHR: "", payments: {} };
 
-        if (this.pos.config.cash_control) {
+        if (this.pos.config.cash_control && this.props.default_cash_details) {
             initialState.payments[this.props.default_cash_details.id] = {
                 // counted: "0",
                 counted: this.env.utils.formatCurrency(this.props.default_cash_details.amount, false),
@@ -83,7 +92,7 @@ patch(ClosePosPopup.prototype, {
     },
 
     async closeSession() {
-        sessionStorage.removeItem("connected_cashier");
+        this.pos._resetConnectedCashier();
         if (this.pos.config.customer_display_type === "proxy") {
             const proxyIP = this.pos.getDisplayDeviceIP();
             fetch(`${deduceUrl(proxyIP)}/hw_proxy/customer_facing_display`, {
@@ -109,13 +118,13 @@ patch(ClosePosPopup.prototype, {
                 "post_closing_cash_details",
                 [this.pos.session.id],
                 {
-                    counted_cash: parseFloat(
+                    counted_cash: this.props.default_cash_details ? parseFloat(
                         this.state.payments[this.props.default_cash_details.id].counted
-                    ),
-                    counted_cash_khr: parseFloat(
+                    ) : 0,
+                    counted_cash_khr: this.props.default_cash_details_khr ? parseFloat(
                         this.state.payments[this.props.default_cash_details_khr.id].counted
-                    ),
-                    employee_id: cashier?.id || false,
+                    ) : 0,
+                    user_id: cashier?.id || false,
 
                 }
             );
@@ -145,13 +154,20 @@ patch(ClosePosPopup.prototype, {
             const bankPaymentMethodDiffPairs = this.props.non_cash_payment_methods
                 .filter((pm) => pm.type == "bank")
                 .map((pm) => [pm.id, this.getDifference(pm.id)]);
-            const response = await this.pos.data.call("pos.session", "close_session_from_ui", [
-                this.pos.session.id,
-                bankPaymentMethodDiffPairs,
-            ]);
+            const response = await this.pos.data.call(
+                "pos.session",
+                "close_session_from_ui",
+                [this.pos.session.id, bankPaymentMethodDiffPairs],
+                {
+                    context: {
+                        login_number: odoo.login_number,
+                    },
+                }
+            );
             if (!response.successful) {
                 return this.handleClosingError(response);
             }
+            localStorage.removeItem(`pos.session.${odoo.pos_config_id}`);
             location.reload();
         } catch (error) {
             if (error instanceof ConnectionLostError) {

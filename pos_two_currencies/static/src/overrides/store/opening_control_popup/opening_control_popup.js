@@ -25,6 +25,15 @@ patch(OpeningControlPopup.prototype, {
             ),
         });
     },
+    get isOnlyUSD() {
+        return this.pos.config?.is_one_currency && !this.pos.config?.is_khr_currency;
+    },
+    get isOnlyKHR() {
+        return this.pos.config?.is_one_currency && this.pos.config?.is_khr_currency;
+    },
+    get isBothCurrency() {
+        return !this.pos.config?.is_one_currency;
+    },
     //@override
     async confirm() {
         const cashier = this.pos.get_cashier();

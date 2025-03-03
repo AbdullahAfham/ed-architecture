@@ -15,7 +15,7 @@ patch(PosStore.prototype, {
     /**
      * @override
      */
-    async setup(env) {
+    async setup() {
         this.currency_khr = null;
         this.currency_usd = null;
         this.is_usd = true;
@@ -33,10 +33,10 @@ patch(PosStore.prototype, {
         }
     },
     async afterProcessServerData() {
+        await super.afterProcessServerData(...arguments);
         this.currency_usd = this.data.models["res.currency"].getFirst();
         this.currency_khr = this.config.currency_khr ? this.config.currency_khr : null;
         this.is_usd = this.currency.id !== this.currency_khr?.id;
-        return await super.afterProcessServerData(...arguments);
     },
     formatCurrencyKHR(value, hasSymbol = true) {
         return formatMonetary(value, {
