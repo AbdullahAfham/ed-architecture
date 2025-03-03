@@ -39,7 +39,7 @@ class CustomerAPI(http.Controller):
             # For multiple customers.
             response = [{
                 'id': customer.id,
-                'name_en': customer.name_in_khmer or customer.name,
+                'name_en': customer.khmer_name or customer.name,
                 'name_km': customer.name,
                 'dms_code': customer.dms_code or "",
                 'phone': customer.phone or "",

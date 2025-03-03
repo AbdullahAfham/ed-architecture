@@ -40,7 +40,7 @@ class InvoiceAPI(http.Controller):
             response = [{
                 'id': invoice.id,
                 'name': invoice.name,
-                'name_en': invoice.partner_id.name_in_khmer or invoice.partner_id.name,
+                'name_en': invoice.partner_id.khmer_name or invoice.partner_id.name,
                 'name_km': invoice.partner_id.name,
                 'dms_code': invoice.partner_id.dms_code or "",
                 'invoice_date': invoice.invoice_date and invoice.invoice_date.strftime('%Y-%m-%d') or "",
@@ -161,7 +161,7 @@ class InvoiceAPI(http.Controller):
             response = [{
                 'id': invoice.id,
                 'name': invoice.name,
-                'name_en': invoice.partner_id.name_in_khmer or invoice.partner_id.name,
+                'name_en': invoice.partner_id.khmer_name or invoice.partner_id.name,
                 'name_km': invoice.partner_id.name,
                 'dms_code': invoice.partner_id.dms_code or "",
                 'invoice_date': invoice.invoice_date and invoice.invoice_date.strftime('%Y-%m-%d') or "",

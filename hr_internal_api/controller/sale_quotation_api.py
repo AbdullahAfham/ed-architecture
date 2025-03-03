@@ -257,7 +257,7 @@ class SaleQuotationAPI(http.Controller):
             "order_id": sale.id,
             "order_ref": sale.name,
             "partner_id": sale.partner_id.id,
-            "name_en": sale.partner_id.name_in_khmer or sale.partner_id.name,
+            "name_en": sale.partner_id.khmer_name or sale.partner_id.name,
             "name_km": sale.partner_id.name,
             "dms_code": sale.partner_id.dms_code or "",
             "date_order": sale.date_order.strftime('%Y-%m-%d'),

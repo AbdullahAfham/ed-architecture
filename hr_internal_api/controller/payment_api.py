@@ -36,7 +36,7 @@ class PaymentAPI(http.Controller):
             response = [{
                 'id': payment.id,
                 'name': payment.name,
-                'name_en': payment.partner_id.name_in_khmer or payment.partner_id.name,
+                'name_en': payment.partner_id.khmer_name or payment.partner_id.name,
                 'name_km': payment.partner_id.name,
                 'dms_code': payment.partner_id.dms_code or "",
                 'payment_date': payment.date and payment.date.strftime('%Y-%m-%d') or "",
