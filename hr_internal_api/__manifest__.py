@@ -12,6 +12,10 @@
     """,
     'depends': ['base', 'mail', 'hr', 'erp_mobile_users'],
 
+    'external_dependencies': {
+        'python': ['firebase_admin', 'geopy']
+    },
+
     'data': [
         'data/data.xml',
         'data/mobile_modules_data.xml',
