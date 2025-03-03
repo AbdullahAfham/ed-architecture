@@ -84,7 +84,7 @@ class CustomerAPI(http.Controller):
             'total_invoices': customer.total_invoiced,
             'total_payments': sum(payment.amount for payment in orders.invoice_ids.matched_payment_ids),    # This consist of `paid` and `in_process` payments
             'total_receivable': customer.credit,
-            'return_empty_bottle': customer.return_empty_bottle,
+            # 'return_empty_bottle': customer.return_empty_bottle,
             'geo_location': {
                 'latitude': customer.partner_latitude, 
                 'longitude': customer.partner_longitude,
@@ -109,9 +109,9 @@ class CustomerAPI(http.Controller):
             values_to_update = {key: payload[key] for key in fields_to_update if payload.get(key, None)}
 
             # to evaluate correctly between `None` and `False`
-            return_empty_bottle = payload.get('return_empty_bottle', None)
-            if isinstance(return_empty_bottle, bool):
-                values_to_update.update({'return_empty_bottle': return_empty_bottle})
+            # return_empty_bottle = payload.get('return_empty_bottle', None)
+            # if isinstance(return_empty_bottle, bool):
+            #     values_to_update.update({'return_empty_bottle': return_empty_bottle})
 
             latitude, longitude = payload.get('latitude'), payload.get('longitude')
             if latitude and longitude:
