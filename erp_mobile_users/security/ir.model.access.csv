@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_erp_mobile_users_user,erp_mobile_users.erp.mobile.users.user,model_erp_mobile_users,group_erp_mobile_users_user,1,1,1,0
+access_erp_mobile_users_manager,erp_mobile_users.erp.mobile.users.manager,model_erp_mobile_users,group_erp_mobile_users_manager,1,1,1,1
+access_erp_mobile_users_admin,erp_mobile_users.erp.mobile.users.admin,model_erp_mobile_users,group_erp_mobile_users_admin,1,1,1,1
+access_erp_mobile_company_user,erp_mobile_users.erp.mobile.company.user,model_erp_mobile_company,group_erp_mobile_users_user,1,1,1,0
+access_erp_mobile_company_manager,erp_mobile_users.erp.mobile.company.manager,model_erp_mobile_company,group_erp_mobile_users_manager,1,1,1,1
+access_erp_mobile_company_admin,erp_mobile_users.erp.mobile.users.admin,model_erp_mobile_company,group_erp_mobile_users_admin,1,1,1,1

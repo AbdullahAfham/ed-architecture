@@ -1,0 +1,129 @@
+<odoo>
+  <data>
+    <!-- explicit list view definition -->
+    <!-- Form View -->
+    <record id="erp_mobile_users.erp_mobile_companies_form_view" model="ir.ui.view">
+            <field name="name">Company Mobile Accounts</field>
+            <field name="model">erp.mobile.company</field>
+            <field name="arch" type="xml">
+                <form string="Company Mobile Accounts">
+                    <field name="active" invisible="1"/>
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="new,confirm"/>
+                        <button name="action_generate_qrcode" string="Generate QR Code" type="object" class="btn-primary"/>
+                        <button name="generate_custom_code" string="Get Customer Code" type="object" class="btn-danger"/>
+
+                    </header>
+                    <sheet>
+                        <div class="o_employee_avatar">
+                            <field name="qr_code_img" widget="image" class="oe_avatar m-0" readonly="1"/>
+
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" required="0" placeholder="Reference ...."/>
+                            </h1>
+                        </div>
+
+                        <group>
+                            <group>
+                                <field name="partner_id" options="{'no_create': True}"/>
+                                <field name="login_date" readonly="1"/>
+                                <field name="customer_code" readonly="1"/>
+
+                            </group>
+                            <group>
+                                <field name="qr_code_uuid" readonly="1"/>
+                                <field name="date_localization" readonly="1"/>
+                                <field name="base_url"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Mobile Users">
+                                <field name="mobile_user_ids">
+                                    <list string="Mobile Users">
+                                        <field name="name"/>
+                                        <field name="partner_id"/>
+                                        <!-- <field name="login"/> -->
+                                        <field name="login_date"/>
+                                        <!-- <field name="lang"/> -->
+                                        <field name="state"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Description" name="work_description">
+                                <field name="description"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+<!--                    <div class="oe_chatter">-->
+<!--                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>-->
+<!--                        <field name="activity_ids"/>-->
+<!--                        <field name="message_ids" widget="mail_thread"/>-->
+<!--                    </div>-->
+                </form>
+            </field>
+        </record>
+
+    <record model="ir.ui.view" id="erp_mobile_users.erp_mobile_companies_list">
+      <field name="name">erp_mobile_users.erp.mobile.companies.list</field>
+      <field name="model">erp.mobile.company</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="name"/>
+          <field name="customer_code"/>
+          <field name="partner_id"/>
+          <field name="login_date"/>
+          <field name="state"/>
+        </list>
+      </field>
+    </record>
+
+
+    <!-- actions opening views on models -->
+
+    <record model="ir.actions.act_window" id="erp_mobile_users.action_mobile_companies_window">
+      <field name="name">Company Accounts</field>
+      <field name="res_model">erp.mobile.company</field>
+      <field name="view_mode">list,form</field>
+      <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create new Pre Approval Overtime Request.
+                </p>
+            </field>
+    </record>
+
+
+    <!-- server action to the one above -->
+    <!--
+    <record model="ir.actions.server" id="erp_mobile_users.action_erp_mobile_company_server">
+      <field name="name">erp.mobile.user.action.server</field>
+      <field name="model_id" ref="model_erp_mobile_company"/>
+      <field name="state">code</field>
+      <field name="code">
+        action = {
+          "type": "ir.actions.act_window",
+          "view_mode": "list,form",
+          "res_model": 'self._name',
+        }
+      </field>
+    </record>
+    -->
+
+    <!-- Top menu item -->
+
+    <menuitem name="Mobile Users" id="erp_mobile_users.menu_erp_mobile_users_root"/>
+
+    <!-- menu categories -->
+    <menuitem name="Companies" id="erp_mobile_users.erp_mobile_companies" sequence="1" parent="erp_mobile_users.menu_erp_mobile_users_root"/>
+    <menuitem name="Users" id="erp_mobile_users.menu_erp_users" sequence="2" parent="erp_mobile_users.menu_erp_mobile_users_root"/>
+    <menuitem name="Configuration" id="erp_mobile_users.menu_erp_mobile_users_configuration" sequence="100" parent="erp_mobile_users.menu_erp_mobile_users_root"/>
+    <!-- actions -->
+
+    <menuitem name="Companies" id="erp_mobile_users.menu_mobile_companies_list" parent="erp_mobile_users.erp_mobile_companies"
+              action="erp_mobile_users.action_mobile_companies_window"/>
+<!--    <menuitem name="Server Company" id="erp_mobile_users" parent="erp_mobile_users.erp_mobile_companies"-->
+<!--              action="erp_mobile_users.action_erp_mobile_company_server"/>-->
+
+  </data>
+</odoo>
