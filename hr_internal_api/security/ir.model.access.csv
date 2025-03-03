@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_mail_message_public,mail.message public,mail.model_mail_message,,1,1,1,1
+access_mail_template_public,mail.template public,mail.model_mail_template,,1,1,1,1
+access_res_partner_public,res.partner public,base.model_res_partner,,1,1,1,1
+access_res_users_public,res.users public,base.model_res_users,base.group_public,1,0,0,0
+access_hr_employee_portal,hr.employee portal,hr.model_hr_employee,base.group_portal,1,0,0,0
+access_mail_activity_portal,mail.activity portal,mail.model_mail_activity,base.group_portal,1,0,0,0
+aacces_mail_activity_type_portal,mail.activity.type portal,mail.model_mail_activity_type,base.group_portal,1,0,0,0
+access_calendar_event_portal,calendar.event portal,calendar.model_calendar_event,base.group_portal,1,1,1,0
+access_calendar_attendee_portal,calendar.attendee portal,calendar.model_calendar_attendee,base.group_portal,1,1,1,0
+access_blacklist_token_portal,blacklist.token portal,model_blacklist_token,base.group_portal,1,1,1,0
+access_mobile_module_portal,mobile.module portal,model_mobile_module,base.group_portal,1,1,1,0
+access_mobile_module_root,mobile.module root,model_mobile_module,base.group_user,1,1,1,1
+access_device_info_root,device.info root,model_device_info,base.group_user,1,1,1,1
+
+acess_visit_history,acess_visit_history,model_visit_history,base.group_user,1,1,1,1
+acess_visit_history_location,acess_visit_history_location,model_visit_history_location,base.group_user,1,1,1,1

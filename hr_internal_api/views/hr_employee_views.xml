@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="view_hr_employee_overtime_form_inherit" model="ir.ui.view">
+        <field name="name">hr.employee.overtime.form.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='hr_settings']//group" position="inside">
+                <group string="Overtime" name="overtime_group" groups="hr_overtime.group_hr_overtime_manager">
+                    <field name="can_create_batch_ot"/>
+                    <field name="device_token"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
