@@ -54,7 +54,6 @@ class SaleQuotationAPI(http.Controller):
                     Command.create({
                         'product_id': product['id'],
                         'product_uom_qty': product['quantity'], 
-                        'sale_type': 'sale',
                     }) for product in products
                 ]
             }
@@ -140,7 +139,6 @@ class SaleQuotationAPI(http.Controller):
                     line = Command.create({
                         'product_id': product['id'],
                         'product_uom_qty': product['quantity'],
-                        'sale_type': 'sale',
                     })
                     order_lines.append(line)
                     continue
