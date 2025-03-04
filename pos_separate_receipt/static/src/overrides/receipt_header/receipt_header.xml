@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_separate_receipt.ReceiptHeader" t-inherit="point_of_sale.ReceiptHeader" t-inherit-mode="extension">
+        <xpath expr="//br" position="replace"/>
+        <xpath expr="//img" position="replace" />
+        <xpath expr="//div[hasclass('pos-receipt-contact')]" position="replace">
+            <div class="pos-receipt-contact">
+                <!-- contact address -->
+                <div t-if="props.data.company.partner_id?.[1]" t-esc="props.data.company.partner_id[1]" />
+                <t t-if="props.data.company.vat">
+                    <div><t t-esc="props.data.company.country?.vat_label || 'TIN'"/>: <t t-esc="props.data.company.vat" /></div>
+                </t>
+                <div class="fw-bolder">
+                    <div class="fs-5">វិក្កយបត្រ</div>
+                    <div class="fs-5">INVOICE</div>
+                </div>
+                <div t-if="props.data.pos_khmer_name"><t t-esc="props.data.pos_khmer_name"/></div>
+            </div>
+        </xpath>
+        <xpath expr="//br[last()]" position="after">
+            <div class="text-start" t-if="props.data.phone_number" style="font-size:0.83em;" >ទូរស័ព្ទ/Phone: <t t-esc="props.data.phone_number"/></div>
+            <div class="text-start" t-if="props.data.acc_holder_name" style="font-size:0.83em;" >គណន/Account: <t t-esc="props.data.acc_holder_name"/></div>
+        </xpath>
+    </t>
+
+</templates>
