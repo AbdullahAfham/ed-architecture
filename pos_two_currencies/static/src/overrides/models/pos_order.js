@@ -13,6 +13,8 @@ import {
 } from "@web/core/l10n/dates";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
+import { accountTaxHelpers } from "@account/helpers/account_tax";
+import { lt } from "@point_of_sale/utils";
 
 patch(PosOrder.prototype, {
     setup(_defaultObj, options) {
@@ -59,9 +61,11 @@ patch(PosOrder.prototype, {
         this.origs_order_name = json.origs_order_name || false;
     },
     get_total_with_tax_before_discount() {
+        const self = this;
         return round_pr(
             this.lines.reduce(function (sum, orderLine) {
-                return sum + orderLine.get_all_prices().priceWithTaxBeforeDiscount;
+                let lineAllPriceUnit = orderLine.get_all_prices();
+                return sum + (self.config.iface_tax_included === "total" ? lineAllPriceUnit.priceWithTaxBeforeDiscount : lineAllPriceUnit.priceWithoutTaxBeforeDiscount);
             }, 0),
             this.currency.rounding
         );
@@ -240,6 +244,19 @@ patch(PosOrder.prototype, {
             change = 0;
         }
         return Math.floor(change/10)*10;
+    },
+    get_total_with_tax() {
+        return round_pr(
+            this.lines.reduce((sum, orderLine) => {
+                    sum += orderLine.get_all_prices().priceWithTax;
+                return sum;
+            }, 0),
+            this.currency.rounding
+        );
+    },
+    getTotalDue() {
+        // return this.taxTotals.order_sign * this.taxTotals.order_total;
+        return this.get_total_with_tax()
     },
     get_total_khr() {
         const total = this.get_total_with_tax();

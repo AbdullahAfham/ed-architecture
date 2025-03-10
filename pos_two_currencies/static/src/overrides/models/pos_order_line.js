@@ -7,6 +7,7 @@ import {
     getTaxesAfterFiscalPosition,
     getTaxesValues,
 } from "@point_of_sale/app/models/utils/tax_utils";
+import { accountTaxHelpers } from "@account/helpers/account_tax";
 
 patch(PosOrderline.prototype, {
     setup(obj, options) {
@@ -42,6 +43,33 @@ patch(PosOrderline.prototype, {
             return super.getUnitDisplayPriceBeforeDiscount(...arguments);
         }
         return this.get_all_prices(1).priceWithoutTaxBeforeDiscount;
+    },
+
+    prepareBaseLineForTaxesComputationExtraValues(customValues = {}) {
+        const values =  super.prepareBaseLineForTaxesComputationExtraValues(...arguments);
+        if (this.is_discount_vat) {
+            return values
+        }
+        const product = this.get_product();
+        const priceUnit = this.get_unit_price();
+        let taxes = values.tax_ids;
+        const taxesDataBeforeDiscount = getTaxesValues(
+            taxes,
+            priceUnit,
+            this.qty,
+            product,
+            this.config._product_default_values,
+            this.company,
+            this.currency
+        );
+        const taxDetails = {};
+        let taxTotal = 0;
+        for (const taxData of taxesDataBeforeDiscount.taxes_data) {
+            taxTotal += taxData.tax_amount;
+            taxDetails[taxData.id] = taxData;
+        }
+        values.manual_tax_amounts = taxDetails
+        return values;
     },
 
     get_all_prices(qty = this.get_quantity()) {
@@ -83,7 +111,7 @@ patch(PosOrderline.prototype, {
         // Tax details.
         const taxDetails = {};
         let taxTotal = 0;
-        for (const taxData of taxesData.taxes_data) {
+        for (const taxData of taxesDataBeforeDiscount.taxes_data) {
             taxTotal += taxData.tax_amount;
             taxDetails[taxData.id] = {
                 amount: taxData.tax_amount,
@@ -115,6 +143,7 @@ patch(PosOrderline.prototype, {
         return price;
     },
     getDisplayData() {
+        const self = this;
         let displayBorder = !this.isPartOfCombo();
         if (this.comboParent && this.comboParent.combo_line_ids?.length > 1) {
             const combo_line_ids = this.comboParent.combo_line_ids;
@@ -122,11 +151,19 @@ patch(PosOrderline.prototype, {
             displayBorder = combo_line_ids[combo_line_ids.length - 1] === this.id;
         }
 
-        let price = this.get_display_price();
-        let unitPrice = this.get_all_prices(1).priceWithTaxBeforeDiscount;
+        let price = self.get_display_price();
+        let allPriceUnit = self.get_all_prices(1);
+
+        let unitPrice = allPriceUnit.priceWithoutTaxBeforeDiscount;
+        if (self.config.iface_tax_included === "total") {
+            unitPrice = allPriceUnit.priceWithTaxBeforeDiscount;
+        }
         if (this.comboLines?.length) {
             price += this.comboLines.reduce((sum, line) => sum + line.get_display_price(), 0);
-            unitPrice += this.comboLines.reduce((sum, line) => sum + line.get_all_prices(1).priceWithTaxBeforeDiscount, 0);
+            unitPrice += this.comboLines.reduce((sum, line) => {
+                let lineAllPriceUnit = line.get_all_prices(1);
+                return sum + (self.config.iface_tax_included === "total" ? lineAllPriceUnit.priceWithTaxBeforeDiscount : lineAllPriceUnit.priceWithoutTaxBeforeDiscount)
+            }, 0);
         }
 
         return {
