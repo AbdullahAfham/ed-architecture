@@ -43,7 +43,7 @@
                         <td><div style="border-bottom: black 1px solid;margin: 8px 0;" /></td>
                         <td><div style="border-bottom: black 1px solid;margin: 8px 0;" /></td>
                     </tr>
-                    <t t-foreach="props.data.orderlines" t-as="orderline" t-key="orderlines_index">
+                    <t t-foreach="props.data.orderlines" t-as="orderline" t-key="orderline_index">
                         <tr t-attf-style="border-bottom: black {{ orderline.displayBorder ? 1 : 0 }}px dashed;">
                             <td t-attf-class="{{ orderline.comboParent ? 'border-start ps-1' : '' }}">
                                 <t t-esc="orderline.productName"/>
