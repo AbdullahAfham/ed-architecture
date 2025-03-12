@@ -58,7 +58,7 @@
                 <t t-set="service_charge_qty" t-value="0"/>
                 <t t-set="service_charge_amount" t-value="0"/>
 
-                <t t-if="report_type in ['product','both']">
+                <t t-if="report_type in ['product','all']">
                     <!-- Orderlines -->
                     <t t-set="no" t-value="0"/>
                     <t t-set="total_quantity" t-value="0"/>
@@ -166,7 +166,7 @@
                     <br/>
                 </t>
 
-                <t t-if="report_type in ['category','both']">
+                <t t-if="report_type in ['category','all']">
                     <!-- Categories -->
                     <t t-set="no" t-value="0"/>
                     <t t-set="total_quantity" t-value="0"/>
@@ -185,7 +185,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr t-foreach="category_ids" t-as="category_id">
+                            <tr t-foreach="pos_category_ids" t-as="category_id">
                                 <t t-set="no" t-value="no + 1"/>
                                 <t t-set="total_quantity" t-value="total_quantity + category_id['quantity']"/>
                                 <t t-set="total_price" t-value="total_price + category_id['price']"/>
@@ -230,6 +230,73 @@
                     </table>
                     <br/>
                 </t>
+
+                <!-- New section for Product Categories -->
+                <t t-if="report_type in ['product_category','all']">
+                    <!-- Product Categories -->
+                    <t t-set="no" t-value="0"/>
+                    <t t-set="total_quantity" t-value="0"/>
+                    <t t-set="total_price" t-value="0"/>
+                    <t t-set="total_subtotal" t-value="0"/>
+                    <h3>Product Categories</h3>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Discount</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="product_category_ids" t-as="category_id">
+                                <t t-set="no" t-value="no + 1"/>
+                                <t t-set="total_quantity" t-value="total_quantity + category_id['quantity']"/>
+                                <t t-set="total_price" t-value="total_price + category_id['price']"/>
+                                <t t-set="total_subtotal" t-value="total_subtotal + category_id['total']"/>
+                                <td>
+                                    <t t-esc="no"/>
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['name']"/>
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['quantity']"/>
+                                    Units
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['price']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['discount']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['total']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="text-right">Total:</td>
+                                <td>
+                                    <t t-esc="total_quantity"/>
+                                    Units
+                                </td>
+                                <td>
+                                    <t t-esc="total_price" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="discount_amount" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="total_subtotal" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br/>
+                </t>
+
                 <t t-if="refund_products" id="refunds">
                 <h3>Refunds</h3>
                 <table class="table table-sm">
@@ -473,7 +540,7 @@
             <div class="oe_structure"/>
                 <br/>
 
-<!--                    <t t-if="report_type in ['product','both']">-->
+<!--                    <t t-if="report_type in ['product','all']">-->
 <!--                        <h3>Service Charge</h3>-->
 <!--                        <table class="table table-sm">-->
 <!--                            <thead>-->

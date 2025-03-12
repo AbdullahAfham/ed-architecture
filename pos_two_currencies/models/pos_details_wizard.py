@@ -7,6 +7,7 @@ from odoo.osv.expression import AND
 import pytz
 
 from odoo.exceptions import UserError
+from odoo.tools import SQL
 
 
 class PosDetails(models.TransientModel):
@@ -14,8 +15,9 @@ class PosDetails(models.TransientModel):
 
     report_type = fields.Selection(selection=[
         ('product', 'Product'),
-        ('category', 'Category'),
-        ('both', 'Both'),
+        ('category', 'POS Category'),
+        ('product_category', 'Product Category'),
+        ('all', 'All'),
     ], required=True, default='product', string='Report Type')
 
     def generate_report(self):
@@ -55,52 +57,85 @@ class ReportSaleDetails(models.AbstractModel):
 
     @api.model
     def get_sale_details(self, date_start=False, date_stop=False, config_ids=False, session_ids=False,
-                         report_type=False):
-        """ Override
-
-            - add new parameter to accept `report_type` value
-            - override new list of payments object
-            - override new list of products object
-            - add new list of categories object
+                         report_type='product'):
+        """ Serialise the orders of the requested time period, configs and sessions.
+        :param date_start: The dateTime to start, default today 00:00:00.
+        :type date_start: str.
+        :param date_stop: The dateTime to stop, default date_start + 23:59:59.
+        :type date_stop: str.
+        :param config_ids: Pos Config id's to include.
+        :type config_ids: list of numbers.
+        :param session_ids: Pos Config id's to include.
+        :type session_ids: list of numbers.
+        :param report_type: Type of report ('product', 'category', 'product_category', 'all')
+        :type report_type: str.
+        :returns: dict -- Serialised sales.
         """
-        data = super(ReportSaleDetails, self).get_sale_details(date_start, date_stop, config_ids, session_ids)
+        # Special handling for 'all' report type
+        if report_type == 'all':
+            # Get data for 'category' (POS category)
+            pos_data = self.get_sale_details(date_start, date_stop, config_ids, session_ids, 'category')
+            # Get data for 'product_category'
+            product_data = self.get_sale_details(date_start, date_stop, config_ids, session_ids, 'product_category')
 
-        domain = [('state', 'in', ['paid', 'invoiced', 'done'])]
-        if (session_ids):
-            domain = AND([domain, [('session_id', 'in', session_ids)]])
-        else:
-            if date_start:
-                date_start = fields.Datetime.from_string(date_start)
-            else:
-                # start by default today 00:00:00
-                user_tz = pytz.timezone(self.env.context.get('tz') or self.env.user.tz or 'UTC')
-                today = user_tz.localize(fields.Datetime.from_string(fields.Date.context_today(self)))
-                date_start = today.astimezone(pytz.timezone('UTC'))
+            # Keep both category types separate
+            pos_categories = pos_data.get('category_ids', [])
+            product_categories = product_data.get('category_ids', [])
 
-            if date_stop:
-                date_stop = fields.Datetime.from_string(date_stop)
-                # avoid a date_stop smaller than date_start
-                if (date_stop < date_start):
-                    date_stop = date_start + timedelta(days=1, seconds=-1)
-            else:
-                # stop by default today 23:59:59
-                date_stop = date_start + timedelta(days=1, seconds=-1)
+            # Update the data structure
+            pos_data.update({
+                'pos_category_ids': pos_categories,  # Store POS categories here
+                'product_category_ids': product_categories,  # Store product categories here
+                'report_type': 'all'
+            })
+            return pos_data
 
-            domain = AND([domain,
-                          [('date_order', '>=', fields.Datetime.to_string(date_start)),
-                           ('date_order', '<=', fields.Datetime.to_string(date_stop))]
-                          ])
+        if (not session_ids):
+            date_start, date_stop = self._get_date_start_and_date_stop(date_start, date_stop)
 
-            if config_ids:
-                domain = AND([domain, [('config_id', 'in', config_ids)]])
-
+        domain = self._get_domain(date_start, date_stop, config_ids, session_ids)
         orders = self.env['pos.order'].search(domain)
 
-        user_currency = self.env.company.currency_id
+        if config_ids:
+            config_currencies = self.env['pos.config'].search([('id', 'in', config_ids)]).mapped('currency_id')
+        else:
+            config_currencies = self.env['pos.session'].search([('id', 'in', session_ids)]).mapped(
+                'config_id.currency_id')
+        # If all the pos.config have the same currency, we can use it, else we use the company currency
+        if config_currencies and all(i == config_currencies.ids[0] for i in config_currencies.ids):
+            user_currency = config_currencies[0]
+        else:
+            user_currency = self.env.company.currency_id
 
+        total = 0.0
+        products_sold = {}
+        taxes = {}
+        refund_done = {}
+        refund_taxes = {}
+        for order in orders:
+            if user_currency != order.pricelist_id.currency_id:
+                total += order.pricelist_id.currency_id._convert(
+                    order.amount_total, user_currency, order.company_id, order.date_order or fields.Date.today())
+            else:
+                total += order.amount_total
+            currency = order.session_id.currency_id
+
+            for line in order.lines:
+                if line.qty >= 0:
+                    products_sold, taxes = self._get_products_and_taxes_dict(line, products_sold, taxes, currency,
+                                                                             report_type)
+                else:
+                    refund_done, refund_taxes = self._get_products_and_taxes_dict(line, refund_done, refund_taxes,
+                                                                                  currency, report_type)
+
+        taxes_info = self._get_taxes_info(taxes)
+        refund_taxes_info = self._get_taxes_info(refund_taxes)
+
+        # Updated payment processing
         payment_data = {}
         payment_data2 = {}
         payment_ids = self.env["pos.payment"].search([('pos_order_id', 'in', orders.ids)])
+
         for payment_id in payment_ids:
             payment_method_name = payment_id.payment_method_id.name
             customer_name = payment_id.partner_id.name
@@ -141,20 +176,81 @@ class ReportSaleDetails(models.AbstractModel):
             payments = list(payment_data.values())
             payments_by_payment_method = list(payment_data2.values())
         else:
-            raise UserError(_('There is no Payments in session.'))
+            payments = []
+            payments_by_payment_method = []
 
+        configs = []
+        sessions = []
+        if config_ids:
+            configs = self.env['pos.config'].search([('id', 'in', config_ids)])
+            if session_ids:
+                sessions = self.env['pos.session'].search([('id', 'in', session_ids)])
+            else:
+                sessions = self.env['pos.session'].search(
+                    [('config_id', 'in', configs.ids), ('start_at', '>=', date_start), ('stop_at', '<=', date_stop)])
+        else:
+            sessions = self.env['pos.session'].search([('id', 'in', session_ids)])
+            for session in sessions:
+                configs.append(session.config_id)
+
+        # Prepare products data
+        products = []
+        refund_products = []
+        for category_name, product_list in products_sold.items():
+            category_dictionnary = {
+                'name': category_name,
+                'products': sorted([{
+                    'product_id': product.id,
+                    'product_name': product.name,
+                    'code': product.default_code,
+                    'quantity': qty,
+                    'price_unit': price_unit,
+                    'discount': discount,
+                    'uom': product.uom_id.name,
+                    'total_paid': product_total,
+                    'base_amount': base_amount,
+                } for (product, price_unit, discount), (qty, product_total, base_amount) in product_list.items()],
+                    key=lambda l: l['product_name']),
+            }
+            products.append(category_dictionnary)
+        products = sorted(products, key=lambda l: str(l['name']))
+
+        for category_name, product_list in refund_done.items():
+            category_dictionnary = {
+                'name': category_name,
+                'products': sorted([{
+                    'product_id': product.id,
+                    'product_name': product.name,
+                    'code': product.default_code,
+                    'quantity': qty,
+                    'price_unit': price_unit,
+                    'discount': discount,
+                    'uom': product.uom_id.name,
+                    'total_paid': product_total,
+                    'base_amount': base_amount,
+                } for (product, price_unit, discount), (qty, product_total, base_amount) in product_list.items()],
+                    key=lambda l: l['product_name']),
+            }
+            refund_products.append(category_dictionnary)
+        refund_products = sorted(refund_products, key=lambda l: str(l['name']))
+
+        # Calculate totals
+        products, products_info = self._get_total_and_qty_per_category(products)
+        refund_products, refund_info = self._get_total_and_qty_per_category(refund_products)
+
+        # Process products according to requirements
         # The `products` key in `data` is a list of objects represent:
         # - category name
         # - list of products object
         # - total amount
         # - total quantity
-        products = []
+        final_products = []
         category_ids = []
-        if data["products"]:
 
-            for categ in data["products"]:
+        if products:
+            for categ in products:
                 # 1). get list of products belong to a category
-                products.extend(categ["products"])
+                final_products.extend(categ["products"])
 
                 # get total of discount and tax correspond to a category
                 discount = sum(product["price_unit"] * product["quantity"] * product["discount"] / 100 for product in
@@ -173,21 +269,116 @@ class ReportSaleDetails(models.AbstractModel):
                     'total': categ["total"],
                 })
 
+        currency = {
+            'symbol': user_currency.symbol,
+            'position': True if user_currency.position == 'after' else False,
+            'total_paid': user_currency.round(total),
+            'precision': user_currency.decimal_places,
+        }
+
+        session_name = False
+        if len(sessions) == 1:
+            state = sessions[0].state
+            date_start = sessions[0].start_at
+            date_stop = sessions[0].stop_at
+            session_name = sessions[0].name
+        else:
+            state = "multiple"
+
+        config_names = []
+        for config in configs:
+            config_names.append(config.name)
+
+        discount_number = len(orders.filtered(lambda o: o.lines.filtered(lambda l: l.discount > 0)))
+        discount_amount = sum(l._get_discount_amount() for l in orders.lines.filtered(lambda l: l.discount > 0))
+
+        invoiceList = []
+        invoiceTotal = 0
+        totalPaymentsAmount = 0
+
+        for session in sessions:
+            invoiceList.append({
+                'name': session.name,
+                'invoices': session._get_invoice_total_list(),
+            })
+            invoiceTotal += session._get_total_invoice()
+            totalPaymentsAmount += session.total_payments_amount
+
         currency_khr = self.env['res.currency'].search([('name', '=', "KHR")], limit=1)
         currency_usd = self.env['res.currency'].search([('name', '=', "USD")], limit=1)
 
-        data.update({
-            "payments": payments,
-            "payments_by_payment_method": payments_by_payment_method,
-            "products": products,
-            "category_ids": category_ids,
-            "currency_khr": currency_khr,
-            "currency_usd": currency_usd,
-            "report_type": report_type,
-            "currency_precision": user_currency.decimal_places,
-            "nbr_customers": sum(orders.mapped('customer_count')),
-        })
-        return data
+        return {
+            'opening_note': sessions[0].opening_notes if len(sessions) == 1 else False,
+            'closing_note': sessions[0].closing_notes if len(sessions) == 1 else False,
+            'state': state,
+            'currency': currency,
+            'nbr_orders': len(orders),
+            'date_start': date_start,
+            'date_stop': date_stop,
+            'session_name': session_name or False,
+            'config_names': config_names,
+            'payments': payments,
+            'payments_by_payment_method': payments_by_payment_method,
+            'company_name': self.env.company.name,
+            'taxes': list(taxes.values()),
+            'taxes_info': taxes_info,
+            'products': final_products,  # Flattened list of all products
+            'products_info': products_info,
+            'category_ids': category_ids,
+            'pos_category_ids': category_ids,
+            'product_category_ids': category_ids,
+            'refund_taxes': list(refund_taxes.values()),
+            'refund_taxes_info': refund_taxes_info,
+            'refund_info': refund_info,
+            'refund_products': refund_products,
+            'discount_number': discount_number,
+            'discount_amount': discount_amount,
+            'invoiceList': invoiceList,
+            'invoiceTotal': invoiceTotal,
+            'total_paid': totalPaymentsAmount,
+            'report_type': report_type,
+            'currency_khr': currency_khr,
+            'currency_usd': currency_usd,
+            'currency_precision': user_currency.decimal_places,
+            'nbr_customers': sum(orders.mapped('customer_count')),
+        }
+
+    def _get_products_and_taxes_dict(self, line, products, taxes, currency, report_type='product'):
+        key2 = (line.product_id, line.price_unit, line.discount)
+
+        # Define key1 based on report_type
+        if report_type == 'product_category':
+            # Use product category
+            key1 = line.product_id.product_tmpl_id.categ_id.name if line.product_id.product_tmpl_id.categ_id else _(
+                'Not Categorized')
+        else:
+            # Default to POS category (original behavior)
+            key1 = line.product_id.product_tmpl_id.pos_categ_ids[0].name if len(
+                line.product_id.product_tmpl_id.pos_categ_ids) else _('Not Categorized')
+
+        products.setdefault(key1, {})
+        products[key1].setdefault(key2, [0.0, 0.0, 0.0])
+        products[key1][key2][0] += line.qty
+        products[key1][key2][1] += self._get_product_total_amount(line)
+        products[key1][key2][2] += line.price_subtotal
+
+        if line.tax_ids_after_fiscal_position:
+            line_taxes = line.tax_ids_after_fiscal_position.sudo().compute_all(
+                line.price_unit * (1 - (line.discount or 0.0) / 100.0), currency, line.qty, product=line.product_id,
+                partner=line.order_id.partner_id or False)
+            base_amounts = {}
+            for tax in line_taxes['taxes']:
+                taxes.setdefault(tax['id'], {'name': tax['name'], 'tax_amount': 0.0, 'base_amount': 0.0})
+                taxes[tax['id']]['tax_amount'] += tax['amount']
+                base_amounts[tax['id']] = tax['base']
+
+            for tax_id, base_amount in base_amounts.items():
+                taxes[tax_id]['base_amount'] += base_amount
+        else:
+            taxes.setdefault(0, {'name': _('No Taxes'), 'tax_amount': 0.0, 'base_amount': 0.0})
+            taxes[0]['base_amount'] += line.price_subtotal_incl
+
+        return products, taxes
 
     def _get_total_and_qty_per_category(self, categories):
         """ Override: replace `product['base_amount']` with `product['total_paid']` """
