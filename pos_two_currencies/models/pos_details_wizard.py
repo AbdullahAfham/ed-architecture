@@ -286,7 +286,10 @@ class ReportSaleDetails(models.AbstractModel):
             state = "multiple"
 
         config_names = []
+        module_pos_restaurant = False
         for config in configs:
+            if not module_pos_restaurant:
+                module_pos_restaurant = config.module_pos_restaurant
             config_names.append(config.name)
 
         discount_number = len(orders.filtered(lambda o: o.lines.filtered(lambda l: l.discount > 0)))
@@ -340,7 +343,7 @@ class ReportSaleDetails(models.AbstractModel):
             'currency_khr': currency_khr,
             'currency_usd': currency_usd,
             'currency_precision': user_currency.decimal_places,
-            'nbr_customers': sum(orders.mapped('customer_count')),
+            'nbr_customers': module_pos_restaurant and sum(orders.mapped('customer_count')) or 0,
         }
 
     def _get_products_and_taxes_dict(self, line, products, taxes, currency, report_type='product'):
