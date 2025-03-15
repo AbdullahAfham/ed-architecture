@@ -24,7 +24,6 @@ patch(PosStore.prototype, {
         if (this.config.qr_image){
             result.qr_image = `/web/image/pos.config/${this.config.id}/qr_image`
         }
-        console.log(result, "=result==")
         return result;
     },
 });

@@ -134,7 +134,7 @@ patch(PosOrder.prototype, {
             // barcodeUrl: this.getBarcodeUrl(this.origs_order_name || this.uid),
             // origs_order_name: this.origs_order_name || false,
             name: this.pos_reference,
-            order_name: this.name,
+            order_name: this.state === "draft" ? undefined : this.name,
             company: json_company,
         };
     },

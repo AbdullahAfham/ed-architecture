@@ -11,9 +11,14 @@
                 <t t-if="props.data.company.vat">
                     <div><t t-esc="props.data.company.country?.vat_label || 'TIN'"/>: <t t-esc="props.data.company.vat" /></div>
                 </t>
-                <div class="fw-bolder">
+
+                <div t-if="props.data.isInvoice" class="fw-bolder">
                     <div class="fs-5">វិក្កយបត្រ</div>
                     <div class="fs-5">INVOICE</div>
+                </div>
+                <div t-else="" class="fw-bolder">
+                    <div class="fs-5">វិក្កយបត្រ</div>
+                    <div class="fs-5">BILL</div>
                 </div>
                 <div t-if="props.data.pos_khmer_name"><t t-esc="props.data.pos_khmer_name"/></div>
             </div>

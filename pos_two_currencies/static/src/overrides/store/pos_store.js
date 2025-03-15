@@ -54,6 +54,7 @@ patch(PosStore.prototype, {
     getReceiptHeaderData(order) {
         const result = super.getReceiptHeaderData(...arguments);
         result.config_name = this.config.name;
+        result.isInvoice =  this.selectedOrder?.state !== "draft";
         return result;
     },
     createNewOrder(data = {}) {

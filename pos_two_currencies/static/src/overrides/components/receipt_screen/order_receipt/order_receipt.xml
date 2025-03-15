@@ -7,9 +7,10 @@
                 <img t-attf-src="/web/image?model=res.company&amp;id={{props.data.headerData.company.id}}&amp;field=logo" alt="Logo" class="pos-receipt-logo"/>
                 <ReceiptHeader data="props.data.headerData" />
 <!--                <div style="font-size:0.83em;" >លេខតុ/Table No: <t t-esc="table"/></div>-->
-                <t t-if="props.data.order_name">
+                <t t-if="props.data.order_name and props.data.order_name != '/'">
                     <div class="text-start" style="font-size:0.83em;" >លេខវិក្កយបត្រ/Invoice No: <t t-esc="props.data.order_name"/></div>
                 </t>
+
                 <div class="text-start" style="font-size:0.83em;" >កាលបរិច្ឆេទ/Date: <t t-esc="props.data.date"/></div>
                 <div class="text-start" style="font-size:0.83em;" >លេខយោង/Ref: <t t-esc="props.data.name"/></div>
                 <div t-if="props.data.headerData.cashier" class="text-start" style="font-size:0.83em;">
