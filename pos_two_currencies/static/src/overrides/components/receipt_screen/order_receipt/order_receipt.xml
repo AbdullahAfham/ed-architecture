@@ -55,7 +55,7 @@
                                 <t t-esc="orderline.comboParent ? '0.00' : orderline.unitPriceNoSymbol"/>
                             </td>
                             <td class="text-center">
-                                <t t-esc="orderline.comboParent ? '0' : orderline.discount"/>%
+                                <t t-esc="orderline.comboParent ? '0' : orderline.discount || '0'"/>%
                             </td>
                             <td class="text-end" style="white-space: nowrap;">
                                 <t t-esc="orderline.comboParent ? '0.00' : orderline.priceNoSymbol"/>
@@ -68,6 +68,10 @@
                 <div class="pos-receipt-amount" style="font-size: 100%;padding-left: 5em;font-size:0.83em;">
                     សរុប/Subtotal:
                     <span style="font-size:1em;" t-esc="props.formatCurrency(props.data.amount_total_before_discount || 0)" class="pos-receipt-right-align"/>
+                </div>
+                <div t-if="props.data.showTax" class="pos-receipt-amount" style="font-size: 100%;padding-left: 5em;font-size:0.83em;">
+                    អតប/VAT:
+                    <span style="font-size:1em;" t-esc="props.formatCurrency(props.data.amount_tax || 0)" class="pos-receipt-right-align"/>
                 </div>
                 <div class="pos-receipt-amount" style="font-size: 100%;padding-left: 5em;font-size:0.83em;">
                     បញ្ចុះតំលៃ/Discount:
@@ -92,7 +96,7 @@
                         </t>
                     </span>
                 </div>
-                <div class="pos-receipt-amount" style="padding-left: 5em;font-size:0.83em;">
+                <div t-if="!props.data.showTax" class="pos-receipt-amount" style="padding-left: 5em;font-size:0.83em;">
                     (VAT Included)
                 </div>
 

@@ -144,6 +144,7 @@ patch(PosOrderline.prototype, {
     },
     getDisplayData() {
         const self = this;
+        let result = super.getDisplayData(...arguments);
         let displayBorder = !this.isPartOfCombo();
         if (this.comboParent && this.comboParent.combo_line_ids?.length > 1) {
             const combo_line_ids = this.comboParent.combo_line_ids;
@@ -165,9 +166,8 @@ patch(PosOrderline.prototype, {
                 return sum + (self.config.iface_tax_included === "total" ? lineAllPriceUnit.priceWithTaxBeforeDiscount : lineAllPriceUnit.priceWithoutTaxBeforeDiscount)
             }, 0);
         }
-
         return {
-            ...super.getDisplayData(),
+            ...result,
             displayBorder,
             priceNoSymbol: formatCurrency(price, false),
             unitPriceNoSymbol: formatCurrency(unitPrice, false),

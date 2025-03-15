@@ -13,8 +13,8 @@ import {
 } from "@web/core/l10n/dates";
 import { _t } from "@web/core/l10n/translation";
 import { patch } from "@web/core/utils/patch";
-import { accountTaxHelpers } from "@account/helpers/account_tax";
 import { lt } from "@point_of_sale/utils";
+import { omit } from "@web/core/utils/objects";
 
 patch(PosOrder.prototype, {
     setup(_defaultObj, options) {
@@ -62,8 +62,13 @@ patch(PosOrder.prototype, {
     },
     get_total_with_tax_before_discount() {
         const self = this;
+        const discount_product = self.config.discount_product_id;
+        let orderlines = this.lines;
+        if (discount_product && discount_product.id && orderlines.length) {
+            orderlines = orderlines.filter((l) => l.product_id?.id !== discount_product.id)
+        }
         return round_pr(
-            this.lines.reduce(function (sum, orderLine) {
+            orderlines.reduce(function (sum, orderLine) {
                 let lineAllPriceUnit = orderLine.get_all_prices();
                 return sum + (self.config.iface_tax_included === "total" ? lineAllPriceUnit.priceWithTaxBeforeDiscount : lineAllPriceUnit.priceWithoutTaxBeforeDiscount);
             }, 0),
@@ -76,6 +81,20 @@ patch(PosOrder.prototype, {
         const total_khr = total ? round_pr(total*exchange_rate, 0) : 0;
         const khr = total ? round_pr(total_khr, 100) : 0;
         return khr;
+    },
+    get_total_discount() {
+        let total_discount = super.get_total_discount(...arguments);
+        const discount_product = this.config.discount_product_id;
+        let orderlines = this.getSortedOrderlines();
+        if (discount_product && discount_product.id && orderlines.length) {
+            orderlines = orderlines.filter((l) => l.product_id?.id === discount_product.id)
+            if (orderlines) {
+                total_discount += orderlines.reduce(function (sum, orderLine) {
+                    return sum + (orderLine.get_display_price() * -1); // DEV: Discount line is Minus amount
+                }, 0);
+            }
+        }
+        return total_discount;
     },
     export_for_printing() {
         let json = super.export_for_printing(...arguments);
@@ -93,14 +112,23 @@ patch(PosOrder.prototype, {
             kh_name: company.kh_name,
             address_kh: company.address_kh,
         };
+        const discount_product = this.config.discount_product_id;
+        let orderlines = this.getSortedOrderlines();
+        if (discount_product && discount_product.id && orderlines.length) {
+            orderlines = orderlines.filter((l) => l.product_id?.id !== discount_product.id)
+        }
 
         return {
             ...json,
+            orderlines: orderlines.map((l) =>
+                omit(l.getDisplayData(), "internalNote")
+            ),
             amount_total_before_discount: this.get_total_with_tax_before_discount(),
             amount_total_before_discount_khr: this.get_total_with_tax_before_discount_khr(),
             amount_total_khr: this.get_total_khr(),
             khr_rate: this.config.exchange_rate,
             // order_name: this.order_name,
+            showTax: this.config.iface_tax_included !== "total",
             changeUSD: this.changeText(),
             changeKHR: this.changeTextkhr(),
             // barcodeUrl: this.getBarcodeUrl(this.origs_order_name || this.uid),
