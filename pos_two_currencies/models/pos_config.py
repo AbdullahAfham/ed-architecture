@@ -13,6 +13,9 @@ class PosConfigInherit(models.Model):
     currency_khr = fields.Many2one('res.currency', string='Currency KHR', default=lambda self: self.env.ref("base.KHR", raise_if_not_found=False).id, limit=1)
     is_one_currency = fields.Boolean(string='One Currency', compute='_compute_is_one_currency')
     is_khr_currency = fields.Boolean(string='KHR Currency', compute='_compute_is_khr_currency')
+    discount_product_id = fields.Many2one('product.product', string='Discount Product',
+                                          domain=[('sale_ok', '=', True)],
+                                          help='The product used to apply the discount on the ticket.')
 
     @api.depends('payment_method_ids')
     def _compute_is_one_currency(self):
