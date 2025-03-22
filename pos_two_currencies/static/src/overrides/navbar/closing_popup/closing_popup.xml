@@ -15,6 +15,9 @@
         <xpath expr="//t[@t-if='pos.config.module_pos_hr']" position="attributes">
             <attribute name="t-if">false</attribute>
         </xpath>
+        <xpath expr="//button[@t-if='hardwareProxy.printer']" position="attributes">
+            <attribute name="t-if">true</attribute>
+        </xpath>
 
 <!--        Rewrite Cash Count for handle empty each currency -->
         <xpath expr="//div[@class='mb-3']" position="replace">

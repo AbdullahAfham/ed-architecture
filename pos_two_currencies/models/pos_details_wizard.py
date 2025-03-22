@@ -257,16 +257,25 @@ class ReportSaleDetails(models.AbstractModel):
                                categ["products"])
                 tax = sum(product["price_unit"] * product["quantity"] - product["base_amount"] for product in
                           categ["products"])
+                total = categ["total"]
+                categ_name = categ["name"]
+                qty = categ["qty"]
+                price = total + discount
+
+                if categ_name == "Discount":
+                    discount = total * -1
+                    price = 0
+                    total = 0
 
                 # 2). get list of categories
                 # As we have overridden `_get_total_and_qty_per_category`
                 # now categ["total"] is the tax included amount with discount subtraction.
                 category_ids.append({
-                    'name': categ["name"],
-                    'quantity': categ["qty"],
-                    'price': categ["total"] + discount,
+                    'name': categ_name,
+                    'quantity': qty,
+                    'price': price,
                     'discount': discount,
-                    'total': categ["total"],
+                    'total': total,
                 })
 
         currency = {
@@ -350,14 +359,17 @@ class ReportSaleDetails(models.AbstractModel):
         key2 = (line.product_id, line.price_unit, line.discount)
 
         # Define key1 based on report_type
+        default_category = _('Not Categorized')
+        if line.order_id.config_id and line.order_id.config_id.discount_product_id == line.product_id:
+            default_category = _('Discount')
+
         if report_type == 'product_category':
             # Use product category
-            key1 = line.product_id.product_tmpl_id.categ_id.name if line.product_id.product_tmpl_id.categ_id else _(
-                'Not Categorized')
+            key1 = line.product_id.product_tmpl_id.categ_id.name if line.product_id.product_tmpl_id.categ_id else default_category
         else:
             # Default to POS category (original behavior)
             key1 = line.product_id.product_tmpl_id.pos_categ_ids[0].name if len(
-                line.product_id.product_tmpl_id.pos_categ_ids) else _('Not Categorized')
+                line.product_id.product_tmpl_id.pos_categ_ids) else default_category
 
         products.setdefault(key1, {})
         products[key1].setdefault(key2, [0.0, 0.0, 0.0])
