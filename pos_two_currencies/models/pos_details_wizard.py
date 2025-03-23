@@ -265,7 +265,7 @@ class ReportSaleDetails(models.AbstractModel):
                 if categ_name == "Discount":
                     discount = total * -1
                     price = 0
-                    total = 0
+                    # total = discount
 
                 # 2). get list of categories
                 # As we have overridden `_get_total_and_qty_per_category`

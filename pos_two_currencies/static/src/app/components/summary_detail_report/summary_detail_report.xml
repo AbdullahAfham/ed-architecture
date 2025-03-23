@@ -23,6 +23,7 @@
             <table class='receipt-orderlines' style="width: 100%;font-size:0.83em;">
                 <t t-set="total_before_disc" t-value="0"/>
                 <t t-set="total_discount" t-value="0"/>
+                <t t-set="total_tax" t-value="0"/>
                 <t t-foreach="category_ids" t-as="line" t-key="line['name']">
                     <t t-set="total_before_disc" t-value="total_before_disc + line['price']"/>
                     <t t-set="total_discount" t-value="total_discount + line['discount']"/>
@@ -40,6 +41,7 @@
                 <tr>
                     <t t-foreach="taxes" t-as="tax" t-key="tax_index">
                         <t t-if="tax.tax_amount != 0">
+                            <t t-set="total_tax" t-value="total_tax + tax.tax_amount"/>
                             <th class="text-start" t-esc="'VAT'"/>
                             <td class="text-end" t-esc="formatCurrency(tax.tax_amount, false)"/>
                         </t>
@@ -49,7 +51,7 @@
                 </tr>
                 <tr>
                     <th class="text-start fw-bolder" t-esc="'Total Paid'"/>
-                    <td class="text-end fw-bolder" t-esc="formatCurrency(currency.total_paid, false)"/>
+                    <td class="text-end fw-bolder" t-esc="formatCurrency(total_before_disc + total_tax - total_discount, false)"/>
                 </tr>
             </table>
             <br/>
