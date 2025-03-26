@@ -138,30 +138,6 @@ class PosSessionInherit(models.Model):
                             sales[discount_line_key] = self._update_amounts(sales[discount_line_key], {'amount': tax_amount}, discount_line['date_order'], round=False)
                             sales[discount_line_key].setdefault('tax_amount', 0.0)
             data.update({'sales': sales})
-
-        if self.company_id.anglo_saxon_accounting:
-            stock_expense = defaultdict(amounts)
-            global_session_pickings = self.picking_ids.filtered(lambda p: not p.pos_order_id)
-            if global_session_pickings:
-                stock_moves = self.env['stock.move'].sudo().search([
-                    ('picking_id', 'in', global_session_pickings.ids),
-                    ('company_id.anglo_saxon_accounting', '=', True),
-                    ('product_id.categ_id.property_valuation', '=', 'real_time'),
-                    ('product_id.type', '=', 'product'),
-                ])
-                for move in stock_moves:
-                    exp_key = move.product_id._get_product_accounts()['expense']
-                    signed_product_qty = move.product_qty
-                    if move._is_in():
-                        signed_product_qty *= -1
-                    amount = signed_product_qty * move.product_id._compute_average_price(0, move.quantity, move)
-
-                    for bom in move.bom_line_id.bom_id:
-                        if bom.product_tmpl_id and bom.product_tmpl_id.product_variant_id and bom.type != 'phantom':
-                            continue
-                        exp_key = bom.product_tmpl_id.product_variant_id._get_product_accounts()['expense']
-                    stock_expense[exp_key] = self._update_amounts(stock_expense[exp_key], {'amount': amount}, move.picking_id.date, force_company_currency=True)
-            data.update({'stock_expense': stock_expense})
         return data
 
     @api.depends('config_id', 'payment_method_ids')
