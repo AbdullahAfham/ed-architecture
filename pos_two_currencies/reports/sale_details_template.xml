@@ -52,6 +52,88 @@
                 </div>
                 <br/>
                 <br/>
+                <t t-set="total_price" t-value="0"/>
+                <t t-set="total_discount" t-value="0"/>
+                <t t-set="total_subtotal" t-value="0"/>
+                <h4>SUMMARY</h4>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-start">No</th>
+                            <th class="text-end">Total Sale</th>
+                            <th/>
+                            <th/>
+                            <th class="text-end">Total Discount</th>
+                            <th class="text-end">Total Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="no" t-value="0"/>
+                        <t t-set="total_payment" t-value="0"/>
+                        <tr t-foreach="payments_by_payment_method" t-as="payment">
+                            <t t-set="total_payment" t-value="total_payment + payment['total'] "/>
+                        </tr>
+                        <tr t-foreach="category_ids" t-as="category_id">
+                            <t t-set="total_price" t-value="total_price + category_id['price']"/>
+                            <t t-set="total_discount" t-value="total_discount + category_id['discount']"/>
+                            <t t-set="total_subtotal" t-value="total_subtotal + category_id['total']"/>
+                        </tr>
+                        <tr style="background-color: #b1b1b1;">
+                            <td class="text-start">
+                                <t t-set="no" t-value="no+1"/>
+                                <span t-esc="no"/>
+                            </td>
+                            <td class="text-end">
+                                <t t-esc="total_price"
+                                   t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                            </td>
+                            <td/>
+                            <td/>
+                            <td class="text-end">
+                                <t t-esc="total_discount"
+                                   t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                            </td>
+                            <td class="text-end">
+                                <t t-esc="total_payment"
+                                   t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br/>
+                <h4>VAT</h4>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-start">Name</th>
+                            <th class="text-end">Tax Amount</th>
+                            <th class="text-end">Base Amount</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="taxes" t-as="tax">
+                            <t t-if="tax['tax_amount'] != 0">
+                                <td class="text-start">
+                                    <t t-esc="tax['name']"/>
+                                </td>
+                                <td class="text-end">
+                                    <t t-esc="tax['tax_amount']"
+                                       t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td class="text-end">
+                                    <t t-esc="tax['base_amount']"
+                                       t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td class="text-end">
+                                    <t t-esc="tax['tax_amount'] + tax['base_amount']"
+                                       t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                            </t>
+                        </tr>
+                    </tbody>
+                </table>
+                <br/>
                 <div class="oe_structure"></div>
 
                 <t t-set="service_charge_name" t-value="''"/>
