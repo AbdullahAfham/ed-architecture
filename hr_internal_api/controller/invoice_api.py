@@ -2,7 +2,7 @@ from odoo import http, Command
 from odoo.http import request
 from odoo.tools import html2plaintext
 from odoo.addons.hr_internal_api.controller.helper import validate_jwt, get_table_model,\
-    valid_response, invalid_response, valid_response_http, invalid_response_http, _get_selection_string_value
+    valid_response, invalid_response, valid_response_http, invalid_response_http, get_selection_string_value
 
 import json
 
@@ -45,7 +45,7 @@ class InvoiceAPI(http.Controller):
                 'dms_code': "",
                 'invoice_date': invoice.invoice_date and invoice.invoice_date.strftime('%Y-%m-%d') or "",
                 'amount_total': invoice.amount_total,
-                'state': _get_selection_string_value(invoice, 'status_in_payment'),
+                'state': get_selection_string_value(invoice, 'status_in_payment'),
             } for invoice in invoices]
 
             # For optimization purpose, we include the details only when viewing specific invoice.
@@ -103,7 +103,7 @@ class InvoiceAPI(http.Controller):
                 {
                     "key": "journal_type",
                     "label": "Journal Type",
-                    "value": _get_selection_string_value(invoice.journal_id, 'type'),
+                    "value": get_selection_string_value(invoice.journal_id, 'type'),
                     "is_highlight": False
                 },
                 {
@@ -141,7 +141,7 @@ class InvoiceAPI(http.Controller):
             },
             'payments': [{
                 'id': payment.id,
-                'name': f"Paid on {payment.date.strftime('%d %B %Y')} by {_get_selection_string_value(payment.journal_id, 'type')}",
+                'name': f"Paid on {payment.date.strftime('%d %B %Y')} by {get_selection_string_value(payment.journal_id, 'type')}",
                 'date': payment.date and payment.date.strftime('%d-%m-%Y') or "",
                 'amount': payment.amount,
             } for payment in invoice.matched_payment_ids
@@ -166,7 +166,7 @@ class InvoiceAPI(http.Controller):
                 'dms_code': "",
                 'invoice_date': invoice.invoice_date and invoice.invoice_date.strftime('%Y-%m-%d') or "",
                 'amount_total': invoice.amount_total,
-                'state': _get_selection_string_value(invoice, 'status_in_payment'),
+                'state': get_selection_string_value(invoice, 'status_in_payment'),
             } for invoice in sale_order.invoice_ids]
 
             return valid_response_http(data=response, status=200)

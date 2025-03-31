@@ -2,7 +2,7 @@ from odoo import http, Command
 from odoo.http import request, content_disposition
 from odoo.addons.hr_internal_api.controller.helper import validate_jwt, get_table_model,\
     valid_response, invalid_response, valid_response_http, invalid_response_http,\
-    _get_selection_string_value, _combine_date_with_current_time
+    get_selection_string_value, combine_date_with_current_time
 
 from datetime import datetime
 import json
@@ -117,11 +117,11 @@ class SaleQuotationAPI(http.Controller):
             values_to_update = {key: payload[key] for key in fields_to_update if payload.get(key)}
 
             if date_order:
-                date_order = _combine_date_with_current_time(date_order)
+                date_order = combine_date_with_current_time(date_order)
                 values_to_update.update({'date_order': date_order})
             
             if date_deliver:
-                date_deliver = _combine_date_with_current_time(date_deliver)
+                date_deliver = combine_date_with_current_time(date_deliver)
                 values_to_update.update({'commitment_date': date_deliver})
 
             # normal_sale_type = get_table_model('sale.order.type').search([('code', '=', 'normal')], limit=1)
@@ -264,9 +264,9 @@ class SaleQuotationAPI(http.Controller):
             "pricelist_id": sale.pricelist_id.id,
             "payment_term_id": sale.payment_term_id.id,
             "create_date": sale.create_date.strftime('%Y-%m-%d'),
-            "payment_state": _get_selection_string_value(sale, 'payment_state'),
-            "delivery_state": _get_selection_string_value(sale.picking_ids and sale.picking_ids[-1], 'state'),
-            "state": _get_selection_string_value(sale, 'state'),
+            "payment_state": get_selection_string_value(sale, 'payment_state'),
+            "delivery_state": get_selection_string_value(sale.picking_ids and sale.picking_ids[-1], 'state'),
+            "state": get_selection_string_value(sale, 'state'),
             "body": [
                 {
                     "key": "partner_id",
