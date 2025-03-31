@@ -2,7 +2,7 @@
     'name': 'HR Internal REST API',
     'version': '18.0.1.0',
     'category': 'ERP CAMBODIA/ERP CAMBODIA',
-    'sequence': 6,
+    'sequence': 100,
     'summary': 'HR Internal REST API',
     'license': 'LGPL-3',
     'description': """
