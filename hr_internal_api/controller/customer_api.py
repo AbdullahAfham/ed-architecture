@@ -1,7 +1,7 @@
 from odoo import http, Command
 from odoo.http import request
 from odoo.addons.hr_internal_api.controller.helper import validate_jwt, get_table_model,\
-    valid_response, invalid_response, valid_response_http, invalid_response_http, _get_selection_string_value
+    valid_response, invalid_response, valid_response_http, invalid_response_http, get_selection_string_value
 
 import json
 
@@ -76,9 +76,9 @@ class CustomerAPI(http.Controller):
 
         return {
             'owner_name': "",
-            'outlet_type': _get_selection_string_value(customer, 'outlet_type'),
-            'channel_type': _get_selection_string_value(customer, 'channel_type'),
-            'volume_classification': _get_selection_string_value(customer, 'volume_classification'),
+            'outlet_type': get_selection_string_value(customer, 'outlet_type'),
+            'channel_type': get_selection_string_value(customer, 'channel_type'),
+            'volume_classification': get_selection_string_value(customer, 'volume_classification'),
             'customer_credit': f"{customer.credit}/{customer.credit_limit if customer.use_partner_credit_limit else customer.credit}",
             'total_orders': sum(order.amount_total for order in orders),
             'total_invoices': customer.total_invoiced,

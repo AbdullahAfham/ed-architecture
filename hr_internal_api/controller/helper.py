@@ -1,14 +1,17 @@
 from odoo import http, SUPERUSER_ID
 from odoo.http import request, Response
 from odoo.tools import frozendict
+
+from werkzeug.exceptions import (HTTPException, BadRequest, Forbidden, NotFound, Unauthorized)
+from datetime import datetime
+
 import werkzeug.wrappers
 import json
-from datetime import datetime
 import functools
 import jwt
 import logging
-from werkzeug.exceptions import (HTTPException, BadRequest, Forbidden,
-                                 NotFound, Unauthorized)
+import pytz
+import base64
 
 _logger = logging.getLogger(__name__)
 
@@ -276,7 +279,7 @@ def validate_jwt(function):
 # -------------------------------------------------------------------------
 
 
-def _get_selection_string_value(record, selection_field: str) -> str:
+def get_selection_string_value(record, selection_field: str) -> str:
     """
     This function will return a possible value of selection field from given `record`.
     In case the field not found, an empty string is returned.
@@ -292,7 +295,7 @@ def _get_selection_string_value(record, selection_field: str) -> str:
     
     return dict(record._fields[selection_field]._description_selection(request.env)).get(selection_key, "")
 
-def _combine_date_with_current_time(date: str, format=None) -> datetime:
+def combine_date_with_current_time(date: str, format=None) -> datetime:
     """ Parse a provided `date` string with current time.
 
     :params `date`: string date to be parsed
@@ -303,3 +306,52 @@ def _combine_date_with_current_time(date: str, format=None) -> datetime:
     return datetime.combine(
         datetime.strptime(date, format), datetime.now().time()
     )
+
+def convert_to_target_timezone(dt, target_timezone, str_format=None):
+    """ Convert a given datetime object to target timezone.
+    Returns datetime object or string representation if `str_format` is provided. 
+    """
+    if not isinstance(dt, datetime):
+        return False
+    if isinstance(target_timezone, str):
+        target_timezone = pytz.timezone(target_timezone)
+
+    aware_datetime = dt.astimezone(target_timezone)
+    if str_format:
+        aware_datetime = aware_datetime.strftime(str_format)
+    return aware_datetime
+
+def upload_attachments(files: list, res_id: int, res_model: str) -> list:
+    """ Create `ir.attachment` from provided `files` and link them to Resource ID and Model. """
+    attachment_sudo = get_table_model('ir.attachment')
+    is_internal_user = request.env.user._is_internal()
+
+    attachment_ids = []
+    for file in files:
+        attachment = attachment_sudo._from_request_file(
+            file, mimetype='TRUST' if is_internal_user else 'GUESS'
+        )
+        attachment.res_id = res_id
+        attachment.res_model = res_model
+        attachment_ids.append(attachment.id)
+
+    return attachment_ids
+
+def serve_attachment(attachment_id: int):
+    """ Serves the `ir.attachment` as an HTTP response. """
+    attachment = get_table_model('ir.attachment').search([('id', '=', attachment_id)], limit=1)
+
+    if not attachment:
+        return invalid_response_http(type="Not Found", message="Attachment not found", status=404)
+
+    mimetype = attachment.mimetype
+    if mimetype not in ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'application/pdf']:
+        return invalid_response_http(type="Bad Request", message="Attachment type not supported", status=400)
+
+    decoded_data = base64.b64decode(attachment.datas)
+    http_headers = [
+        ('Content-Type', mimetype),
+        ('Content-Length', len(decoded_data)),
+    ]
+
+    return request.make_response(decoded_data, headers=http_headers)

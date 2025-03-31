@@ -16,3 +16,5 @@ from . import sale_quotation_api
 from . import customer_api
 from . import invoice_api
 from . import payment_api
+from . import stock_delivery_api
+from . import stock_request_api

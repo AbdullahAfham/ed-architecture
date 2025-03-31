@@ -1,7 +1,7 @@
 from odoo import http, Command
 from odoo.http import request
 from odoo.addons.hr_internal_api.controller.helper import validate_jwt, get_table_model,\
-    valid_response, invalid_response, valid_response_http, invalid_response_http, _get_selection_string_value
+    valid_response, invalid_response, valid_response_http, invalid_response_http, get_selection_string_value
 
 import json
 
@@ -41,7 +41,7 @@ class PaymentAPI(http.Controller):
                 'dms_code': "",
                 'payment_date': payment.date and payment.date.strftime('%Y-%m-%d') or "",
                 'amount': payment.amount,
-                'state': _get_selection_string_value(payment, 'state'),
+                'state': get_selection_string_value(payment, 'state'),
                 
             } for payment in payments]
 
@@ -92,7 +92,7 @@ class PaymentAPI(http.Controller):
             {
                 "key": "journal_type",
                 "label": "Journal Type",
-                "value": _get_selection_string_value(payment.journal_id, 'type'),
+                "value": get_selection_string_value(payment.journal_id, 'type'),
                 "is_highlight": False
             },
             {

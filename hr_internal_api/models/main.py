@@ -43,6 +43,16 @@ class ResUsers(models.Model):
         string="Allowed Journals",
         domain="[('company_id', 'in', company_ids), ('type', 'in', ['bank', 'cash', 'credit'])]",
     )
+    default_picking_type_id = fields.Many2one(
+        comodel_name='stock.picking.type',
+        string="Operation Type",
+        help="This operation type will be used when perform `Stock Request` from external application such as mobile app."
+    )
+    default_transit_location = fields.Many2one(
+        comodel_name='stock.location',
+        string="Transit Location",
+        help="This location will be used when perform `Stock Request` from external application such as mobile app."
+    )
 
     @api.model
     def mobile_signup(self, values, token=None):

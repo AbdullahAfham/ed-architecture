@@ -2,7 +2,7 @@ from odoo import http, Command
 from odoo.http import request
 from odoo.addons.hr_internal_api.controller.helper import validate_jwt, get_table_model,\
     valid_response, invalid_response, valid_response_http, invalid_response_http,\
-    _get_selection_string_value, _combine_date_with_current_time
+    get_selection_string_value, combine_date_with_current_time
 
 import json
 import logging
@@ -51,9 +51,9 @@ class QuickSaleAPI(http.Controller):
         try:
             values = {
                 'partner_id': partner_id,
-                'date_order': _combine_date_with_current_time(date_order),
+                'date_order': combine_date_with_current_time(date_order),
                 'warehouse_id': default_warehouse.id,
-                'commitment_date': _combine_date_with_current_time(date_deliver),
+                'commitment_date': combine_date_with_current_time(date_deliver),
                 'pricelist_id': pricelist_id,
                 'employee_id': employee.id,
                 'payment_term_id': payment_term_id,
@@ -100,11 +100,11 @@ class QuickSaleAPI(http.Controller):
             values_to_update = {key: payload[key] for key in fields_to_update if payload.get(key)}
 
             if date_order:
-                date_order = _combine_date_with_current_time(date_order)
+                date_order = combine_date_with_current_time(date_order)
                 values_to_update.update({'date_order': date_order})
             
             if date_deliver:
-                date_deliver = _combine_date_with_current_time(date_deliver)
+                date_deliver = combine_date_with_current_time(date_deliver)
                 values_to_update.update({'commitment_date': date_deliver})
 
             quick_sale_type = get_table_model('sale.order.type').search([('code', '=', 'quick')], limit=1)
@@ -353,9 +353,9 @@ class QuickSaleAPI(http.Controller):
             "pricelist_id": sale.pricelist_id.id,
             "payment_term_id": sale.payment_term_id.id,
             "create_date": sale.create_date and sale.create_date.strftime('%Y-%m-%d') or "",
-            "payment_state": _get_selection_string_value(sale, 'payment_state'),
-            "delivery_state": _get_selection_string_value(sale.picking_ids and sale.picking_ids[-1], 'state'),
-            "state": _get_selection_string_value(sale, 'state'),
+            "payment_state": get_selection_string_value(sale, 'payment_state'),
+            "delivery_state": get_selection_string_value(sale.picking_ids and sale.picking_ids[-1], 'state'),
+            "state": get_selection_string_value(sale, 'state'),
             "body": [
                 {
                     "key": "partner_id",
@@ -557,7 +557,7 @@ class QuickSaleAPI(http.Controller):
                 'id': journal.id,
                 'name': journal.name,
                 'code': journal.code,
-                'type': _get_selection_string_value(journal, 'type'),
+                'type': get_selection_string_value(journal, 'type'),
             } for journal in current_user.allow_journal_ids]
             return valid_response_http(data=response, status=200)
         
