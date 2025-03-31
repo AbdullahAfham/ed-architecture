@@ -46,7 +46,7 @@
                     <field name="allow_journal_ids" widget="many2many_tags"/>
                     <field name="default_transit_location" domain="[('usage', '=', 'transit')]"/>
                     <field name="default_picking_type_id" domain="[('code', '=', 'internal'), ('warehouse_id', 'in', allow_warehouse_ids)]"/>
-                    <field name="property_warehouse_id"/>
+                    <!-- <field name="property_warehouse_id"/> -->
                 </group>
             </xpath>
         </field>
