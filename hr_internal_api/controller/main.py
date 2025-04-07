@@ -621,9 +621,9 @@ class InternalAPI(http.Controller):
         employee = get_table_model('hr.employee').search([('user_id', '=', user.id)], limit=1)
 
         # contract = get_table_model('hr.contract').search([('employee_id', '=', employee.id), ('state', '=', 'open')], limit=1)
-        # attendance_ids = contract.resource_calendar_id.attendance_ids
-        # morning_attendance = attendance_ids.filtered(lambda x: x.day_period == 'morning')
-        # afternoon_attendance = attendance_ids.filtered(lambda x: x.day_period == 'afternoon')
+        attendance_ids = employee.resource_calendar_id.attendance_ids
+        morning_attendance = attendance_ids.filtered(lambda x: x.day_period == 'morning')
+        afternoon_attendance = attendance_ids.filtered(lambda x: x.day_period == 'afternoon')
 
         if partner_id.email:
             email = partner_id.email
@@ -644,16 +644,16 @@ class InternalAPI(http.Controller):
                 "lang": user.lang,
                 "tz": user.tz,
                 "image_data": f'/api/get_employee_image/{employee.id}',
-                # "can_create_batch_ot": employee and employee.can_create_batch_ot or False,
+                "can_create_batch_ot": employee and employee.can_create_batch_ot or False,
 
-                # "morning_work_hours": {
-                #     "hour_from": morning_attendance and str(float_to_time(morning_attendance[0].hour_from)) or "",
-                #     "hour_to": morning_attendance and str(float_to_time(morning_attendance[0].hour_to)) or ""
-                # },
-                # "afternoon_work_hours": {
-                #     "hour_from": afternoon_attendance and str(float_to_time(afternoon_attendance[0].hour_from)) or "",
-                #     "hour_to": afternoon_attendance and str(float_to_time(afternoon_attendance[0].hour_to)) or ""
-                # },
+                "morning_work_hours": {
+                    "hour_from": morning_attendance and str(float_to_time(morning_attendance[0].hour_from)) or "",
+                    "hour_to": morning_attendance and str(float_to_time(morning_attendance[0].hour_to)) or ""
+                },
+                "afternoon_work_hours": {
+                    "hour_from": afternoon_attendance and str(float_to_time(afternoon_attendance[0].hour_from)) or "",
+                    "hour_to": afternoon_attendance and str(float_to_time(afternoon_attendance[0].hour_to)) or ""
+                },
                 "modules": [module.key for module in user.mobile_module_ids],
             }
             return valid_response_http(data={"user": val}, status=200)
