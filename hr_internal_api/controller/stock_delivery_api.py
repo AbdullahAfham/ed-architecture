@@ -16,7 +16,6 @@ def _prepare_stock_delivery(picking) -> dict:
         "partner_id": picking.partner_id.id,
         "name_en": picking.partner_id.khmer_name or picking.partner_id.name,
         "name_km": picking.partner_id.name,
-        "dms_code": picking.partner_id.dms_code or "",
         "delivery_date": picking.date_done and picking.date_done.strftime('%d-%m-%Y') or "",
         "warehouse_location": _get_warehouse_location_name(picking),
         "operation_type": picking.picking_type_id.name,
@@ -74,6 +73,14 @@ class StockDeliveryAPI(http.Controller):
         except Exception as e:
             return invalid_response_http("Bad Request", str(e), status=400)
 
+    def _get_stock_delivery_quantity(self, move) -> float:
+        """ Returns quantity based on picking state, either a demand qty or validated qty. """
+        picking_state = move.picking_id.state
+        if picking_state == 'done':
+            return move.quantity
+        else:
+            return move.product_uom_qty
+
     def _get_stock_delivery_detail(self, picking) -> dict:
         """ Currently, there are only two keys which going to be returned:
         - body: a list of dictionaries
@@ -86,12 +93,6 @@ class StockDeliveryAPI(http.Controller):
                     "label": "Customer",
                     "value": picking.partner_id.name,
                     "is_highlight": True
-                },
-                {
-                    "key": "dms_code",
-                    "label": "DMS code",
-                    "value": picking.partner_id.dms_code or "",
-                    "is_highlight": False
                 },
                 {
                     "key": "address",
@@ -141,9 +142,8 @@ class StockDeliveryAPI(http.Controller):
                     'id': move.product_id.id, 
                     'image_url': f'/web/image/product.product/{move.product_id.id}/image_1024', 
                     'name': move.product_id.name, 
-                    'demand': move.product_uom_qty, 
-                    'quantity': move.quantity, 
-                    'uom': move.product_uom.name,
+                    'quantity': self._get_stock_delivery_quantity(move), 
+                    'uom': move.product_uom.name, 
                     'move_id': move.id } for move in picking.move_ids
                 ],
             }
