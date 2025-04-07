@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+              
+    <!-- Action for Overtime Settings -->
+    <record id="action_overtime_settings" model="ir.actions.act_window">
+        <field name="name">Overtime Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">inline</field>
+        <field name="context">{'module': 'hr_overtime'}</field>
+    </record>
+
+    <!-- Extend res.config.settings view to add Overtime section -->
+    <record id="res_config_settings_view_form_overtime" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.overtime</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="45"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add a new app block for Overtime -->
+        <xpath expr="//form" position="inside">
+            <app data-string="Overtime" string="Overtime" name="hr_overtime"
+                 groups="hr_overtime.group_hr_overtime_admin">
+                <block title="Overtime Settings" name="overtime_settings">
+                    <setting string="Enable Batch Overtime" company_dependent="1"
+                             help="Allow batch processing of overtime entries.">
+                        <field name="is_batch"/>
+                    </setting>
+                </block>
+            </app>
+        </xpath>
+        </field>
+    </record>
+    
+    <menuitem id="overtime_configuration_menu"
+              name="Configurations"
+              parent="overtime_submenu"
+              groups="hr_overtime.group_hr_overtime_admin"
+              sequence="10"/>
+
+    <menuitem id="menu_overtime_settings" name="Settings"
+              parent="overtime_configuration_menu"
+              sequence="10"
+              action="action_overtime_settings"
+              groups="hr_overtime.group_hr_overtime_admin"/>
+
+</odoo>

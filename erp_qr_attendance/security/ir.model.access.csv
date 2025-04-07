@@ -1,6 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_erp_qr_generate,erp_qr_generate.erp_qr_generate,model_erp_qr_generate,hr.group_hr_manager,1,1,1,1
 access_scan_qr_attendance,erp_qr_generate.scan_qr_attendance,model_scan_qr_attendance,hr.group_hr_manager,1,1,1,1
+access_scan_qr_overtime,erp_qr_generate.scan_qr_overtime,model_scan_qr_overtime,hr.group_hr_manager,1,1,1,1
 access_update_attendance_wizard_user,update.attendance.wizard.user,model_update_attendance_wizard,hr.group_hr_manager,1,1,1,1
 access_pre_create_attendance_wizard_user,pre.create.attendance.wizard.user,model_pre_create_attendance_wizard,hr.group_hr_manager,1,1,1,1
 access_create_absent_attendance_wizard,create_absent_attendance_wizard_hr_manager,model_create_absent_attendance_wizard,hr.group_hr_manager,1,1,1,1

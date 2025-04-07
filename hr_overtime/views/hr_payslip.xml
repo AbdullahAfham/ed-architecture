@@ -1,0 +1,21 @@
+<odoo>
+    <data>
+
+        <record id="hr_payslip_inherited_view_overtime" model="ir.ui.view">
+            <field name="name">Overtime.Inherited.View</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+            <field name="arch" type="xml">
+                <div name="button_box" position="inside">
+                    <button class="oe_stat_button" name="open_overtimes" type="object" icon="fa-clock-o" attrs="{'invisible': [('overtimes_count', '=', 0)]}">
+                        <field string="Overtimes" name="overtimes_count" widget="statinfo"/>
+                    </button>
+                </div>
+                <field name="name" position="after">
+                    <field name="overtime_ids" invisible="1"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>
