@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="seq_overtime_req" model="ir.sequence">
+            <field name="name">Overtime Sequencer</field>
+            <field name="code">hr.overtime</field>
+            <field name="prefix">OT/%(y)s/</field>
+            <field eval="1" name="number_next"/>
+            <field eval="1" name="number_increment"/>
+            <field name="padding">5</field>
+        </record>
+    </data>
+    <data>
+        <!-- Form View -->
+        <record id="hr_overtime_form_view" model="ir.ui.view">
+            <field name="name">Overtime</field>
+            <field name="model">hr.overtime</field>
+            <field name="arch" type="xml">
+                <form string="Overtime Request" create="1" write="1">
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,approval,officer_approval,finance_approval"/>
+                        <button name="submit_request" string="Submit" type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                        <button name="approve" string="Approve" type="object"
+                            class="btn-primary"
+                            invisible="state != 'approval'"
+                            groups="hr_overtime.group_hr_overtime_manager"/>
+                        <button name="submit_to_finance" string="HR Validate"
+                            type="object" class="btn-primary"
+                            invisible="state != 'officer_approval'"
+                            groups="hr.group_hr_user"/>
+                        
+                        <button name="reject" string="Refuse" type="object"
+                            class="btn-primary"
+                            invisible="state in ('refused', 'draft', 'approval')"/>
+                        <button name="action_draft" string="Set to Draft" type="object"
+                            class="btn-primary"
+                            invisible="state in ('draft', 'officer_approval', 'finance_approval')"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" required="0" placeholder="Reference ...."/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name='employee_id' 
+                                    options="{'no_quick_create': True, 'no_create_edit' : True}" />
+                                    <!-- readonly="state in ['officer_approval', 'finance_approval', 'refused']"
+                                    /> -->
+                                <field name='department_id'/>
+                                <!-- <field name='job_id'/> -->
+                                <field name="duration_type" readonly="state != 'draft'"/>
+                                <field name="current_user_boolean" invisible="1"/>
+                                <field name='project_id' invisible="1"/>
+                                <field name='project_manager_id' readonly="0" required="1"/>
+                                <field name='hr_officer_id' readonly="0" required="1"/>
+                                <field name='om_approver_id' invisible="1"/>
+
+                                <field name="date_from" required="1" class="oe_inline" readonly="state != 'draft'"/>
+                                <field name="date_to" required="1" class="oe_inline" readonly="state != 'draft'"/>
+                                <field name="break_hours" class="oe_inline" readonly="state != 'draft'"/>
+                                <!-- <field name="scan_ot_in" class="oe_inline" readonly="True" invisible="1"/>
+                                <field name="scan_ot_out" class="oe_inline" readonly="True" invisible="1"/> -->
+                                <field name="days_no_tmp" string="Hours" invisible="duration_type == 'days'"/>
+                                <field name="days_no_tmp" string="Days" invisible="duration_type == 'hours'"/>
+                                <field name="days_no" readonly="1" invisible="1"/>
+
+                                <!-- <field name="cash_hrs_amount" force_save="1" readonly="1" attrs="{'invisible': ['|','|',('state', '=', 'draft'),('type','!=', 'cash'),('duration_type','!=','hours')]}" 
+                                    groups="hr.group_hr_manager"/>
+                                <field name="cash_day_amount" force_save="1" readonly="1" attrs="{'invisible': ['|','|',('state', '=', 'draft'),('type','!=', 'cash'),('duration_type','!=','days')]}" 
+                                    groups="hr.group_hr_manager"/> -->
+                            </group>
+                            <group>
+                                <field name='user_id' invisible="1"/>
+                                <field name="contract_id"/>
+                                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                                <!-- this field is display only is_batch == True -->
+                                <field name="batch_id" readonly="1" invisible="1"/>
+                                <!-- <field name="payslip_id" readonly="1" invisible="type == 'cash'" /> -->
+                                <!-- <field name="payslip_paid" readonly="1" invisible="type == 'cash'" widget="toggle_button" groups="hr.group_hr_manager"/> -->
+                                <field name='attchd_copy' filename="attchd_copy_name" readonly="state != 'draft'"/>
+                                <field name='type' readonly="state != 'draft'"/>
+                                <field name='overtime_type_id' groups="hr.group_hr_user" readonly="state != 'officer_approval'"/>
+                                <field name="attchd_copy_name" invisible="1"/>
+                                <field name="leave_id" invisible="leave_id == 'False'" readonly="state != 'draft'"/>
+                            </group>
+                        </group>
+                        
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- Tree View -->
+        <record id="hr_overtime_tree_view" model="ir.ui.view">
+            <field name="name">Overtime</field>
+            <field name="model">hr.overtime</field>
+            <field name="arch" type="xml">
+                <list string="Overtime Request" create="1">
+                    <header>
+                        <!-- <button name="approve_all" string="Approved All" type="object" class="oe_highlight ml-2" groups="hr_overtime.group_hr_overtime_manager"/> -->
+                        <!-- <button name="get_attendance_overtime" string="Check Overtime" type="object" class="btn-primary" groups="hr.group_hr_user"/> -->
+                    </header>
+                    <field name="name"/>
+                    <field name="employee_id"/>
+                    <field name="project_id" optional="hide"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
+                    <field name="days_no_tmp"/>
+                    <field name="state" widget="badge" decoration-info="state in ('draft','approval', 'officer_approval', 'finance_approval')" decoration-success="state == 'approved'" decoration-danger="state == 'refused'"/>
+                    <field name="type" invisible="1"/>
+                    <field name="payslip_paid" groups="hr.group_hr_manager" readonly="1" invisible="type != 'cash'" widget="toggle_button" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Search View -->
+        <record id="hr_overtime_search_view" model="ir.ui.view">
+            <field name="name">Overtime</field>
+            <field name="model">hr.overtime</field>
+            <field name="arch" type="xml">
+                <search>
+                    <group expand="0" string="Group By">
+                        <filter string="This Month" name="filter_this_month" domain="[('date_from', '&gt;=', (context_today() + relativedelta(day=26, months=-1)).strftime('%%Y-%%m-26')), ('date_to', '&lt;=', (context_today() + relativedelta(day=25)).strftime('%%Y-%%m-25'))]" />
+                        <filter string="Last Month" name="filter_last_month" domain="[('date_from', '&gt;=', (context_today() + relativedelta(day=26, months=-2)).strftime('%%Y-%%m-26')), ('date_to', '&lt;=', (context_today() + relativedelta(day=25, months=-1)).strftime('%%Y-%%m-25'))]" />
+                        <filter string="State" name="group_by_state" context="{'group_by': 'state'}"/>
+                        <filter string="Batch" name="group_by_batch_id" context="{'group_by': 'batch_id'}"/>
+                        <filter string="Project" name="group_by_project_id" context="{'group_by': 'project_id'}"/>
+                        <filter string="Date From" name="group_by_date_from" context="{'group_by': 'date_from'}"/>
+                        <filter string="Date To" name="group_by_date_to" context="{'group_by': 'date_to'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Actions -->
+        <!-- overtime -->
+        <record id="hr_overtime_action" model="ir.actions.act_window">
+            <field name="name">Overtime Request</field>
+            <field name="res_model">hr.overtime</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create new Pre Approval Overtime Request.
+                </p>
+            </field>
+            <field name="context">{
+                'search_default_group_by_state':1,
+                'search_default_filter_this_month': 1
+                }</field>
+        </record>
+
+        <!-- MenuItems -->
+        <menuitem id="overtime_submenu" name="Overtime Request" 
+            groups="base.group_user" 
+            web_icon="hr_overtime,static/description/icon.png"
+            />
+
+        <menuitem id="overtime" name="Overtime Request" 
+            parent="overtime_submenu" 
+            action="hr_overtime_action" 
+            groups="base.group_user"
+            />
+
+
+    </data>
+</odoo>
