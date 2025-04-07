@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_erp_qr_attendance" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.erp.qr.attendance</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="100"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Correct XPath to insert inside Attendance settings -->
+            <xpath expr="//app[@name='hr_attendance']" position="inside">
+                <block title="Late/Absent" name="late_setting_container">
+                    <setting string="Late Buffer Attendance" company_dependent="1" help="Define buffer time for late attendance.">
+                        <field name="late_buffer_duration" class="oe_inline"/>
+                        <div class="text-muted">
+                            Late times to be considered.
+                        </div>
+                    </setting>
+
+                    <setting string="Check In Late" company_dependent="1" help="Flag if employee check-in is late.">
+                        <field name="checkin_late"/>
+                    </setting>
+
+                    <setting string="Check Out Early" company_dependent="1" help="Flag if employee check-out is early.">
+                        <field name="checkout_early"/>
+                    </setting>
+
+                    <setting string="Break In Late" company_dependent="1" help="Flag if employee returns late from break.">
+                        <field name="breakin_late"/>
+                    </setting>
+
+                    <setting string="Break Out Early" company_dependent="1" help="Flag if employee leaves break early.">
+                        <field name="breakout_early"/>
+                    </setting>
+
+                    <setting string="Scan Break" company_dependent="1" help="Enforce scanning for breaks.">
+                        <field name="scan_break"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

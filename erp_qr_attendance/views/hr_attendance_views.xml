@@ -1,0 +1,119 @@
+<odoo>
+  <data>
+    <record id="view_attendance_tree_qr_inherit" model="ir.ui.view">
+        <field name="name">hr.attendance.tree.inherit</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='write_date']" position="after">
+                <field name="late_num"/>
+                <field name="late_duration" widget="float_time"/>
+                <field name="state"/>
+                
+                <!-- Action buttons -->
+                <button string="Scans" name="action_view" type="object" icon="fa-list"/>
+                <button string="Leaves" name="action_view_leaves" type="object" icon="fa-list"/>
+            </xpath>
+            <xpath expr="//field[@name='check_in']" position="before">
+                <field name="punching_day" string="Date" optional="show" readonly="1"/>
+                <field name="day_period" string="Day Period" optional="show" readonly="1"/>
+            </xpath>
+            <xpath expr="//field[@name='check_in']" position="after">
+                <field name="punch_in" string="Check In" optional="show"/>
+                <field name="punch_out" string="Check Out" optional="show"/>
+            </xpath>
+            <xpath expr="//field[@name='check_out']" position="after">
+                <field name="work_schedule_id" readonly="1"/>
+                <field name="shift_check_in" optional="hide" widget="float_time"/>
+                <field name="shift_check_out" optional="hide" widget="float_time"/>
+            </xpath>
+
+            <!-- Add optional attribute -->
+            <xpath expr="//field[@name='check_in']" position="attributes">
+                <attribute name="optional">hide</attribute>
+                <attribute name="string">Check In (Default)</attribute>
+            </xpath>
+            <xpath expr="//field[@name='check_out']" position="attributes">
+                <attribute name="optional">hide</attribute>
+                <attribute name="string">Check Out (Default)</attribute>
+            </xpath>
+            <xpath expr="//field[@name='overtime_hours']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='validated_overtime_hours']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_attendance_for_qr_inherit" model="ir.ui.view">
+        <field name="name">hr.attendance.form.inherit</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+        <field name="arch" type="xml">
+            <field name="employee_id" position="attributes"><attribute name="readonly">1</attribute></field>
+            <field name="check_in" position="attributes">
+                <attribute name="readonly">1</attribute>
+                <attribute name="string">Check In (Default)</attribute>
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="check_out" position="attributes">
+                <attribute name="readonly">1</attribute>
+                <attribute name="string">Check Out (Default)</attribute>
+                <attribute name="invisible">1</attribute>
+            </field>
+
+            <xpath expr="//field[@name='employee_id']" position="after">
+                <field name="punching_day" string="Date" readonly="1"/>
+                <field name="day_period" string="Day Period" readonly="1"/>
+                <field name="punch_in" string="Check In" readonly="1"/>
+                <field name="punch_out" string="Check Out" readonly="1"/>
+                <field name="punch_break_out" readonly="1" invisible="1"/>
+                <field name="punch_break_in" readonly="1" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//field[@name='check_out']" position="after">
+                <field name="shift_check_in" widget="float_time" readonly="1"/>
+                <field name="shift_check_out" widget="float_time" readonly="1"/>
+                <field name="late_num" readonly="1"/>
+                <field name="late_duration" widget="float_time" readonly="1"/>
+                <field name="state" readonly="1"/>
+                <field name="work_schedule_id" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_attendance_pivot" model="ir.ui.view">
+        <field name="name">hr.attendance.view.pivot</field>
+        <field name="model">hr.attendance</field>
+        <field name="arch" type="xml">
+            <pivot string="Attendance Report" sample="1">
+                <field name="employee_id" type="row"/>
+                <field name="punching_day" type="col"/>
+                <field name="worked_hours" type="measure"/>
+                <field name="late_num" type="measure"/>
+                <field name="late_duration" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="hr_attendance_view_filter_today_inherit" model="ir.ui.view">
+        <field name="name">hr.attendance.view.filter.today.inherit</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <filter string="Today" name="filter_today" domain="[('punching_day', '=', context_today().strftime('%Y-%m-%d'))]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Add 'view_attendance_tree' for view_id -->
+    <!-- Remove search default: ['search_default_groupby_name', 'search_default_employee']-->
+    <record id="hr_attendance.hr_attendance_action" model="ir.actions.act_window">
+        <field name="view_id" ref="hr_attendance.view_attendance_tree"/>
+        <field name="context">{"search_default_filter_today": 1}</field>
+    </record>
+
+  </data>
+</odoo>
