@@ -115,7 +115,7 @@ class StockDeliveryAPI(http.Controller):
                 {
                     "key": "warehouse_location",
                     "label": "WH Location",
-                    "value": self._get_warehouse_location_name(picking),
+                    "value": _get_warehouse_location_name(picking),
                     "is_highlight": False
                 },
                 {
