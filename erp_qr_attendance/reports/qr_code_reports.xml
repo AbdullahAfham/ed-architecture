@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="qr_code_report" model="ir.actions.report">
+            <field name="name">QRCODE</field>
+            <field name="model">erp.qr.generate</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">erp_qr_attendance.qr_code_report_template</field>
+            <field name="report_file">erp_qr_attendance.qr_code_report_template</field>
+<!--            <field name="paperformat_id" ref="report_layout_template.paperformat_no_head"/>-->
+<!--            <field name="print_report_name">(object._get_report_base_filename())</field>-->
+            <field name="binding_model_id" ref="erp_qr_attendance.model_erp_qr_generate"/>
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>

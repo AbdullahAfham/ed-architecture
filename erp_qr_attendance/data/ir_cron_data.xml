@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <data>
+        <!-- 07:05 am -->
+        <record id="ir_cron_create_attendance" model="ir.cron">
+            <field name="name">Pre Create Attendance</field>
+            <field name="model_id" ref="model_hr_attendance"/>
+            <field name="state">code</field>
+            <field name="code">model.pre_create_attendance()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall" eval="(DateTime.now().replace(hour=0, minute=0, second=0) + timedelta(days=1)).strftime('%Y-%m-%d 00:05:00')"/>
+            <field name="active" eval="True" />
+        </record>
+
+        <!-- 19:55 pm -->
+        <record id="ir_cron_update_attendance_status" model="ir.cron">
+            <field name="name">Update Attendance Status</field>
+            <field name="model_id" ref="model_hr_attendance"/>
+            <field name="state">code</field>
+            <field name="code">model.update_attendance_status()</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall" eval="(DateTime.now().replace(hour=0, minute=0, second=0) + timedelta(days=1)).strftime('%Y-%m-%d 12:55:00')"/>
+            <field name="active" eval="True" />
+        </record>
+
+        <!-- 19:00 pm -->
+        <record id="ir_cron_create_absence_attendance" model="ir.cron">
+            <field name="name">Create Absence Attendance</field>
+            <field name="model_id" ref="model_hr_attendance"/>
+            <field name="state">code</field>
+            <field name="code">model.create_absent_attendance()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="nextcall" eval="(DateTime.now().replace(hour=0, minute=0, second=0) + timedelta(days=1)).strftime('%Y-%m-%d 12:00:00')"/>
+            <field name="active" eval="True" />
+        </record>
+    </data>
+</odoo>

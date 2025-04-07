@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="qr_code_report_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+<!--                     <t t-call="report_layout_template.external_layout_erp_cambodia_no_head"> -->
+                    <t>
+                        <style type="text/css">
+                            @font-face {
+                                font-family: Moul;
+                                font-style: normal;
+                                src:url('/report_layout_template/static/src/fonts/KhmerOSMuolLight.ttf') format('truetype');
+                            }
+                            @font-face {
+                                font-family: Battambang;
+                                font-style: normal;
+                                src:url('/report_layout_template/static/src/fonts/Battambang/Battambang-Regular.ttf') format('truetype');
+                            }
+                            .erp-title{
+                                font-size: 36px;
+                                font-family: Moul;
+                                padding-bottom: 3px;
+                                color: #000000;
+                                font-weight: bold;
+                            }
+                            .erp-sub-title {
+                                font-size: 36px;
+                                font-family: Moul;
+                                color: #000000;
+                                font-weight: bold;
+                            }
+                            .erp-title-en {
+                                font-size: 30px;
+                                font-family: 'Time';
+                                padding-bottom: 3px;
+                                color: #000000;
+                                font-weight: bold;
+                            }
+                            .erp-text{
+                                font-size: 14px;
+                                font-family: Battambang;
+                                padding-bottom: 3px;
+                                <!--background-color: #FFFFFF;-->
+                                color: #000000;
+                            }
+                            .erp-border{
+                                border: 1px solid black;
+                            }
+                            .erp-table-header{
+                                font-weight: bold;
+                                border: 1px solid black;
+                                background-color: #4f4f4f;
+                                color: #FFFFFF;
+                                  <!--font-size:12px;-->
+                            }
+                            .erp-table-body{
+                                border: 1px solid black;
+                                <!--font-size:12px;-->
+                            }
+                            .erp-section{
+                                background-color: #4f4f4f;
+                                color: #FFFFFF;
+                            }
+                            .erp-right{
+                                text-align: right;
+                            }
+                            .erp-center{
+                                text-align: center;
+                            }
+
+                        </style>
+                        <!--HEAD-->
+                        <t t-if="not company">
+                            <!-- Multicompany -->
+                            <t t-if="company_id">
+                                <t t-set="company" t-value="company_id"/>
+                            </t>
+                            <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                                <t t-set="company" t-value="o.company_id.sudo()"/>
+                            </t>
+                            <t t-else="else">
+                                <t t-set="company" t-value="res_company"/>
+                            </t>
+                        </t>
+
+                            <div class="o_center_header">
+                                <div class="row mb8">
+                                    <div class="col-2 mb2 erp-center">
+                                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-height: 120px; margin-top:10px;"/>
+                                    </div>
+                                    <div class="col-8 mb6 erp-center" style="margin-top:10px;">
+                                      <!--<img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-height: 120px; margin-top:10px;"/>-->
+<!--                                         <h3 class="mt0 erp-title text-center " t-field="company.kh_name"/> -->
+                                        <h1 class="mt0 text-center erp-title-en" t-field="company.name"/>
+<!--                                        <div name="company_address" class="float-center mb6">-->
+<!--                                            <ul class="list-unstyled erp-text text-center">-->
+<!--                                                <li t-if="company.partner_id.vat">លេខអត្តសញ្ញាណកម្ម អតប (VATTIN): <strong><span t-field="company.partner_id.vat"/></strong></li>-->
+<!--                                                <li t-if="company.partner_id.khmer_address">អាស័យដ្ឋាន: <span t-field="company.partner_id.khmer_address"/></li>-->
+<!--                                                <li>Address:-->
+<!--                                                    <span t-if="company.partner_id.street"><span t-esc="company.partner_id.street"/></span>-->
+<!--                                                    <span t-if="company.street2">, <span t-esc="company.partner_id.street2"/></span>-->
+<!--                                                    <span t-if="company.partner_id.city">, <span t-esc="company.partner_id.city"/></span>-->
+<!--                                                    <span t-if="company.partner_id.country_id">, <span t-esc="company.partner_id.country_id.name"/>.</span>-->
+<!--                                                </li>-->
+<!--                                                <li>ទូរស័ព្ទលេខ: <span class="" t-field="company.partner_id.phone"/></li>-->
+<!--                                                <li t-if="company.partner_id.website">Website: <span t-field="company.partner_id.website"/></li>-->
+<!--                                            </ul>-->
+<!--                                        </div>-->
+                                    </div>
+                                    <div class="col-2 mb2">
+                                        <span/>
+                                    </div>
+                                </div>
+                                <div style="border-bottom: 1px solid black;"/>
+                            </div>
+                        <br/>
+                        <!-- END HEAD -->
+
+                        <div class="row erp-center" style="margin-bottom: 16px;">
+                              <div class="col-12 text-center">
+
+                                <h5 class="text-center erp-title-en">
+                                    Location : <span t-field="o.name"/>
+                                </h5>
+                                <h5 style="font-size: 28px;">
+                                      <span t-field="o.project_id.name"/>
+                                  </h5>
+                              </div>
+                        </div>
+                        <!--Body-->
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-12 erp-center">
+                                    <img t-if="o.qr_code_img" t-att-src="image_data_uri(o.qr_code_img)" alt="QR CODE" style="width: 100%; max-height: 1200px; margin-top:10px;"/>
+                                </div>
+                            </div>
+                            <!--<div class="row">-->
+                            <!--    <div class="col-12 erp-center">-->
+                            <!--      <h5 class="erp-title">-->
+                            <!--          <span t-field="o.description"/>-->
+                            <!--      </h5>-->
+                            <!--    </div>-->
+                            <!--</div>-->
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>
