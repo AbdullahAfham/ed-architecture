@@ -5,7 +5,7 @@
     'summary': "Report Layout Templates",
     'description': "",
 
-    ############################ERP#####################################
+    ############################ERP######################################
     # Author
     'author': 'ERP CAMBODIA',
     'website': 'https://www.erpcambodia.biz/',
@@ -17,10 +17,11 @@
 
     # Technical
     'support': 'info@erpcambodia.biz',
-    ############################ERP#####################################
+    ############################ERP######################################
     'depends': [
         'web',
-        'account'
+        'account',
+        'erp_currency_exchange',
     ],
     'data': [
         'data/report_layout.xml',
