@@ -20,7 +20,8 @@
     ############################ERP######################################
     'depends': [
         'web',
-        'account'
+        'account',
+        'erp_currency_exchange',
     ],
     'data': [
         'data/report_layout.xml',
