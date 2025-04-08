@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.config_parameter" id="hr_presence_control_login" forcecreate="False">
+            <field name="key">internal.api.key</field>
+            <field name="value">f330858c499d1c880b1dbd65c2657440ace3dc4e</field>
+        </record>
+        <record model="ir.config_parameter" id="internal_server_private_key_presence_control_login" forcecreate="False">
+            <field name="key">internal.server.private.key</field>
+            <field name="value">
+MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDF+EP25cmCyCX6
+0ilFneMmYGE7g93vzI0QPMz8jVhHWZgpmSZESHmEQHrt07+6VQqN0HCsuiZar8mE
+ecE1CnT1T7+0movBdLxWhjExvqkhyBTGjgIF3Tnfl5YWcvIyce/Uh0KITPffcNDB
+jCrTSBNu2P/f8/1B+44vkV0s/Bo7tR0fNRFVJ/JazxLgy/C39wyAIn5tTh9UMbM5
+nYOpRP8YuSa9ydnerbfFcj9cX/bXGLyZNNFMI1/36hiziZ8j9nxf7B6B5ZqQYLPR
+5hrkPJY8zUMq8JEPXm8fFIQiWldIHC94aS81lgbEyBaWjgDckI5CUy2B8At1xOPd
+7lDFnO/hAgMBAAECggEAF9cjNiUrfHqmajtrWXUfUPSL2QszC6j+Nt2fkO1jm2oM
+czv8ef4hVh4ev6u/m8yYcgYPP5nGOycOtUulSwIong8dxr3SxTgN4zyTSYqMmyMZ
+b2TUFQk0ajr6ydbLWGxUpaspRblBI3EWTqyWzq1QG8n5nGppTgwhbhSLHDr63MQn
+LlXC/hi25CwzKFnuuAHTGQplu9aQ6XQGy2NRdIUl9vbLX8+8DGiIaEBPua//MJiQ
+aZ2CNS5pX55rSJM2FqjDcLg+mr4YH7VTxEnCeWdssDkxL486wilLi7bspxFCjF3E
+ptMqCFfmH9ml2I64RgmQA1QFZGQSe9RLzoopyvj3MQKBgQDy2duY1/m1a+XVGzFB
+JAgmKJgileV2MIJbDf9bY8FvVboT/VqJWOg4cZl1DY4DlIZGkCxv4Cht6bsh++as
+9utfwMY2sH8in37Zycpx1VgGIsBUfGANNN/Tu4D8cLtwAjAchLla9pvBZa1SE3SI
+tskRLsplg7WVzjaAQ47U2yh0mQKBgQDQsE/d6FIvxH0ieX8MH0v/kvkdG+XPcElh
+D5SgPp4iz4hutwZL64PmVn3QTPbJSrSd6R4N27SKHESNvEyqrExQmB6Wr4WH+rIr
+lyl2PZCOdXpN6qHbxOPNqGA6Mbunqx1vLNBstyBFlymyzZKLpFQ24Nm+oTmQQ5nZ
+4Z8fXncaiQKBgQC/HD65+0yhPrXxjKKoNqjLDqsanIelCOusqElKLCivavEyhfBX
+ocWtlYhEG1Sk8J7yrMari+WFCaigR9HyT6ZPBi92HlMOdiGnViughVnuCi78zZvx
+CKkTwLzy6+w1ayNdbf1H3kYYXeGVc4YDiISWpxHT7WBa8ZrmOUQPsiAWEQKBgGWh
+N4PuG/g/TGF5obGZnD0+qirO5z/6gwHNwKe5VvHE98BTSbG3ZGjMPkEu+hBVXVh5
+qrU9BdMsqQYNaZjEh/XH3z2rBPCP2iz4VKzMlpWKCKHhXinU3MvO7+3nQmgJITB/
+NpF7LTA2yYvWKUPwJ0MChYgcpBfplAdTpVZ1frNhAoGAdsgpZNXHJt/CZYrV5RnE
+or0QDSqKExPntjqEKv1TZnikFYLVaUasGH+p+JqB8ziaKl16OPcQkEzxLys5XP+A
+kUWsqXQSoB9+7Id2w3CyfhGW/GUnmpApSujILTlNLpiRdjpTTXLRFqYmOJ8LiKUP
+qVeKEx7uR8PiSB7cfOWZV6M=
+</field>
+        </record>
+
+        <record id="verification_code_email" model="mail.template">
+            <field name="name">ERP Cambodia verification code</field>
+            <field name="model_id" ref="base.model_res_users"/>
+            <field name="subject">ERP Cambodia verification code</field>
+            <field name="email_from">"${object.company_id.name | safe}" &lt;${(object.company_id.email or user.email) | safe}&gt;</field>
+            <field name="email_to">${object.email_formatted | safe}</field>
+            <field name="lang">${object.lang}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+                <table border="0" cellpadding="0" cellspacing="0" style="padding-top:16px;background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;">
+                    <tbody>
+                    <tr><td align="center">
+                    <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding:16px;background-color: white; color: #454748; border-collapse:separate;">
+                        <tbody>
+                            <!-- HEADER -->
+                            <tr>
+                                <td align="center" style="min-width:590px;">
+                                    <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width:590px;background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                        <tbody>
+                                            <tr>
+                                                <td valign="middle">
+                                                    <span style="font-size:10px;">Your Account</span><br/>
+                                                    <span style="font-size:20px;font-weight: bold;">
+                                                        ${object.name}
+                                                    </span>
+                                                </td>
+                                                <td valign="middle" align="right">
+                                                    <img src="/logo.png?company=${object.company_id.id}" style="padding:0px;margin: 0px; height: auto; width: 80px;" alt="${object.company_id.name}"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" style="text-align:center;">
+                                                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                </td>
+                                            </tr>
+                                    </tbody></table>
+                                </td>
+                            </tr>
+                            <!-- CONTENT -->
+                            <tr>
+                                <td align="center" style="min-width:590px;">
+                                    <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width:590px;background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                        <tbody>
+                                            <tr>
+                                                <td valign="top" style="font-size:13px;">
+                                                    <div>
+                                                        Dear ${object.name},<br/><br/> A verification code was requested for the Odoo account linked to this email. You may apply your verification code below which will remain valid until next request:<br/>
+                                                        <div style="margin:16px 0px 16px 0px;"><span style="background-color: rgb(135, 90, 123); border-radius: 5px; padding: 8px 16px; text-decoration-color: initial; text-decoration-style: initial; text-decoration-thickness: initial;" class="text-white">${object.verification_code}</span></div>
+                                                        If you do not expect this, you can safely ignore this email.<br/><br/>
+                                                        Thanks,
+                                                        % if user.signature:
+                                                            <br/>
+                                                            ${user.signature | safe}
+                                                        % endif
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="text-align:center;">
+                                                <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                                                </td>
+                                            </tr>
+                                    </tbody></table>
+                                </td>
+                            </tr>
+                            <!-- FOOTER -->
+                            <tr>
+                                <td align="center" style="min-width:590px;">
+                                    <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width:590px;background-color: white; font-size: 11px; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                                        <tbody>
+                                            <tr>
+                                                <td valign="middle" align="left">
+                                                    ${object.company_id.name}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td valign="middle" align="left" style="opacity:0.7;">
+                                                    ${object.company_id.phone}
+                                                    % if object.company_id.email
+                                                        | <a href="'mailto:%s' % ${object.company_id.email}" style="text-decoration:none;color: #454748;">${object.company_id.email}</a>
+                                                    % endif
+                                                    % if object.company_id.website
+                                                        | <a href="'%s' % ${object.company_id.website}" style="text-decoration:none;color: #454748;">
+                                                        ${object.company_id.website}
+                                                    </a>
+                                                    % endif
+                                                </td>
+                                            </tr>
+                                    </tbody></table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </td></tr>
+                    <!-- POWERED BY -->
+                    <tr><td align="center" style="min-width:590px;">
+                        <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width:590px;background-color: #F1F1F1; color: #454748; padding: 8px; border-collapse:separate;">
+                            <tbody>
+                            <tr><td style="text-align:center;font-size: 13px;">
+                                Powered by <a target="_blank" href="https://www.odoo.com?utm_source=db&amp;utm_medium=auth" style="color:#875A7B;">Odoo</a>
+                            </td></tr>
+                            </tbody>
+                        </table>
+                    </td></tr>
+                    </tbody>
+                </table>
+            </field>
+        </record>
+
+    </data>
+</odoo>

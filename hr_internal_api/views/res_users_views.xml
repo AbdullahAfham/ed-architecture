@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="view_res_users_form_inherit" model="ir.ui.view">
+        <field name="name">view.users.form.inherit</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='preferences']//group" position="inside">
+                <group string="Device Information" name="device_info">
+                    <field name="restrict_location" required="0" readonly="0"/>
+                    <field name="restrict_device" required="0" readonly="0"/>
+                    <field name="device_id" required="0" readonly="0"/>
+                    <field name="device_uuid" required="0" readonly="1"/>
+                    <field name="title" required="0" readonly="1"/>
+                    <field name="phone" required="0" readonly="1"/>
+                    <field name="street" required="0" readonly="1"/>
+                    <field name="email" required="0" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_res_users_simple_form_inherit" model="ir.ui.view">
+        <field name="name">view.users.simple.form.inherit</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_simple_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='phone_numbers']" position="after">
+                <group string="Device Information" name="device_info">
+                    <field name="restrict_location" required="0" readonly="0"/>
+                    <field name="restrict_device" required="0" readonly="0"/>
+                    <field name="device_id" required="0" readonly="0"/>
+                    <field name="device_uuid" required="0" readonly="0"/>
+                </group>
+                <group string="Contact Information" name="contact_info">
+                    <field name="employee_id" string="Employee" required="0" readonly="1"/>
+                    <field name="title" required="0" readonly="1"/>
+                    <field name="phone" required="0" readonly="1"/>
+                    <field name="street" required="0" readonly="1"/>
+                    <field name="email" required="0" readonly="1"/>
+                </group>
+                <group string="Extra Configuration" name="extra_configuration">
+                    <field name="mobile_module_ids" widget="many2many_tags"/>
+                    <field name="allow_warehouse_ids" widget="many2many_tags"/>
+                    <field name="allow_journal_ids" widget="many2many_tags"/>
+                    <field name="default_transit_location" domain="[('usage', '=', 'transit')]"/>
+                    <field name="default_picking_type_id" domain="[('code', '=', 'internal'), ('warehouse_id', 'in', allow_warehouse_ids)]"/>
+                    <field name="property_warehouse_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

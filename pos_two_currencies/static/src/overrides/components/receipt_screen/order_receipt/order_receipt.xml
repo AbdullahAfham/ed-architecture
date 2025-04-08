@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_two_currencies.OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('pos-receipt')]" position="replace">
+            <div class="pos-receipt">
+                <img t-attf-src="/web/image?model=res.company&amp;id={{props.data.headerData.company.id}}&amp;field=logo" alt="Logo" class="pos-receipt-logo"/>
+                <ReceiptHeader data="props.data.headerData" />
+<!--                <div style="font-size:0.83em;" >លេខតុ/Table No: <t t-esc="table"/></div>-->
+                <t t-if="props.data.order_name and props.data.order_name != '/'">
+                    <div class="text-start" style="font-size:0.83em;" >លេខវិក្កយបត្រ/Invoice No: <t t-esc="props.data.order_name"/></div>
+                </t>
+
+                <div class="text-start" style="font-size:0.83em;" >កាលបរិច្ឆេទ/Date: <t t-esc="props.data.date"/></div>
+                <div class="text-start" style="font-size:0.83em;" >លេខយោង/Ref: <t t-esc="props.data.name"/></div>
+                <div t-if="props.data.headerData.cashier" class="text-start" style="font-size:0.83em;">
+                    បេឡាករ/Cashier: <t t-esc="props.data.headerData.cashier"/>
+                </div>
+                <div t-if="props.data.headerData.config_name" class="text-start" style="font-size:0.83em;">
+                    លេខទូ/POS: <t t-esc="props.data.headerData.config_name"/>
+                </div>
+
+                <br />
+
+                <table class='receipt-orderlines' style="width: 100%;font-size:0.83em;">
+                    <tr>
+                        <td width='40%'>បរិយាយ</td>
+                        <td class="text-center" width='10%'>ចំនួន</td>
+                        <td class="text-center" width='18%'>តម្លៃ</td>
+                        <td class="text-center" width='14%'>បញ្ចុះ</td>
+                        <td class="text-end" width='18%'>សរុប</td>
+                    </tr>
+                    <tr>
+                        <th >Description&#32;</th>
+                        <th class="text-center" >Qty&#32;</th>
+                        <th class="text-center" >Price&#32;</th>
+                        <th class="text-center" >Disc&#32;</th>
+                        <th class="text-end" >Total&#32;</th>
+                    </tr>
+                    <tr>
+                        <td><div style="border-bottom: black 1px solid;margin: 8px 0;" /></td>
+                        <td><div style="border-bottom: black 1px solid;margin: 8px 0;" /></td>
+                        <td><div style="border-bottom: black 1px solid;margin: 8px 0;" /></td>
+                        <td><div style="border-bottom: black 1px solid;margin: 8px 0;" /></td>
+                        <td><div style="border-bottom: black 1px solid;margin: 8px 0;" /></td>
+                    </tr>
+                    <t t-foreach="props.data.orderlines" t-as="orderline" t-key="orderline_index">
+                        <tr t-attf-style="border-bottom: black {{ orderline.displayBorder ? 1 : 0 }}px dashed;">
+                            <td t-attf-class="{{ orderline.comboParent ? 'border-start ps-1' : '' }}">
+                                <t t-esc="orderline.productName"/>
+                            </td>
+                            <td class="text-center" style="text-align: center;">
+                                <t t-esc="orderline.qty"/>
+                            </td>
+                            <td class="text-center" style="white-space: nowrap;">
+                                <t t-esc="orderline.comboParent ? '0.00' : orderline.unitPriceNoSymbol"/>
+                            </td>
+                            <td class="text-center">
+                                <t t-esc="orderline.comboParent ? '0' : orderline.discount || '0'"/>%
+                            </td>
+                            <td class="text-end" style="white-space: nowrap;">
+                                <t t-esc="orderline.comboParent ? '0.00' : orderline.priceNoSymbol"/>
+                            </td>
+                        </tr>
+                    </t>
+                </table>
+
+                <!-- Total -->
+                <div class="pos-receipt-amount" style="font-size: 100%;padding-left: 5em;font-size:0.83em;">
+                    សរុប/Subtotal:
+                    <span style="font-size:1em;" t-esc="props.formatCurrency(props.data.amount_total_before_discount || 0)" class="pos-receipt-right-align"/>
+                </div>
+                <div t-if="props.data.showTax" class="pos-receipt-amount" style="font-size: 100%;padding-left: 5em;font-size:0.83em;">
+                    អតប/VAT:
+                    <span style="font-size:1em;" t-esc="props.formatCurrency(props.data.amount_tax || 0)" class="pos-receipt-right-align"/>
+                </div>
+                <div class="pos-receipt-amount" style="font-size: 100%;padding-left: 5em;font-size:0.83em;">
+                    បញ្ចុះតំលៃ/Discount:
+                    <span style="font-size:1em;" t-esc="props.formatCurrency(props.data.total_discount || 0)" class="pos-receipt-right-align"/>
+                </div>
+                <div class="pos-receipt-amount" style="line-height:25px;font-weight: bold;font-size: 100%;padding-left: 5em;font-size:0.83em;">
+                    <div style="border-bottom: black 1px solid;margin: 8px 0;" />
+    <!--                Grand Total (៛):-->
+                    Grand Total ($):
+                    <span style="font-size:1.2em;" t-esc="props.formatCurrency(props.data.amount_total || 0)"
+                          class="pos-receipt-right-align"/>
+                </div>
+                <div class="pos-receipt-amount" style="line-height:25px;font-weight: bold;font-size: 100%;padding-left: 5em;font-size:0.83em;">
+    <!--                Grand Total ($):-->
+                    Grand Total (៛):
+                    <span style="font-size:1.2em;" class="pos-receipt-right-align">
+                        <t t-if="props.formatCurrencyKHR">
+                            <t t-esc="props.formatCurrencyKHR(props.data.amount_total_khr || 0)"/>
+                        </t>
+                        <t t-else="">
+                            <t t-esc="props.formatCurrency(props.data.amount_total_khr || 0, false)"/> R
+                        </t>
+                    </span>
+                </div>
+                <div t-if="!props.data.showTax" class="pos-receipt-amount" style="padding-left: 5em;font-size:0.83em;">
+                    (VAT Included)
+                </div>
+
+                <div style="border-bottom: black 1px solid;margin: 8px 0;" />
+                <table class='receipt-total' style="width: 100%;font-size:0.83em;">
+                    <tr class="text-center">
+                        <td>
+                            អត្រាប្ដូរប្រាក់ (1 ដុល្លារ = <span t-esc="props.data.khr_rate" /> រៀល)
+                            <br/>Exchange Rate (USD 1 = <span t-esc="props.data.khr_rate" /> Riel)
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Payment Lines -->
+                <div class="paymentlines" t-if="props.data.paymentlines.length > 0">
+                    <div style="border-bottom: black 1px solid;margin: 8px 0;" />
+                    <table class='receipt-total' style="width: 100%;font-size:0.83em;">
+                        <tr>
+                            <td>ប្រាក់ទទួល/Cash Received:</td>
+                        </tr>
+                        <t t-foreach="props.data.paymentlines" t-as="line" t-key="line_index">
+                            <t t-if="line.amount>0">
+                                <tr>
+                                    <t t-if="!line.khr">
+                                        <td>
+                                            <t t-esc="line.name"/>
+                                        </td>
+                                        <td class="text-end" style="font-size:1em;">
+                                            <t t-esc="props.formatCurrency(line.amount)"/>
+                                        </td>
+                                    </t>
+                                    <t t-if="line.khr">
+                                        <td>
+                                            <t t-esc="line.khr_name"/>
+                                        </td>
+                                        <td class="text-end" style="font-size:1em;">
+                                            <t t-if="props.formatCurrencyKHR">
+                                                <t t-esc="props.formatCurrencyKHR(line.khr || 0)"/>
+                                            </t>
+                                            <t t-else="">
+                                                <t t-esc="props.formatCurrency(line.khr || 0, false)"/> R
+                                            </t>
+                                        </td>
+                                    </t>
+                                </tr>
+                            </t>
+                        </t>
+                        <t t-if="props.data.change">
+                            <tr>
+                                <td>ប្រាក់អាប់/Change:</td>
+                            </tr>
+    <!--                        <tr>-->
+    <!--                            <td>Cash KHR</td>-->
+    <!--                            <td class="text-end">-->
+    <!--                                 <t t-esc="props.formatCurrency(props.data.change)"/>-->
+    <!--                            </td>-->
+    <!--                        </tr>-->
+                            <t t-if="props.data.changeUSD" >
+                                <tr>
+                                    <td>Cash USD</td>
+                                    <td class="text-end" style="font-size:1em;">
+                                        <t t-esc="props.formatCurrency(props.data.changeUSD)"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <t t-if="props.data.changeKHR" >
+                                <tr>
+                                    <td>Cash KHR</td>
+                                    <td class="text-end" style="font-size:1em;">
+                                        <t t-if="props.formatCurrencyKHR">
+                                            <t t-esc="props.formatCurrencyKHR(props.data.changeKHR || 0)"/>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-esc="props.formatCurrency(props.data.changeKHR || 0, false)"/> R
+                                        </t>
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                    </table>
+                </div>
+
+                <!-- Extra Payment Info -->
+
+                <div style="display:none;">
+                    <div class="before-footer cashier" />
+                    <div class="receipt-change" />
+                </div>
+
+                <div t-if="props.data.pos_qr_code">
+                    <br /><br />
+                    <div class="pos-receipt-order-data mb-2">
+                        Scan me to request an invoice for your purchase.
+                    </div>
+                    <img id="posqrcode" t-att-src="props.data.pos_qr_code" class="pos-receipt-logo"/>
+                </div>
+
+<!--                <div t-if="props.data.ticket_code">-->
+<!--                    <br /><br />-->
+<!--                    <div class="pos-receipt-order-data">-->
+<!--                        You can go to <t t-out="props.data.base_url"/>/pos/ticket and use the code below to request an invoice online-->
+<!--                    </div>-->
+<!--                    <div class="pos-receipt-order-data">-->
+<!--                        Unique Code: <t t-out="props.data.ticket_code"/>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+                <!-- Footer -->
+               <div t-if="props.data.footer"  class="pos-receipt-center-align" style="white-space:pre-line">
+                   <br/>
+                   <t t-esc="props.data.footer" />
+                    <br/>
+                    <br/>
+                </div>
+
+                <t t-if="false">
+                    <OrderWidget lines="props.data.orderlines" t-slot-scope="scope">
+                        <t t-set="line" t-value="scope.line"/>
+                        <Orderline line="omit(scope.line, 'customerNote')" class="{ 'pe-none': true }">
+                            <li t-if="line.customerNote" class="customer-note w-100 p-2 my-1 rounded text-break">
+                                <i class="fa fa-sticky-note me-1" role="img" aria-label="Customer Note" title="Customer Note"/>
+                                <t t-esc="line.customerNote" />
+                            </li>
+                            <ul t-if="line.pack_lot_lines">
+                                <li t-foreach="line.pack_lot_lines" t-as="lot" t-key="lot.cid">
+                                    <t t-if="lot.order_line.product.tracking == 'lot'">
+                                        Lot Number <t t-esc="lot.lot_name"/>
+                                    </t>
+                                    <t t-else="">
+                                        SN <t t-esc="lot.lot_name"/>
+                                    </t>
+                                </li>
+                            </ul>
+                        </Orderline>
+                    </OrderWidget>
+                </t>
+
+                <div class="after-footer">
+                    <t t-foreach="props.data.paymentlines" t-as="line" t-key="line_index">
+                        <t t-if="line.ticket">
+                            <br />
+                            <div class="pos-payment-terminal-receipt">
+                                <pre t-esc="line.ticket" />
+                            </div>
+                        </t>
+                    </t>
+                </div>
+
+                <t t-if="props.shippingDate">
+                    <br/>
+                    <div class="pos-receipt-order-data">
+                        Expected delivery:
+                        <div><t t-esc="props.shippingDate" /></div>
+                    </div>
+                    <br/>
+                </t>
+
+                <div class="pos-receipt-order-data">
+                    <div>--------------------------------</div>
+                    <div>Thank You! Please Come Again.</div>
+                </div>
+                <br />
+            </div>
+        </xpath>
+    </t>
+
+</templates>

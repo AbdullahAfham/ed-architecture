@@ -1,0 +1,673 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_saledetails" inherit_id="point_of_sale.report_saledetails">
+        <xpath expr="//t[@t-call='point_of_sale.pos_session_sales_details']" position="replace">
+            <div class="page">
+                <!-- Title -->
+
+                <div class="bg-secondary p-3" id="header">
+                    <div class="row">
+                        <div class="col-3 d-flex flex-column justify-content-center">
+                            <br/>
+                            <br/>
+                            <div class="text-start" style="font-size:0.85rem;">
+                                <span t-esc="company.name"/>
+                                <address class="mb-0 text-muted" t-field="env.company.partner_id" t-options='{"widget": "contact", "fields": ["address"], "no_marker": True}'/>
+                            </div>
+                        </div>
+                        <div class="col-6 text-center">
+                            <h2 t-if="state == 'closed' or state == 'opened'" id="daily_report_title">Daily Sales Report
+                                <t t-if="state == 'closed'">Z</t>
+                                <t t-else="">X</t>
+                            </h2>
+                            <t t-if="session_name">
+                                Session ID: <span t-out="session_name">987657</span>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 text-end mt-2">
+                        <span class="badge bg-light text-dark border border-dark p-2">
+                            <strong>    As of <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%m/%d/%Y')"/>
+                            </strong>
+                        </span>
+                    </div>
+                </div>
+                <div class="text-center" style="break-inside: avoid;">
+                    <t t-if="state == 'multiple'">
+                        <h2>Sales Details</h2>
+                        <div class="oe_structure"></div>
+                        <t t-if="config_names">
+                            <strong>POS: </strong>
+                            <t t-foreach="config_names" t-as="name">
+                                <span t-out="name">Sample POS Name</span>,
+                            </t>
+                        </t>
+                    </t>
+                    <t t-if="date_start and date_stop">
+                        <span t-out="date_start" t-options="{'widget': 'datetime'}">2-03-2000 9:00 AM</span> - <span t-out="date_stop" t-options="{'widget': 'datetime'}">Demo 3-03-2000 5:00 PM</span>
+                    </t>
+                </div>
+                <br/>
+                <br/>
+                <t t-set="total_price" t-value="0"/>
+                <t t-set="total_discount" t-value="0"/>
+                <t t-set="total_subtotal" t-value="0"/>
+                <h4>SUMMARY</h4>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-start">No</th>
+                            <th class="text-end">Total Sale</th>
+                            <th/>
+                            <th/>
+                            <th class="text-end">Total Discount</th>
+                            <th class="text-end">Total Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="no" t-value="0"/>
+                        <t t-set="total_payment" t-value="0"/>
+                        <tr t-foreach="payments_by_payment_method" t-as="payment">
+                            <t t-set="total_payment" t-value="total_payment + payment['total'] "/>
+                        </tr>
+                        <tr t-foreach="category_ids" t-as="category_id">
+                            <t t-set="total_price" t-value="total_price + category_id['price']"/>
+                            <t t-set="total_discount" t-value="total_discount + category_id['discount']"/>
+                            <t t-set="total_subtotal" t-value="total_subtotal + category_id['total']"/>
+                        </tr>
+                        <tr style="background-color: #b1b1b1;">
+                            <td class="text-start">
+                                <t t-set="no" t-value="no+1"/>
+                                <span t-esc="no"/>
+                            </td>
+                            <td class="text-end">
+                                <t t-esc="total_price"
+                                   t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                            </td>
+                            <td/>
+                            <td/>
+                            <td class="text-end">
+                                <t t-esc="total_discount"
+                                   t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                            </td>
+                            <td class="text-end">
+                                <t t-esc="total_payment"
+                                   t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br/>
+                <h4>VAT</h4>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-start">Name</th>
+                            <th class="text-end">Tax Amount</th>
+                            <th class="text-end">Base Amount</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="taxes" t-as="tax">
+                            <t t-if="tax['tax_amount'] != 0">
+                                <td class="text-start">
+                                    <t t-esc="tax['name']"/>
+                                </td>
+                                <td class="text-end">
+                                    <t t-esc="tax['tax_amount']"
+                                       t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td class="text-end">
+                                    <t t-esc="tax['base_amount']"
+                                       t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td class="text-end">
+                                    <t t-esc="tax['tax_amount'] + tax['base_amount']"
+                                       t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                            </t>
+                        </tr>
+                    </tbody>
+                </table>
+                <br/>
+                <div class="oe_structure"></div>
+
+                <t t-set="service_charge_name" t-value="''"/>
+                <t t-set="service_charge_qty" t-value="0"/>
+                <t t-set="service_charge_amount" t-value="0"/>
+
+                <t t-if="report_type in ['product','all']">
+                    <!-- Orderlines -->
+                    <t t-set="no" t-value="0"/>
+                    <t t-set="total_quantity" t-value="0"/>
+                    <t t-set="total_price" t-value="0"/>
+                    <t t-set="total_subtotal" t-value="0"/>
+                    <h3>Products</h3>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Price Unit</th>
+                                <th>Price</th>
+                                <th>Discount</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="products" t-as="line">
+                                <t t-set="total_quantity" t-value="total_quantity + line['quantity']"/>
+                                <t t-set="total_price" t-value="total_price + (line['price_unit'] * line['quantity'])"/>
+                                <t t-set="total_subtotal" t-value="total_subtotal + line['total_paid']"/>
+                                <t t-set="internal_reference" t-value="line['code'] and '[%s] ' % line['code'] or ''"/>
+
+                                <t t-if="internal_reference != '[SVR] '">
+                                    <td>
+                                        <t t-set="no" t-value="no+1"/>
+                                        <span t-esc="no"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="internal_reference"/>
+                                        <t t-esc="line['product_name']"/>
+                                        <t t-if="line['discount'] != 0">
+                                            (with a<t t-esc="line['discount']"/>% discount)
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['quantity']"/>
+                                        <t t-if="line['uom'] != 'Units'">
+                                            <t t-esc="line['uom']"/>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['price_unit']" t-options="{'widget': 'float', 'precision': currency_precision, 'widget': 'monetary', 'display_currency': company.currency_id}"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['price_unit']*line['quantity']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                    </td>
+                                    <td>
+                                        <t t-set="line_discount" t-value="line['price_unit'] * line['quantity'] * line['discount'] / 100"/>
+                                        <t t-esc="line_discount" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="line['total_paid']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                    </td>
+                                </t>
+                                <t t-else="">
+                                    <t t-set="service_charge_name" t-value="line['product_name']"/>
+                                    <t t-set="service_charge_qty" t-value="service_charge_qty + line['quantity']"/>
+                                    <t t-set="service_charge_amount" t-value="service_charge_amount + line['total_paid']"/>
+                                </t>
+                            </tr>
+<!--                                <tr>-->
+<!--                                    <td>-->
+<!--                                        - -->
+<!--                                    </td>-->
+<!--                                    <td>-->
+<!--                                        SERVICE CHARGE 5.0%-->
+<!--                                    </td>-->
+<!--                                    <td>-->
+<!--                                        <t t-esc="service_charge_qty"/>Units-->
+<!--                                    </td>-->
+<!--                                    <td>-->
+<!--                                        - -->
+<!--                                    </td>-->
+<!--                                    <td>-->
+<!--                                        <t t-esc="service_charge_amount" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>-->
+<!--                                    </td>-->
+<!--                                    <td>-->
+<!--                                        $0.00-->
+<!--                                    </td>-->
+<!--                                    <td>-->
+<!--                                        <t t-esc="service_charge_amount" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+                            <tr>
+                                <td colspan="2" class="text-right">Total:</td>
+                                <td colspan="2">
+                                    <t t-esc="total_quantity"/>
+                                    Units
+                                </td>
+                                <td>
+                                    <t t-esc="total_price" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="discount_amount" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="total_subtotal" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br/>
+                </t>
+
+                <t t-if="report_type in ['category','all']">
+                    <!-- Categories -->
+                    <t t-set="no" t-value="0"/>
+                    <t t-set="total_quantity" t-value="0"/>
+                    <t t-set="total_price" t-value="0"/>
+                    <t t-set="total_subtotal" t-value="0"/>
+                    <h3>Categories</h3>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Discount</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="pos_category_ids" t-as="category_id">
+                                <t t-set="no" t-value="no + 1"/>
+                                <t t-set="total_quantity" t-value="total_quantity + category_id['quantity']"/>
+                                <t t-set="total_price" t-value="total_price + category_id['price']"/>
+                                <t t-set="total_subtotal" t-value="total_subtotal + category_id['total']"/>
+                                <td>
+                                    <t t-esc="no"/>
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['name']"/>
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['quantity']"/>
+                                    Units
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['price']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['discount']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['total']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="text-right">Total:</td>
+                                <td>
+                                    <t t-esc="total_quantity"/>
+                                    Units
+                                </td>
+                                <td>
+                                    <t t-esc="total_price" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="discount_amount" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="total_subtotal" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br/>
+                </t>
+
+                <!-- New section for Product Categories -->
+                <t t-if="report_type in ['product_category','all']">
+                    <!-- Product Categories -->
+                    <t t-set="no" t-value="0"/>
+                    <t t-set="total_quantity" t-value="0"/>
+                    <t t-set="total_price" t-value="0"/>
+                    <t t-set="total_subtotal" t-value="0"/>
+                    <h3>Product Categories</h3>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Discount</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="product_category_ids" t-as="category_id">
+                                <t t-set="no" t-value="no + 1"/>
+                                <t t-set="total_quantity" t-value="total_quantity + category_id['quantity']"/>
+                                <t t-set="total_price" t-value="total_price + category_id['price']"/>
+                                <t t-set="total_subtotal" t-value="total_subtotal + category_id['total']"/>
+                                <td>
+                                    <t t-esc="no"/>
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['name']"/>
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['quantity']"/>
+                                    Units
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['price']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['discount']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="category_id['total']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" class="text-right">Total:</td>
+                                <td>
+                                    <t t-esc="total_quantity"/>
+                                    Units
+                                </td>
+                                <td>
+                                    <t t-esc="total_price" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="discount_amount" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                                <td>
+                                    <t t-esc="total_subtotal" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br/>
+                </t>
+
+                <t t-if="refund_products" id="refunds">
+                <h3>Refunds</h3>
+                <table class="table table-sm">
+                    <thead><tr>
+                        <th class="text-start">Product Category</th>
+                        <th class="text-start">Product</th>
+                        <th class="text-end">Quantity</th>
+                        <th class="text-end">Total (Tax excluded)</th>
+                    </tr></thead>
+                    <tbody>
+                        <tr t-foreach="refund_products" t-as="category">
+                            <td style="background-color: #dadada;"><span t-out="category['name']">Technical Stuff</span></td>
+                            <td style="background-color: #dadada;"/>
+                            <td class="text-end" style="background-color: #dadada;">
+                                <span t-out="category['qty']">0</span>
+                            </td>
+                            <td class="text-end" style="background-color: #dadada;">
+                                <t t-if="currency['position']">
+                                    <span t-out="category['total']" t-options="{'widget': 'float', 'precision': currency['precision']}">0.00</span><span t-out="currency[&quot;symbol&quot;]">$</span>
+                                </t>
+                                <t t-else="">
+                                    <span t-out="currency[&quot;symbol&quot;]">$</span><span t-out="category['total']" t-options="{'widget': 'float', 'precision': currency['precision']}">0.00</span>
+                                </t>
+                            </td>
+                            <tr t-foreach="category['products']" t-as="line">
+                                <td/>
+                                <t t-set="internal_reference" t-value="line['code'] and '[%s] ' % line['code'] or ''"/>
+                                <td>
+                                    <span t-out="internal_reference">DEMO_REF</span>
+                                    <span t-out="line['product_name']">DEMO_PRODUCT_NAME</span>
+                                </td>
+                                <td class="text-end">
+                                    <span t-out="line['quantity']">0</span>
+                                    <t t-if="line[&quot;uom&quot;] != &quot;Units&quot;">
+                                        <span t-out="line[&quot;uom&quot;]">Unit</span>
+                                    </t>
+                                </td>
+                                <td class="text-end">
+                                    <t t-if="currency['position']">
+                                        <span t-out="line[&quot;base_amount&quot;]" t-options="{'widget': 'float', 'precision': currency['precision']}">0.00</span><span t-out="currency[&quot;symbol&quot;]">$</span>
+                                    </t>
+                                    <t t-else="">
+                                        <span t-out="currency[&quot;symbol&quot;]">$</span><span t-out="line[&quot;base_amount&quot;]" t-options="{'widget': 'float', 'precision': currency['precision']}">0.00</span>
+                                    </t>
+                                    <t t-if="line[&quot;discount&quot;] != 0">
+                                        Disc: <span t-out="line[&quot;discount&quot;]">0</span>%
+                                    </t>
+                                </td>
+                            </tr>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #b1b1b1;"><strong>Total</strong></td>
+                            <td style="background-color: #b1b1b1;"/>
+                            <td class="text-end" style="background-color: #b1b1b1;">
+                                <strong><span t-out="refund_info['qty']">0</span></strong>
+                            </td>
+                            <td class="text-end" style="background-color: #b1b1b1;">
+                                <t t-if="currency['position']">
+                                    <strong><span t-out="refund_info[&quot;total&quot;]" t-options="{'widget': 'float', 'precision': currency['precision']}">0.00</span><span t-out="currency[&quot;symbol&quot;]">$</span></strong>
+                                </t>
+                                <t t-else="">
+                                    <strong><span t-out="currency[&quot;symbol&quot;]">$</span><span t-out="refund_info[&quot;total&quot;]" t-options="{'widget': 'float', 'precision': currency['precision']}">0.00</span></strong>
+                                </t>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="oe_structure"/>
+            </t>
+                <t t-set="total_payment" t-value="0"/>
+                <h3>Payments</h3>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="payments" t-as="payment">
+                            <td>
+                                <t t-esc="payment['name']"/>
+                                <t t-esc="payment['customer_name']"/>
+                            </td>
+                            <t t-if="'KHR' in payment['name']">
+                                <t t-set="total_payment" t-value="total_payment + payment['total']"/>
+                                <td>
+                                    <t t-esc="payment['total']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                    (or
+                                    <t t-esc="payment['khr']" t-options="{'widget': 'monetary', 'display_currency': currency_khr }"/>
+                                    )
+                                </td>
+                            </t>
+                            <t t-if="'KHR' not in payment['name']">
+                                <t t-set="total_payment" t-value="total_payment + payment['total']"/>
+                                <td>
+                                    <t t-esc="payment['total']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </td>
+                            </t>
+                        </tr>
+                        <tr>
+                            <td class="text-right">
+                                <h5>Total:</h5>
+                            </td>
+                            <td>
+                                <h5>
+                                    <t t-esc="total_payment" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                                </h5>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <br/>
+
+                <h3>Taxes</h3>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Tax Amount</th>
+                            <th>Base Amount</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="taxes" t-as="tax">
+                            <td>
+                                <t t-esc="tax['name']"/>
+                            </td>
+                            <td>
+                                <t t-esc="tax['tax_amount']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                            </td>
+                            <td>
+                                <t t-esc="tax['base_amount']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                            </td>
+                            <td>
+                                <t t-esc="tax['tax_amount'] + tax['base_amount']" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <t t-if="refund_taxes" id="taxe_refunds">
+                <h3>Taxes on refunds</h3>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-start">Name</th>
+                            <th class="text-end">Tax Amount</th>
+                            <th class="text-end">Base Amount</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="refund_taxes" t-as="tax">
+                            <td>
+                                <span t-out="tax['name']">Tax Name</span>
+                            </td>
+                            <td class="text-end">
+                                <span t-if="currency['position']">
+                                    <span t-out="tax['tax_amount']" t-options="{'widget': 'float', 'precision': currency['precision']}">123.45</span>
+                                    <span t-out="currency[&quot;symbol&quot;]">$</span>
+                                </span>
+                                <span t-else="">
+                                    <span t-out="currency[&quot;symbol&quot;]">$</span>
+                                    <span t-out="tax['tax_amount']" t-options="{'widget': 'float', 'precision': currency['precision']}">123.45</span>
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <span t-if="currency['position']">
+                                    <span t-out="tax['base_amount']" t-options="{'widget': 'float', 'precision': currency['precision']}">123.45</span>
+                                    <span t-out="currency[&quot;symbol&quot;]">$</span>
+                                </span>
+                                <span t-else="">
+                                    <span t-out="currency[&quot;symbol&quot;]">$</span>
+                                    <span t-out="tax['base_amount']" t-options="{'widget': 'float', 'precision': currency['precision']}">123.45</span>
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <span t-if="currency['position']">
+                                    <span t-out="tax['tax_amount'] + tax['base_amount']" t-options="{'widget': 'float', 'precision': currency['precision']}">123.45</span>
+                                    <span t-out="currency[&quot;symbol&quot;]">$</span>
+                                </span>
+                                <span t-else="">
+                                    <span t-out="currency[&quot;symbol&quot;]">$</span>
+                                    <span t-out="tax['tax_amount'] + tax['base_amount']" t-options="{'widget': 'float', 'precision': currency['precision']}">123.45</span>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #b1b1b1;">
+                                <strong>Total</strong>
+                            </td>
+                            <td class="text-end" style="background-color: #b1b1b1;">
+                                <span t-if="currency['position']">
+                                    <strong>
+                                        <span t-out="refund_taxes_info[&quot;tax_amount&quot;]" t-options="{'widget': 'float', 'precision': currency['precision']}">123.45</span>
+                                        <span t-out="currency[&quot;symbol&quot;]">$</span>
+                                    </strong>
+                                </span>
+                                <span t-else="">
+                                    <strong>
+                                        <span t-out="currency[&quot;symbol&quot;]">$</span>
+                                        <span t-out="refund_taxes_info[&quot;tax_amount&quot;]" t-options="{'widget': 'float', 'precision': currency['precision']}">123.45</span>
+                                    </strong>
+                                </span>
+                            </td>
+                            <td class="text-end" style="background-color: #b1b1b1;">
+                                <span t-if="currency['position']">
+                                    <strong>
+                                        <span t-out="refund_taxes_info[&quot;base_amount&quot;]" t-options="{'widget': 'float', 'precision': currency['precision']}">123.45</span>
+                                        <span t-out="currency[&quot;symbol&quot;]">$</span>
+                                    </strong>
+                                </span>
+                                <span t-else="">
+                                    <strong>
+                                        <span t-out="currency[&quot;symbol&quot;]">$</span>
+                                        <span t-out="refund_taxes_info[&quot;base_amount&quot;]" t-options="{'widget': 'float', 'precision': currency['precision']}">123.45</span>
+                                    </strong>
+                                </span>
+                            </td>
+                            <td class="text-end" style="background-color: #b1b1b1;">
+                                <span t-if="currency['position']">
+                                    <strong>
+                                        <span t-out="refund_taxes_info[&quot;base_amount&quot;] + refund_taxes_info[&quot;tax_amount&quot;]" t-options="{'widget': 'float', 'precision': currency['precision']}">123.45</span>
+                                        <span t-out="currency[&quot;symbol&quot;]">$</span>
+                                    </strong>
+                                </span>
+                                <span t-else="">
+                                    <strong>
+                                        <span t-out="currency[&quot;symbol&quot;]">$</span>
+                                        <span t-out="refund_taxes_info[&quot;base_amount&quot;] + refund_taxes_info[&quot;tax_amount&quot;]" t-options="{'widget': 'float', 'precision': currency['precision']}">123.45</span>
+                                    </strong>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="oe_structure"/>
+            </t>
+            <div class="oe_structure"/>
+                <br/>
+
+<!--                    <t t-if="report_type in ['product','all']">-->
+<!--                        <h3>Service Charge</h3>-->
+<!--                        <table class="table table-sm">-->
+<!--                            <thead>-->
+<!--                                <tr>-->
+<!--                                    <th>Name</th>-->
+<!--                                    <th>Amount</th>-->
+<!--                                </tr>-->
+<!--                            </thead>-->
+<!--                            <tbody>-->
+<!--                                <tr>-->
+<!--                                    <td class="text-center">-->
+<!--                                        <t t-esc="service_charge_name"/>-->
+<!--                                    </td>-->
+<!--                                    <td>-->
+<!--                                        <t t-esc="service_charge_amount"-->
+<!--                                           t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                            </tbody>-->
+<!--                        </table>-->
+<!--                    </t>-->
+                <br/>
+                <br/>
+                <div>
+                    <strong>Total Guests:
+                        <t t-esc="nbr_customers"/>
+                    </strong>
+                </div>
+                <div>
+                    <strong>Total Quantities:
+                        <t t-esc="total_quantity"/>
+                    </strong>
+                </div>
+                <div>
+                    <strong>Total Order:
+                        <t t-esc="nbr_orders"/>
+                    </strong>
+                </div>
+                <div>
+                    <strong>Total:
+                        <t t-esc="total_payment" t-options="{'widget': 'monetary', 'display_currency': currency_usd }"/>
+                    </strong>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>

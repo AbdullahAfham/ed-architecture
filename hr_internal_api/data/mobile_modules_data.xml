@@ -1,0 +1,46 @@
+<odoo>
+    <data>
+
+        <record id="mobile_modules_quick_sales" model="mobile.module">
+            <field name="name">Quick Sales</field>
+            <field name="key">quick_sales</field>
+<!--            <field name="company_id"></field>-->
+        </record>
+        <record id="mobile_modules_quotations" model="mobile.module">
+            <field name="name">Quotations</field>
+            <field name="key">quotations</field>
+<!--            <field name="company_id"></field>-->
+        </record>
+        <record id="mobile_modules_invoices" model="mobile.module">
+            <field name="name">Invoices</field>
+            <field name="key">invoices</field>
+<!--            <field name="company_id"></field>-->
+        </record>
+        <record id="mobile_modules_payments" model="mobile.module">
+            <field name="name">Payment</field>
+            <field name="key">payment</field>
+<!--            <field name="company_id"></field>-->
+        </record>
+        <record id="mobile_modules_empty_bottle" model="mobile.module">
+            <field name="name">Empty Bottle</field>
+            <field name="key">empty_bottle</field>
+<!--            <field name="company_id"></field>-->
+        </record>
+        <record id="mobile_modules_call_plan" model="mobile.module">
+            <field name="name">Call Plan</field>
+            <field name="key">call_plan</field>
+<!--            <field name="company_id"></field>-->
+        </record>
+        <record id="mobile_modules_inventory" model="mobile.module">
+            <field name="name">Inventory</field>
+            <field name="key">inventory</field>
+<!--            <field name="company_id"></field>-->
+        </record>
+        <record id="mobile_modules_ring_pull" model="mobile.module">
+            <field name="name">Ring Pull</field>
+            <field name="key">ring_pull</field>
+<!--            <field name="company_id"></field>-->
+        </record>
+
+    </data>
+</odoo>

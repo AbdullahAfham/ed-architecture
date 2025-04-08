@@ -20,20 +20,12 @@
     ############################ERP#####################################
     'depends': [
         'web',
-        'account',
-        'purchase',
-        'sale'
+        'account'
     ],
     'data': [
         'data/report_layout.xml',
         'data/report_paperformat_view.xml',
         'views/res_company_view.xml',
-        'views/purhcase_order_view.xml',
-        'views/sale_order_view.xml',
-        'views/account_move_view.xml',
-        # 'views/report_invoice.xml',
-        # 'views/account_report.xml',
-
     ],
     'assets': {
             'web.assets_backend': [

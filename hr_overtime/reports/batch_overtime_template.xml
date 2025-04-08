@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!--    Batch Overtime Report-->
+        <record id="batch_overtime_report" model="ir.actions.report">
+            <field name="name">BATCH OT</field>
+            <field name="model">hr.batch.overtime</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">hr_overtime.report_batch_overtimes</field>
+            <field name="report_file">hr_overtime.report_batch_overtimes</field>
+            <!--      <field name="print_report_name">(object._get_report_base_filename())</field>-->
+            <field name="binding_model_id" ref="hr_overtime.model_hr_batch_overtime"/>
+            <field name="binding_type">report</field>
+            <!--      <field name="groups_id" eval="[(4, ref('hr.batch.overtime.user'))]"/>-->
+        </record>
+
+        <template id="report_batch_overtimes">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <!--<t t-call="web.external_layout">-->
+                    <t t-if="o and 'company_id' in o">
+                        <t t-set="company" t-value="o.company_id"/>
+                    </t>
+                    <t t-if="not o or not 'company_id' in o">
+                        <t t-set="company" t-value="res_company"/>
+                    </t>
+                    <div class="article" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
+                        <t t-raw="0"/>
+                        <div class="row" style="padding-top:0px;">
+                            <div class="col-3 mb4">
+                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 200px;" alt="Logo"/>
+                            </div>
+                            <!--<div class="col-9 text-right" style="margin-top:22px;" t-field="company.report_header" name="moto"/>-->
+                            <div class="col-7 text-left erp-title" style="color: #003399; font-size: 30px; padding-left: 30px; font-weight: bold;">
+                                <!--<span t-field="company.kh_name"/> <br/>-->
+                                <!--<span t-field="company.name"/>-->
+                                <!--<span t-if="company.company_details" t-field="company.company_details"/>-->
+                                <!--<span t-field="company.address_kh"/>-->
+                                <br/>
+                                <span>ស៊ី អ៊ី &amp; ភី ខបភើរេសិន</span>
+                                <br/>
+                                <span>C E &amp; P CORPORATION Ltd</span>
+                            </div>
+
+                        </div>
+                        <div class="col-12">
+                            <div style="border-bottom: 3px solid black;"/>
+                        </div>
+
+                        <style type="text/css">
+
+                            @font-face {
+                            font-family: Moul;
+                            font-style: normal;
+                            src:url('https://erpcambodia.odoo.com/report_layout_template/static/src/fonts/KhmerOSMuolLightRegular.ttf')
+                            format('truetype');
+                            }
+                            @font-face {
+                            font-family: Battambang;
+                            font-style: normal;
+                            src:url('https://erpcambodia.odoo.com/report_layout_template/static/src/fonts/KhmerOSMuolLightRegular.ttf')
+                            format('truetype');
+                            }
+                            .erp-title{
+                            font-size: 30px;
+                            font-family: Moul;
+                            padding-bottom: 3px;
+                                                        <!--background-color: #FFFFFF;-->
+                            <!--color: #000000;-->
+                            <!--font-weight: bold;-->
+                            }
+                            .erp-text{
+                            font-size: 14px;
+                            font-family: "Times New Roman";
+                            }
+                            .erp-table-header{
+                            font-weight: bold;
+                            border: 1px solid black;
+                            font-size:12px;
+                            }
+                            .erp-text-bold{
+                            font-weight: bold;
+                            font-size:14px;
+                            font-family: "Times New Roman";
+                            }
+                            .erp-text-margin{
+                            font-size: 14px;
+                            font-family: "Times New Roman";
+                            margin-left: 30px;
+                            }
+                            .text-small{
+                            font-size: 12px;
+                            font-family: "Times New Roman";
+                            }
+                            .erp-border{
+                            border: 1px solid black;
+                            }
+                            .erp-table-body{
+                            border: 1px solid black;
+                            font-size:12px;
+                            }
+                        </style>
+                        <div class="row" style="margin: 15px 15px;">
+                            <div class="col-12 text-center">
+                                <h5 class="text-center font-weight-bold" style="font-family: 'Roman New Times', sans-serif; font-size:30px;">
+                                    <span>
+                                        <u>Batch Overtime</u>
+                                    </span>
+                                </h5>
+                            </div>
+                        </div>
+
+                        <div class="page">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="row">
+                                        <div class="col-4 font-weight-bold">
+                                            <div class="erp-text">Requested Date</div>
+                                        </div>
+                                        <div class="col-0">
+                                            <div class="erp-text">:</div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="erp-text">
+                                                <span t-esc="o.date_from" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 font-weight-bold">
+                                            <div class="erp-text">Requested Name</div>
+                                        </div>
+                                        <div class="col-0">
+                                            <div class="erp-text">:</div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="erp-text">
+                                                <span t-esc="o.user_id.name"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 font-weight-bold">
+                                            <div class="erp-text">
+                                                <span>Project Code
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-0">
+                                            <div class="erp-text">:</div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="erp-text">
+                                                <span t-esc="o.project_id.name"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="erp-text font-weight-bold">
+                                                <span>Project Name
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-0">
+                                            <div class="erp-text">:</div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="erp-text">
+                                                <span t-esc="o.project_id.analytic_account_id.code"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 font-weight-bold">
+                                            <div class="erp-text">
+                                                <span>S/N
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-0">
+                                            <div class="erp-text">:</div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="erp-text">
+                                                <span t-esc="o.name"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 font-weight-bold">
+                                            <div class="erp-text">
+                                                <span>OT Type
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-0">
+                                            <div class="erp-text">:</div>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="erp-text">
+                                                <span t-esc="o.overtime_type_id.name"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row font-weight-bold">
+                                        <div class="col-4">
+                                            <div class="erp-text">
+                                                <span>DEAR SIR/MADAM
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-10">
+                                            <div class="erp-text">
+                                                <span>We would like to request you to allow us execute works in overtime
+                                                    on :
+                                                </span>
+                                                <span style="font-weight:bold" t-esc="o.date_to" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+                                            </div>
+                                        </div>
+                                        <!--<div class="col-2">-->
+                                        <!--    <div class="erp-text">-->
+                                        <!--        <span t-esc="o.date_to" t-options='{"widget": "date"}'/>-->
+                                        <!--    </div>-->
+                                        <!--</div>-->
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 font-weight-bold">
+                                            <div class="erp-text">
+                                                <span>Employee List for over time
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="col-0">
+                                            <div class="erp-text">:</div>
+                                        </div>
+                                        <div class="col-0">
+                                            <div class="erp-text"/>
+                                        </div>
+                                        <div class="col-8">
+                                            <div class="erp-text">
+                                                <!--<span t-esc="o.partner_id.address_kh"/>-->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <table class="table table-sm o_main_table" style="margin-top:10px;">
+                            <thead>
+                                <tr class="border-black" style="color:black;">
+                                    <th class="text-center erp-text-bold erp-border">
+                                        <span>No.
+                                        </span>
+                                    </th>
+                                    <th class="text-center erp-text-bold erp-border">
+                                        <span>ID
+                                        </span>
+                                    </th>
+                                    <th class="text-center erp-text-bold erp-border">
+                                        <span>NAME
+                                        </span>
+                                    </th>
+                                    <th class="text-center erp-text-bold erp-border">
+                                        <span>Start
+                                        </span>
+                                    </th>
+                                    <th class="text-center erp-text-bold erp-border">
+                                        <span>End
+                                        </span>
+                                    </th>
+                                    <th class="text-center erp-text-bold erp-border">
+                                        <span>Hour
+                                        </span>
+                                    </th>
+                                    <th class="text-center erp-text-bold erp-border">
+                                        <span>Description
+                                        </span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="border-black">
+                                <t t-set="no" t-value="0"/>
+                                <tr t-foreach="o.overtime_ids" t-as="line">
+                                    <t t-set="no" t-value="no+1"/>
+                                    <td class="text-center erp-table-body">
+                                        <span t-esc="no"/>
+                                    </td>
+                                    <td class="text-center erp-table-body erp-text">
+                                        <span t-field="line.employee_id.registration_number"/>
+                                    </td>
+                                    <td class="text-left erp-table-body erp-text">
+                                        <span t-field="line.employee_id.name"/>
+                                    </td>
+                                    <td class="text-center erp-table-body">
+                                        <span t-field="line.date_from" t-options="{&quot;format&quot;: &quot;H:MM&quot;}"/>
+                                    </td>
+                                    <td class="text-center erp-table-body">
+                                        <span t-field="line.date_to" t-options="{&quot;format&quot;: &quot;H:MM&quot;}"/>
+                                    </td>
+                                    <td class="text-center erp-table-body">
+                                        <span t-field="line.days_no_tmp"/>
+                                    </td>
+                                    <td class="text-left erp-table-body">
+                                        <span t-field="line.desc"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="row" style="margin-top: 40px; page-break-inside: avoid;">
+                            <div class="col-3">
+                                <div class="erp-text">REQUESTED BY</div>
+
+                                <div style="border-bottom: 1px solid black; margin-top: 100px;"/>
+                                <br/>
+                                <div class="erp-text">Name:</div>
+                                <div class="erp-text">Date:</div>
+
+                            </div>
+                            <div class="col-3">
+                                <div class="erp-text"/>
+                            </div>
+                            <div class="col-3">
+                                <div class="erp-text"/>
+                            </div>
+                            <div class="col-3 align-right">
+                                <div class="erp-text">APPROVED BY</div>
+
+                                <div style="border-bottom: 1px solid black; margin-top: 100px;"/>
+                                <br/>
+                                <div class="erp-text">Name:</div>
+                                <div class="erp-text">Date:</div>
+
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

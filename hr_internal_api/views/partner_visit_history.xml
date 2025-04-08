@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- visit.history -->
+
+    <record id="view_visit_history_list" model="ir.ui.view">
+        <field name="name">visit.history.list</field>
+        <field name="model">visit.history</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="partner_id"/>
+                <field name="salesperson_id"/>
+                <field name="visit_duration"/>
+                <field name="date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_visit_history_form" model="ir.ui.view">
+        <field name="name">visit.history.form</field>
+        <field name="model">visit.history</field>
+        <field name="arch" type="xml">
+            <form string="Task">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="salesperson_id" widget="many2one_avatar_user" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                            <label for="visit_duration"/>
+                            <div>
+                                <field name="visit_duration" class="oe_inline"/>
+                                <span class="o_form_label oe_inline"> Hours</span>
+                            </div>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="visit_locations" string="Check In / Check Out">
+                            <field name="visit_location_ids" context="{'date': date}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>    
+
+    <record id="action_visit_history" model="ir.actions.act_window">
+        <field name="name">Visit History</field>
+        <field name="res_model">visit.history</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Records yet!
+            </p>
+        </field>
+    </record>
+
+    <!-- visit.history.location -->
+
+    <record id="view_visit_history_location_list" model="ir.ui.view">
+        <field name="name">visit.history.location.list</field>
+        <field name="model">visit.history.location</field>
+        <field name="arch" type="xml">
+            <list editable="top" create="1" delete="1" string="Visit Locations">
+                <field name="visit_datetime"/>
+                <field name="reason"/>
+                <field name="latitude"/>
+                <field name="longitude"/>
+                <field name="visit_history_id" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+
+    <menuitem id="menu_visit_history_root"
+        name="Visit History"
+        sequence="100"
+    />
+
+    <menuitem id="menu_visit_history" 
+        name="Visit History" 
+        parent="menu_visit_history_root"
+        action="action_visit_history" 
+    />
+
+</odoo>

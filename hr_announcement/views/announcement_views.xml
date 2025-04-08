@@ -1,0 +1,87 @@
+<odoo>
+
+    <!-- Views -->
+
+    <record model="ir.ui.view" id="view_tree_hr_announcement">
+        <field name="name">hr.announcement.list.view</field>
+        <field name="model">hr.announcement</field>
+        <field name="arch" type="xml">
+            <list string="Announcement">
+                <field name="name"/>
+                <field name="title"/>
+                <field name="description" optional="show"/>
+                <field name="date_release"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'release'"/>
+            </list>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_form_hr_announcement">
+        <field name="name">hr.announcement.form.view</field>
+        <field name="model">hr.announcement</field>
+        <field name="arch" type="xml">
+        <form string="Announcement">
+            <header>
+                <button name="action_release" class="btn-primary" type="object" string="Release" invisible="state not in ('draft')"/>
+                <button name="action_cancel" type="object" string="Cancel" invisible="state not in ('draft','release')"/>
+                <button name="action_draft" type="object" string="Reset to Draft" invisible="state not in ('cancel')"/>
+                <field name="state" widget="statusbar" statusbar_visible="draft,release"/>
+            </header>
+            <sheet>
+                <field name="image" invisible="1"/>
+                <div class="o_employee_avatar">
+                    <field name="image" widget="image" class="oe_avatar m-1" options="{'zoom': true, 'preview_image':'avatar_128'}"/>
+                </div>
+                <div class="oe_title">
+                    <h1>
+                        <field name="name" readonly="1"/>
+                    </h1>
+                </div>
+                <group name="announcement_header">
+                    <field name="title" placeholder="Title" readonly="not is_editable"/>
+                    <field name="date_release" readonly="not is_editable"/>
+                    <field name="is_editable" invisible="1"/>
+                    <!-- <field name="company_id" invisible="1"/> -->
+                </group>
+                <group name="announcement_body">
+                    <group string="Description">
+                        <field name="description" nolabel="1" readonly="not is_editable"/>
+                    </group>
+                   <!-- <group string="Image">
+                       <field name="image" widget="image" nolabel="1" readonly="not is_editable"/>
+                   </group> -->
+                </group>
+            </sheet>
+            <!-- Chatter -->
+            <chatter/>
+        </form>
+      </field>
+    </record>
+
+    <!-- Action Menu -->
+
+    <record model="ir.actions.act_window" id="action_hr_announcement">
+        <field name="name">Announcement</field>
+        <field name="res_model">hr.announcement</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- Menu root -->
+
+    <menuitem name="Announcement" 
+        id="hr_announcement_menu_root"
+        web_icon="hr_announcement,static/description/icon.png"
+        sequence="10"
+        groups="hr_announcement.group_hr_announcement_user"
+    />
+
+    <!-- Menu -->
+
+    <menuitem name="Announcement" 
+        id="menu_hr_announcement" 
+        parent="hr_announcement_menu_root"
+        action="action_hr_announcement"
+        groups="hr_announcement.group_hr_announcement_user"
+    />
+
+</odoo>

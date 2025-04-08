@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_two_currencies.ReceiptScreen" t-inherit="point_of_sale.ReceiptScreen" t-inherit-mode="extension">
+        <xpath expr="//OrderReceipt" position="attributes">
+            <attribute name="formatCurrencyKHR">pos.formatCurrencyKHR</attribute>
+        </xpath>
+    </t>
+</templates>

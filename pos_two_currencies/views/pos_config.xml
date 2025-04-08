@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="pos_config_form_view_inherit" model="ir.ui.view">
+        <field name="name">pos.config.form.view.inherit</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//setting[@id='other_devices']" position='after'>
+                <setting id="payment_methods_new" string="Payment Methods" help="Payment methods available">
+                    <field name="payment_method_ids" colspan="4" widget="many2many_tags" readonly="has_active_session" required="company_has_template" options="{'no_create': True}" />
+                    <div>
+                        <button name="%(point_of_sale.action_payment_methods_tree)d" icon="oi-arrow-right" type="action" string="Payment Methods" class="btn-link"/>
+                    </div>
+                </setting>
+                <setting string="Automatically validate order" help="Automatically validates orders paid with a payment terminal.">
+                    <field name="auto_validate_terminal_payment"/>
+                </setting>
+                <setting id="is_one_currency" string="One Currency" help="Use only one currency for all Payment.">
+                    <field name="is_one_currency"/>
+                    <div class="content-group">
+                        <label for="is_khr_currency" class="col-lg-4 o_light_label"/>
+                        <field name="is_khr_currency" />
+                    </div>
+                </setting>
+                <setting id="pricelist" string="Flexible Pricelists" help="Set multiple prices per product, automated discounts, etc.">
+                    <div class="row">
+                        <label string="Available" for="available_pricelist_ids" class="col-lg-4 o_light_label"/>
+                        <field name="available_pricelist_ids" widget="many2many_tags" readonly="has_active_session" domain="['|',('company_id', '=', company_id),('company_id', '=', False)]" />
+                    </div>
+                    <div class="row">
+                        <label string="Default" for="pricelist_id" class="col-lg-4 o_light_label"/>
+                        <field name="pricelist_id" domain="[('id', 'in', available_pricelist_ids)]" options="{'no_create': True}"/>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

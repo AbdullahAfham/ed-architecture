@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="account_move_form_inherit_inherit" model="ir.ui.view">
+            <field name="name">account.move.form.inherit</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='currency_id']" position="attributes">
+                  <attribute name="readonly">True</attribute>
+                </xpath>
+                <xpath expr="//field[@name='currency_id']" position="after">
+                  <field name="show_update_currency" invisible="1"/>
+                  <field name="has_active_pricelist" invisible="1"/>
+                </xpath>
+
+                <xpath expr="//div[@name='due_date']" position="after">
+                  <field name="exchange_date" string="Exchange Date" readonly="state != 'draft'"/>
+                  <field name="exchange_rate" string="Exchange Rate" readonly="0"/>
+                </xpath>
+
+                <xpath expr="//div[@name='journal_div']" position="after">
+                  <label for="pricelist_id" groups="product.group_product_pricelist" invisible="not has_active_pricelist or move_type not in ('out_invoice', 'out_refund', 'out_receipt')"/>
+                    <div groups="product.group_product_pricelist" class="o_row" invisible="not has_active_pricelist or move_type not in ('out_invoice', 'out_refund', 'out_receipt')">
+                      <field name="pricelist_id" options="{'no_open':True,'no_create': True}" readonly="1"/>
+                      <button name="action_update_price" type="object" string="Update Prices" help="Recompute all prices based on this currency" 
+                          class="btn-link mb-1 px-0" icon="fa-refresh" confirm="This will update the unit price of all products based on the new currency." 
+                          invisible="not show_update_currency or state in ['posted', 'cancel']"/>
+                    </div>
+
+                </xpath>
+
+                <xpath expr="//field[@name='tax_totals']" position="after">
+                  <field name="amount_total_khr" widget="monetary" readonly="0"
+                      options="{'currency_field': 'khr_currency_id'}"
+                      invisible="is_pricelist_khr != False"/>
+                  <field name="amount_total_usd" widget="monetary" readonly="0"
+                      options="{'currency_field': 'khr_currency_id'}"
+                      invisible="is_pricelist_usd != False"/>
+                </xpath>
+
+            </field>
+        </record>
+
+      <record id="view_invoice_tree_inherit" model="ir.ui.view">
+        <field name="name">account.move.tree.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+          <xpath expr="//field[@name='amount_residual_signed']" position="before">
+            <field name="exchange_rate" optional="hide" />
+            <field name="amount_total_khr" optional="show" widget="monetary" options="{'currency_field': 'khr_currency_id'}"/>
+          </xpath>
+        </field>
+      </record>
+    </data>
+</odoo>

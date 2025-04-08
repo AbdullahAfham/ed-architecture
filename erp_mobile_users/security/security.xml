@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record model="ir.module.category" id="module_category_erp_mobile_users">
+        <field name="name">Mobile User</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="group_erp_mobile_users_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]" />
+        <field name="category_id" ref="module_category_erp_mobile_users" />
+    </record>
+    <record id="group_erp_mobile_users_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field
+            name="implied_ids"
+            eval="[(4, ref('erp_mobile_users.group_erp_mobile_users_user'))]"
+        />
+        <field name="category_id" ref="module_category_erp_mobile_users" />
+    </record>
+    <record id="group_erp_mobile_users_admin" model="res.groups">
+        <field name="name">Administrator</field>
+        <field
+            name="implied_ids"
+            eval="[(4, ref('erp_mobile_users.group_erp_mobile_users_manager'))]"
+        />
+        <field name="category_id" ref="module_category_erp_mobile_users" />
+    </record>
+<!--    <record model="ir.rule" id="purchase_request_comp_rule">-->
+<!--        <field name="name">Purchase Request multi-company</field>-->
+<!--        <field name="model_id" ref="model_purchase_request" />-->
+<!--        <field name="global" eval="True" />-->
+<!--        <field-->
+<!--            name="domain_force"-->
+<!--        >['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>-->
+<!--    </record>-->
+<!--    <record model="ir.rule" id="purchase_request_line_comp_rule">-->
+<!--        <field name="name">Purchase Request Line multi-company</field>-->
+<!--        <field name="model_id" ref="model_purchase_request_line" />-->
+<!--        <field name="global" eval="True" />-->
+<!--        <field-->
+<!--            name="domain_force"-->
+<!--        >['|',('company_id','=',False),('company_id', 'in', company_ids)]</field>-->
+<!--    </record>-->
+</odoo>

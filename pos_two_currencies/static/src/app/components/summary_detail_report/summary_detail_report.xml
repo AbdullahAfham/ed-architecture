@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_two_currencies.SummaryDetailsReport">
+        <div class="pos-receipt p-2">
+            <t t-if="pos.config.logo_image">
+                <img t-attf-src="data:image/*;base64,{{pos.config.logo_image}}"
+                     style="max-height: 100px; max-width: 100px; padding:2px;" align="center" alt="Logo"
+                     class="pos-receipt-logo"/>
+                <br/>
+            </t>
+            <div class=" fw-bolder text-center">
+                <div t-esc="pos.config.name"/>
+                <div t-esc="pos.config.pos_khmer_name"/>
+                <br/>
+                <div class="fw-bolder">Session : <t t-esc="pos.session.name"/></div>
+            </div>
+            <br/>
+            <div class="fw-bolder">
+                SUMMARY
+            </div>
+            <t t-log="category_ids"/>
+            <t t-log="refund_products"/>
+            <table class='receipt-orderlines' style="width: 100%;font-size:0.83em;">
+                <t t-set="total_before_disc" t-value="0"/>
+                <t t-set="total_discount" t-value="0"/>
+                <t t-set="total_tax" t-value="0"/>
+                <t t-foreach="category_ids" t-as="line" t-key="line['name']">
+                    <t t-set="total_before_disc" t-value="total_before_disc + line['price']"/>
+                    <t t-set="total_discount" t-value="total_discount + line['discount']"/>
+                    <tr>
+                    </tr>
+                </t>
+                <tr>
+                    <th class="text-start" t-esc="'Total Sale'"/>
+                    <td class="text-end" t-esc="formatCurrency(total_before_disc, false)"/>
+                </tr>
+                <tr>
+                    <th class="text-start" t-esc="'Total Discount'"/>
+                    <td class="text-end" t-esc="formatCurrency(total_discount, false)"/>
+                </tr>
+                <tr>
+                    <t t-foreach="taxes" t-as="tax" t-key="tax_index">
+                        <t t-if="tax.tax_amount != 0">
+                            <t t-set="total_tax" t-value="total_tax + tax.tax_amount"/>
+                            <th class="text-start" t-esc="'VAT'"/>
+                            <td class="text-end" t-esc="formatCurrency(tax.tax_amount, false)"/>
+                        </t>
+                        <t t-else="">
+                        </t>
+                    </t>
+                </tr>
+                <tr>
+                    <th class="text-start fw-bolder" t-esc="'Total Paid'"/>
+                    <td class="text-end fw-bolder" t-esc="formatCurrency(total_before_disc + total_tax - total_discount, false)"/>
+                </tr>
+            </table>
+            <br/>
+            <div class="fw-bolder">
+                SALE BY CATEGORY
+            </div>
+            <table class='receipt-orderlines' style="width: 100%;font-size:0.83em;">
+                <t t-set="total_qty" t-value="0"/>
+                <t t-set="total_amount" t-value="0"/>
+                <t t-foreach="category_ids" t-as="line" t-key="line['name']">
+                    <t t-set="total_qty" t-value="total_qty + line['quantity']"/>
+                    <t t-set="total_amount" t-value="total_amount + line['total']"/>
+                    <tr>
+                        <td class="text-start">
+                            <t class="text-start" t-esc="line['name'].substr(0,20)"/>
+                        </td>
+                        <td class="text-center" style="text-align: center;">
+                            <t t-esc="line['quantity']"/>
+                        </td>
+
+                        <td class="text-end" style="white-space: nowrap;">
+                            <t t-esc="formatCurrency(line['total'], false)"/>
+                        </td>
+                    </tr>
+                </t>
+                <tr>
+                    <th class="text-start fw-bolder" t-esc="'Total'"/>
+                    <td class="text-center fw-bolder" style="text-align: center;">
+                        <t t-esc="total_qty"/>
+                    </td>
+                    <td class="text-end fw-bolder" style="white-space: nowrap;">
+                        <t t-esc="formatCurrency(total_amount, false)"/>
+                    </td>
+                </tr>
+            </table>
+            <br/>
+            <div class="fw-bolder">
+                PAYMENT DETAILS
+            </div>
+
+            <table class='receipt-orderlines' style="width: 100%;font-size:0.83em;">
+                <t t-set="total_customer_account" t-value="0"/>
+                <t t-set="total_payment" t-value="0"/>
+                <t t-foreach="payments" t-as="payment" t-key="payment_index">
+                    <t t-set="total_payment" t-value="total_payment + payment['total']"/>
+                    <tr>
+                        <t t-if="payment['is_customer_account']">
+                            <t t-set="total_customer_account" t-value="total_customer_account + payment['total']"/>
+                        </t>
+                        <t t-else="">
+                            <th class="text-start" t-esc="payment['name']"/>
+                            <td class="pos-receipt-right-align" t-esc="formatCurrency(payment['total'], false)"/>
+                        </t>
+                    </tr>
+                </t>
+                <tr>
+                    <th class="text-start" t-esc="'Customer Account'"/>
+                    <td class="text-end" t-esc="formatCurrency(total_customer_account, false)"/>
+                </tr>
+                <tr>
+                    <th class="text-start fw-bolder" t-esc="'Total'"/>
+                    <td class="text-end fw-bolder" t-esc="formatCurrency(total_payment, false)"/>
+                </tr>
+            </table>
+            <br/>
+            <div class="fw-bolder">
+                CUSTOMER
+            </div>
+            <table class='receipt-orderlines' style="width: 100%;font-size:0.83em;">
+                <t t-set="customer_account_label" t-value="false"/>
+                <t t-foreach="payments" t-as="payment" t-key="payment_index">
+                    <tr>
+                        <t t-if="payment['is_customer_account']">
+                            <th class="text-start" t-esc="payment['customer_name']"/>
+                            <td class="text-end" t-esc="formatCurrency(payment['total'], false)"/>
+                        </t>
+                    </tr>
+                </t>
+                <tr>
+                    <th class="text-start fw-bolder" t-esc="'Total'"/>
+                    <td class="text-end fw-bolder" t-esc="formatCurrency(total_customer_account, false)"/>
+                </tr>
+            </table>
+            <br/>
+            <div class="fw-bolder">
+                REFUNDED
+            </div>
+            <table class='receipt-orderlines' style="width: 100%;font-size:0.83em;">
+                <t t-set="total_ref_qty" t-value="0"/>
+                <t t-set="total_ref_amount" t-value="0"/>
+                <t t-foreach="refund_products" t-as="line" t-key="line['name']">
+                    <t t-set="total_ref_qty" t-value="total_ref_qty + line['qty']"/>
+                    <t t-set="total_ref_amount" t-value="total_ref_amount + line['total']"/>
+                    <tr>
+                        <td>
+                            <t class="text-start" t-esc="line['name'].substr(0,20)"/>
+                        </td>
+                        <td class="text-center">
+                            <t t-esc="line['qty']"/>
+                        </td>
+                        <td class="text-end" style="white-space: nowrap;">
+                            <t t-esc="formatCurrency(line['total'], false)"/>
+                        </td>
+                    </tr>
+                </t>
+                <tr>
+                    <th class="text-start fw-bolder" t-esc="'Total'"/>
+                    <td class="text-center fw-bolder" t-esc="total_ref_qty"/>
+                    <td class="text-end fw-bolder" t-esc="formatCurrency(total_ref_amount, false)"/>
+                </tr>
+            </table>
+            <br/>
+            <div class="pos-receipt-order-data">
+                <div><t t-esc="date" /></div>
+            </div>
+        </div>
+    </t>
+</templates>

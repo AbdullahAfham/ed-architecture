@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<odoo>
+    <!-- inherit edit_project form view -->
+    <record id="edit_project_form_view_inherit" model="ir.ui.view">
+        <field name="name">edit.project.form.view.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="om_id" widget="many2one_avatar_user" readonly="active == False" domain="[('share', '=', False)]"/>
+<!--                <field name="hr_manager_id" widget="many2one_avatar_user" attrs="{'readonly':[('active','=',False)]}" domain="[('share', '=', False)]"/>-->
+<!--                <field name="timesheet_ids" invisible="1"/>-->
+            </xpath>
+            <xpath expr="//page[@name='settings']" position="after">
+                <page name="timesheet" string="Timesheet" groups="project.group_project_manager">
+                    <field name="timesheet_ids"/>
+                </page>
+                <page name="budget" string="Budget Planed" groups="project.group_project_manager">
+                    <group>
+                      <group>
+                          <field name="budget_plan"/>
+                          <field name="budget_actual"/>
+                          <!-- <field name="balance"/> -->
+                      </group>
+                      <group>
+                          <field name="allocated_hours"/>
+                          <!--<field name="budget_actual"/>-->
+                          <!--<field name="balance"/>-->
+                      </group>
+                    </group>
+                </page>
+
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

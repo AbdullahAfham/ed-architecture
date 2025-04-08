@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="view_partner_form_inherit_visit_history" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.visit.history</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook[last()]" position="inside">
+                <page string="Visit History" name="visit_history">
+                    <group>
+                        <field name="last_visit_date" string="Last Visit History" invisible="not visit_history_ids"/>
+                    </group>
+                    <group >
+                        <field name="visit_history_ids" nolabel="1" options="{'no_create': True}">
+                            <list editable="top" create="1" edit="1" delete="1" open_form_view="True">
+                                <field name="date"/>
+                                <field name="salesperson_id"/>
+                                <field name="visit_duration"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
