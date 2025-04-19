@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <report
+        id="report_payroll_information_detail"
+        string="Payroll Information Detail"
+        model="hr.contract"
+        report_type="qweb-pdf"
+        file="hr_payroll_report.report_payroll_information_template"
+        name="hr_payroll_report.report_payroll_information_template"
+        menu="False"
+    />
+
+    <report
+        id="report_tax_calculation_detail"
+        string="Tax Calculation"
+        model="hr.payslip"
+        report_type="qweb-pdf"
+        file="hr_payroll_report.report_tax_calculation_template"
+        name="hr_payroll_report.report_tax_calculation_template"
+        menu="False"
+    />
+</odoo>

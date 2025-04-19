@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_print_payroll_report_wizard,print.payroll.report.wizard,model_print_payroll_report_wizard,hr.group_hr_manager,1,1,1,0
+access_print_payroll_wizard,print.payroll.wizard,model_print_payroll_wizard,account.group_account_manager,1,1,1,1
+access_print_tax_wizard,print.tax.wizard,model_print_tax_wizard,account.group_account_manager,1,1,1,1

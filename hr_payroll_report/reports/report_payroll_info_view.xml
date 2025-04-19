@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Payroll Information Template -->
+    <template id="report_payroll_information_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <style type="text/css">
+                        .erp-text{
+                            font-size: 10px;
+                            font-family: 'Battambang';
+                        }
+                        .erp-border{
+                            border: 1px solid black;
+                        }
+                        .erp-table-header{
+                            font-weight: bold;
+                            border: 1px solid black;
+                            font-size:10px;
+                        }
+                        .erp-table-body{
+                            border: 1px solid black;
+                            font-size:10px;
+                        }
+                        .erp-bg-color-green{
+                            background-color:#9bbb59;
+                        }
+                        .erp-bg-color-yellow{
+                            background-color:#ffe599;
+                        }
+                    </style>
+                    <br/>
+                    <br/>
+                    <div class="mt32 mb32">
+                        <center>
+                            <h2>
+                                Payroll Information<span/>
+                            </h2>
+                        </center>
+                    </div>
+                    <div class="mt32 mb32">
+                        <div class="text-center erp-text">
+                            <strong>From:</strong>
+                            <span t-esc="data['date_from']"/>
+                            <strong>To:</strong>
+                            <span t-esc="data['date_to']"/>
+                        </div>
+                    </div>
+                    <table class="table table-condensed table-sm">
+                        <tr class="border-black erp-bg-color-green">
+                            <td class="text-center erp-text erp-table-header" rowspan="2">
+                                <strong>No</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>ID NO</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Name</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Sex</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Position</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Bank Detail</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Bank Account</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Group Project</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Start Date</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Basic Salary</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>WorkingDay/Month</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>AL Remaining(Days)</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Allowance</strong>
+                            </td>
+                            <td colspan="3" class="text-center erp-text erp-table-header">
+                                <strong>OT(Hours)</strong>
+                            </td>
+                            <td colspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Deduction(Days)</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Adjust Day</strong>
+                            </td>
+                            <td colspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Dependents</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Remarks</strong>
+                            </td>
+                        </tr>
+
+                        <tr class="border-black erp-bg-color-green">
+
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Holiday(x2)</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>WorkingDay(x2)</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Weekend(x2)</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>AbsentDays</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>ALOver</strong>
+                            </td>
+
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Child</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Spouse</strong>
+                            </td>
+
+                        </tr>
+                        <t t-set="no" t-value="0"/>
+                        <t t-set="total_basic" t-value="0"/>
+                        <t t-set="total_working_day" t-value="0"/>
+                        <t t-set="total_remain_al" t-value="0"/>
+                        <t t-set="allowance" t-value="0"/>
+                        <t t-set="total_ot_ph" t-value="0"/>
+                        <t t-set="total_ot_working_day" t-value="0"/>
+                        <t t-set="total_ot_weekend" t-value="0"/>
+                        <t t-set="total_absent" t-value="0"/>
+                        <t t-set="total_unpaid" t-value="0"/>
+                        <t t-set="total_adjust" t-value="0"/>
+                        <t t-set="total_child" t-value="0"/>
+                        <t t-set="total_spouse" t-value="0"/>
+                        <tr t-foreach="get_payroll_info" t-as="con" class="border-black">
+                            <t t-set="no" t-value="no+1"/>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-esc="no"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-field="con.employee_id.device_id"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-field="con.employee_id.name"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-if="con.employee_id.gender" t-field="con.employee_id.gender"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-if="con.employee_id.job_id" t-field="con.employee_id.job_id.name"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-if="con.employee_id.bank_account_id.bank_id" t-field="con.employee_id.bank_account_id.bank_id.name"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-if="con.employee_id.bank_account_id" t-field="con.employee_id.bank_account_id.acc_number"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-if="con.employee_id.department_id" t-field="con.department_id.name"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-if="con.date_start" t-field="con.date_start"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-if="con.wage" t-field="con.wage"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <!--<span t-if="con.resource_calendar_id" t-field="con.resource_calendar_id.day_per_month"/>-->
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                AL
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-if="con.allowance" t-field="con.allowance"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-field="con.ot_ph"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-field="con.ot_working_day"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-field="con.ot_weekend"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                -
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-field="con.unpaid_num"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                -
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-esc="con.employee_id.children"/> person
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-esc="con.employee_id.spouse_number"/> person
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                -
+                            </td>
+                            <t t-set="total_basic" t-value="total_basic+con.wage"/>
+                            <!--<t t-if="con.employee_id.resource_calendar_ids" t-set="total_working_day" t-value="total_working_day+con.employee_id.resource_calendar_ids.day_per_month"/>-->
+                            <t t-set="total_remain_al" t-value="total_remain_al"/>
+                            <t t-set="allowance" t-value="allowance+con.allowance"/>
+                            <t t-set="total_ot_ph" t-value="total_ot_ph+con.ot_ph"/>
+                            <t t-set="total_ot_working_day" t-value="total_ot_working_day+con.ot_working_day"/>
+                            <t t-set="total_ot_weekend" t-value="total_ot_weekend+con.ot_weekend"/>
+                            <t t-set="total_absent" t-value="total_absent"/>
+                            <t t-set="total_unpaid" t-value="total_unpaid+con.unpaid_num"/>
+                            <t t-set="total_adjust" t-value="total_adjust"/>
+                            <t t-set="total_child" t-value="total_child+con.employee_id.children"/>
+                            <t t-set="total_spouse" t-value="total_spouse+con.employee_id.spouse_number"/>
+                        </tr>
+                        <tr class="border-black erp-bg-color-yellow">
+                            <td colspan="9" class="text-right erp-text erp-table-header">
+                                <strong>Total</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>$ <span t-esc="total_basic"/> </strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_working_day"/></strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_remain_al"/></strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>$ <span t-esc="allowance"/></strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_ot_ph"/></strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_ot_working_day"/></strong>
+                            </td><td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_ot_weekend"/></strong>
+                            </td><td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_absent"/></strong>
+                            </td><td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_unpaid"/></strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_adjust"/></strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_child"/> person</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_spouse"/> person</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong/>
+                            </td>
+
+                        </tr>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

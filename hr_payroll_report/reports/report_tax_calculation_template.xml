@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Payroll Calculation Template -->
+    <template id="report_tax_calculation_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <style type="text/css">
+                        .erp-text{
+                            font-size: 10px;
+                            font-family: 'Battambang';
+                        }
+                        .erp-border{
+                            border: 1px solid black;
+                        }
+                        .erp-table-header{
+                            font-weight: bold;
+                            border: 1px solid black;
+                            font-size:10px;
+                        }
+                        .erp-table-body{
+                            border: 1px solid black;
+                            font-size:10px;
+                        }
+                        .erp-bg-color-green{
+                            background-color:#9bbb59;
+                        }
+                        .erp-bg-color-yellow{
+                            background-color:#ffe599;
+                        }
+                    </style>
+                    <br />
+                    <br />
+                    <!--Title-->
+                    <div class="mt32 mb32">
+                        <h2 align="center" style="font-weight: bold;">
+                            Tax Calculation
+                        </h2>
+                    </div>
+                    <div class="mt32 mb32">
+                        <div class="text-left erp-text">
+                            <strong>From:</strong>
+                            <span t-esc="data['date_from']" />
+                            <strong>To:</strong>
+                            <span t-esc="data['date_to']" />
+                        </div>
+                        <div class="text-left erp-text">
+                            <strong>Rate:</strong>
+<!--                            <span t-esc="data['date_from']" />-->
+                        </div>
+                    </div>
+
+                    <!--Main Table-->
+                    <table class="table table-condensed table-sm">
+                        <tr class="border-black erp-bg-color-green">
+                            <td class="text-center erp-text erp-table-header" rowspan="2">
+                                <strong>No</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Name</strong>
+                            </td>
+
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Position</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Group Project</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Payment Method</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Basic Salary</strong>
+                            </td>
+                            <td colspan="3" class="text-center erp-text erp-table-header">
+                                <strong>Addition</strong>
+                            </td>
+                            <td colspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Deduction(Days)</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Adjust</strong>
+                            </td>
+                            <td colspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Gross Salary</strong>
+                            </td>
+                            <td colspan="3" class="text-center erp-text erp-table-header">
+                                <strong>Number of Dependents</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Allowance on Tax</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Tax Base Salary</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Tax Rate</strong>
+                            </td>
+                            <td colspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Tax on Salary</strong>
+                            </td>
+                            <td rowspan="2" class="text-center erp-text erp-table-header">
+                                <strong>Net Salary</strong>
+                            </td>
+                        </tr>
+                        <tr class="border-black erp-bg-color-green">
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>AL</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Allowance</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Overtime</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Absent</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>OverAL</strong>
+                            </td>
+<!--                            <td class="text-center erp-text erp-table-header">-->
+<!--                                <span> Adjust </span>-->
+<!--                            </td>-->
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>USD</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>In Riel</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Child</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Spouse</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>Total</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>In Riel</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>In Riel</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>%</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>In Riel</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong>USD</strong>
+                            </td>
+                        </tr>
+
+                        <t t-set="no" t-value="0"/>
+                        <t t-set="total_basic_salary" t-value="0"/>
+                        <t t-set="total_remain_al" t-value="0"/>
+                        <t t-set="total_allowance" t-value="0"/>
+                        <t t-set="total_overtime" t-value="0"/>
+                        <t t-set="total_gross_usd" t-value="0"/>
+                        <t t-set="total_gross_khr" t-value="0"/>
+                        <t t-set="total_allowance_tax" t-value="0"/>
+                        <t t-set="total_tax_base_salary" t-value="0"/>
+                        <t t-set="total_tax_salary_khr" t-value="0"/>
+                        <t t-set="total_tax_salary_usd" t-value="0"/>
+                        <t t-set="total_net" t-value="0"/>
+                        <t t-set="total_child" t-value="0"/>
+                        <t t-set="total_spouse" t-value="0"/>
+                        <t t-set="total_person" t-value="0"/>
+
+                        <!--Iteration-->
+                        <tr t-foreach="get_tax_calculation" t-as="slip" class="border-black">
+                            <t t-set="no" t-value="no+1"/>
+                            <t t-set="lines" t-value="slip.line_ids.sorted(key=lambda l: (-l.sequence, -l.id), reverse=True)"/>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-esc="no" />
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-field="slip.employee_id.name" />
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-if="slip.employee_id.job_id" t-field="slip.employee_id.job_id.name" />
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span> - </span>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-if="slip.employee_id.bank_account_id.bank_id" t-field="slip.employee_id.bank_account_id.bank_id.name" />
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-field="slip.contract_id.wage"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <t t-foreach="slip.line_ids" t-as="line">
+                                    <span t-if="line.code == 'AL'" t-esc="line.amount"
+                                        t-options='{"widget": "monetary", "display_currency": slip.company_id.currency_id}'>
+                                    </span>
+                                    <t t-if="line.code == 'AL'"
+                                       t-set="total_remain_al" t-value="total_remain_al + line.amount"/>
+                                </t>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <t t-foreach="slip.line_ids" t-as="line">
+                                    <span t-if="line.code == 'TOTALALW'" t-esc="line.amount"
+                                        t-options='{"widget": "monetary", "display_currency": slip.company_id.currency_id}'/>
+                                    <t t-if="line.code == 'TOTALALW'"
+                                       t-set="total_allowance" t-value="total_allowance + line.amount"/>
+                                </t>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <t t-foreach="slip.line_ids" t-as="line">
+                                    <span t-if="line.code == 'OT100'" t-esc="line.amount"
+                                        t-options='{"widget": "monetary", "display_currency": slip.company_id.currency_id}'/>
+                                    <t t-if="line.code == 'OT100'"
+                                       t-set="total_overtime" t-value="total_overtime + line.amount"/>
+                                </t>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span> - </span>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span> - </span>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span> - </span>
+                            </td>
+
+                            <td class="text-center erp-text erp-table-body">
+                                <t t-foreach="slip.line_ids" t-as="line">
+                                    <span t-if="line.code == 'GROSS'" t-esc="line.amount"
+                                        t-options='{"widget": "monetary", "display_currency": slip.company_id.currency_id}'/>
+                                    <t t-if="line.code == 'GROSS'"
+                                       t-set="total_gross_usd" t-value="total_gross_usd + line.amount"/>
+                                </t>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <t t-foreach="slip.line_ids" t-as="line">
+                                    <span t-if="line.code == 'GROSS'" t-esc="line.amount * slip.khr_currency_id.rate"
+                                        t-options='{"widget": "monetary", "display_currency": slip.khr_currency_id}'/>
+                                    <t t-if="line.code == 'GROSS'"
+                                       t-set="total_gross_khr" t-value="total_gross_khr + (line.amount * slip.khr_currency_id.rate)"/>
+                                </t>
+                            </td>
+
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-esc="slip.employee_id.children"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-esc="slip.employee_id.spouse_number"/>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <span t-esc="slip.employee_id.children + slip.employee_id.spouse_number"/> Person
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <t t-foreach="slip.line_ids" t-as="line">
+<!--                                    ALWONTAX in USD convert to Riel-->
+                                    <span t-if="line.code == 'ALWONTAX'" t-esc="line.amount * slip.khr_currency_id.rate"
+                                        t-options='{"widget": "monetary", "display_currency": slip.khr_currency_id}'/>
+                                    <t t-if="line.code == 'ALWONTAX'"
+                                       t-set="total_allowance_tax" t-value="total_allowance_tax + (line.amount * slip.khr_currency_id.rate)"/>
+                                </t>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <t t-foreach="slip.line_ids" t-as="line">
+                                    <span t-if="line.code == 'TAXBASE'" t-esc="line.amount * slip.khr_currency_id.rate"
+                                        t-options='{"widget": "monetary", "display_currency": slip.khr_currency_id}'/>
+                                    <t t-if="line.code == 'TAXBASE'"
+                                       t-set="total_tax_base_salary" t-value="total_tax_base_salary + (line.amount * slip.khr_currency_id.rate)"/>
+                                </t>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <t t-foreach="slip.line_ids" t-as="line">
+                                    <t t-if="line.code == 'TAXBASE'">
+                                        <!--Tax Rate-->
+                                        <span t-if="line.amount * slip.khr_currency_id.rate &lt;= 1300000"> 0% </span>
+                                        <span t-if="line.amount * slip.khr_currency_id.rate &gt;= 1300001
+                                        and line.amount * slip.khr_currency_id.rate &lt;= 2000000"> 5% </span>
+                                        <span t-if="line.amount * slip.khr_currency_id.rate &gt;= 2000001
+                                        and line.amount * slip.khr_currency_id.rate &lt;= 8500000"> 10% </span>
+                                        <span t-if="line.amount * slip.khr_currency_id.rate &gt;= 8500001
+                                        and line.amount * slip.khr_currency_id.rate &lt;= 12500000"> 15% </span>
+                                        <span t-if="line.amount * slip.khr_currency_id.rate &gt; 12500000"> 20% </span>
+                                    </t>
+                                </t>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <t t-foreach="slip.line_ids" t-as="line">
+                                    <span t-if="line.code == 'TAXONSALARY'" t-esc="line.amount * slip.khr_currency_id.rate"
+                                        t-options='{"widget": "monetary", "display_currency": slip.khr_currency_id}'/>
+                                    <t t-if="line.code == 'TAXONSALARY'"
+                                       t-set="total_tax_salary_khr" t-value="total_tax_salary_khr + (line.amount * slip.khr_currency_id.rate)"/>
+                                </t>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <t t-foreach="slip.line_ids" t-as="line">
+                                    <span t-if="line.code == 'TAXONSALARY'" t-esc="line.amount"
+                                        t-options='{"widget": "monetary", "display_currency": slip.company_id.currency_id}'/>
+                                    <t t-if="line.code == 'TAXONSALARY'"
+                                       t-set="total_tax_salary_usd" t-value="total_tax_salary_usd + line.amount"/>
+                                </t>
+                            </td>
+                            <td class="text-center erp-text erp-table-body">
+                                <t t-foreach="slip.line_ids" t-as="line">
+                                    <span t-if="line.code == 'NET'" t-esc="line.amount"
+                                        t-options='{"widget": "monetary", "display_currency": slip.company_id.currency_id}'/>
+                                    <t t-if="line.code == 'NET'"
+                                       t-set="total_net" t-value="total_net + line.amount"/>
+                                </t>
+                            </td>
+
+                            <t t-set="total_basic_salary" t-value="total_basic_salary + slip.contract_id.wage"/>
+                            <t t-set="total_child" t-value="total_child + slip.employee_id.children"/>
+                            <t t-set="total_spouse" t-value="total_spouse + slip.employee_id.spouse_number"/>
+                            <t t-set="total_person" t-value="total_child + total_spouse"/>
+                        </tr>
+
+                        <!--Yellow Row-->
+                        <tr class="border-black erp-bg-color-yellow">
+                            <td colspan="5" class="text-right erp-text erp-table-header">
+                                <strong>Sub Total</strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <span t-esc="total_basic_salary"
+                                      t-options='{"widget": "monetary", "display_currency": get_tax_calculation.company_id.currency_id}'/>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <span t-esc="total_remain_al"
+                                      t-options='{"widget": "monetary", "display_currency": get_tax_calculation.company_id.currency_id}'/>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <span t-esc="total_allowance"
+                                      t-options='{"widget": "monetary", "display_currency": get_tax_calculation.company_id.currency_id}'/>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <span t-esc="total_overtime"
+                                      t-options='{"widget": "monetary", "display_currency": get_tax_calculation.company_id.currency_id}'/>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span> - </span></strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span> - </span></strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span> - </span></strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <span t-esc="total_gross_usd"
+                                      t-options='{"widget": "monetary", "display_currency": get_tax_calculation.company_id.currency_id}'/>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <span t-esc="total_gross_khr"
+                                      t-options='{"widget": "monetary", "display_currency": get_tax_calculation.khr_currency_id}'/>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_child"/></strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_spouse"/></strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <strong><span t-esc="total_person"/></strong>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <span t-esc="total_allowance_tax"
+                                      t-options='{"widget": "monetary", "display_currency": get_tax_calculation.khr_currency_id}'/>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <span t-esc="total_tax_base_salary"
+                                      t-options='{"widget": "monetary", "display_currency": get_tax_calculation.khr_currency_id}'/>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <span> - </span>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <span t-esc="total_tax_salary_khr"
+                                      t-options='{"widget": "monetary", "display_currency": get_tax_calculation.khr_currency_id}'/>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <span t-esc="total_tax_salary_usd"
+                                      t-options='{"widget": "monetary", "display_currency": get_tax_calculation.company_id.currency_id}'/>
+                            </td>
+                            <td class="text-center erp-text erp-table-header">
+                                <span t-esc="total_net"
+                                      t-options='{"widget": "monetary", "display_currency": get_tax_calculation.company_id.currency_id}'/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

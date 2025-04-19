@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--Form view for print_payroll_information -->
+    <record id="print_payroll_information_wizard_form_view" model="ir.ui.view">
+        <field name="name">print.payroll.wizard.form</field>
+        <field name="model">print.payroll.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Payroll Information">
+                <group col="4">
+                    <field name="date_from" />
+                    <field name="date_to" />
+                </group>
+                <group col="4">
+                    <field name="company_id" />
+                </group>
+                <footer>
+                    <button
+                        name='report_print_payroll_info'
+                        string="Payroll Info"
+                        type="object"
+                        icon="fa-level-down"
+                        class="btn btn-primary"
+                    />
+                    <button
+                        special="cancel"
+                        string="Cancel"
+                        icon="fa-close"
+                        class="btn btn-primary"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!--Form view for tax_calculation -->
+    <record id="print_payroll_tax_calculation_wizard_form_view" model="ir.ui.view">
+        <field name="name">print.tax.wizard.form</field>
+        <field name="model">print.tax.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Tax Calculation">
+                <group col="4">
+                    <field name="date_from" />
+                    <field name="date_to" />
+                </group>
+                <group col="4">
+                    <field name="company_id" />
+                </group>
+                <footer>
+                    <button
+                        name='report_print_tax_calculation'
+                        string="Tax Calculation"
+                        type="object"
+                        icon="fa-level-down"
+                        class="btn btn-primary"
+                    />
+                    <button
+                        special="cancel"
+                        string="Cancel"
+                        icon="fa-close"
+                        class="btn btn-primary"
+                    />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!--Action for payroll information wizard -->
+    <record id="action_print_payroll_wizard" model="ir.actions.act_window">
+        <field name="name">Print Payroll Info Report</field>
+        <field name="res_model">print.payroll.wizard</field>
+        <field name="binding_view_types">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!--Action for tax calculation wizard -->
+    <record id="action_print_tax_wizard" model="ir.actions.act_window">
+        <field name="name">Print Tax Calculation Report</field>
+        <field name="res_model">print.tax.wizard</field>
+        <field name="binding_view_types">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem
+        id="wizard_print_payroll_menu"
+        name="Payroll Info Report"
+        action="action_print_payroll_wizard"
+        parent="hr_payroll.menu_hr_payroll_report"
+        sequence="29"
+        groups="hr_payroll.group_hr_payroll_manager"
+    />
+
+    <menuitem
+        id="wizard_print_tax_menu"
+        name="Tax Calculation"
+        action="action_print_tax_wizard"
+        parent="hr_payroll.menu_hr_payroll_report"
+        sequence="30"
+        groups="hr_payroll.group_hr_payroll_manager"
+    />
+</odoo>
