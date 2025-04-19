@@ -1,0 +1,365 @@
+<t t-name="hr_payroll.report_payslip">
+    <t t-call="report_layout_template.external_layout_erp_cambodia_no_head">
+                    <!--HEAD-->
+                    <t t-if="not company">
+                        <!-- Multicompany -->
+                        <t t-if="company_id">
+                            <t t-set="company" t-value="company_id"/>
+                        </t>
+                        <t t-elif="o and 'company_id' in o and o.company_id.sudo()">
+                            <t t-set="company" t-value="o.company_id.sudo()"/>
+                        </t>
+                        <t t-else="else">
+                            <t t-set="company" t-value="res_company"/>
+                        </t>
+                    </t>
+
+                    <style type="text/css">
+
+                        @font-face {
+                        font-family: Battambang;
+                        font-style: normal;
+                        src:url('/report_layout_template/static/src/fonts/KhmerOS_battambang.ttf') format('truetype');
+                        }
+                        .erp-title{
+                        font-size: 24px;
+                        font-family: Battambang;
+                        padding-bottom: 3px;
+                        <!--background-color: #FFFFFF;-->
+                        <!--color: #000000;-->
+                        <!--font-weight: bold;-->
+                        }
+                        .erp-text{
+                        font-size: 12px;
+                        font-family: Battambang;
+                        padding-bottom: 2px;
+                        <!--background-color: #FFFFFF;-->
+                        <!--color: #000000;-->
+                        }
+                        .erp-border{
+                        border: 1px solid black;
+                        }
+                        .erp-table-header{
+                        font-weight: bold;
+                        border: 1px solid black;
+                        font-size:12px;
+                        }
+                        .erp-table-body{
+                        border: 1px solid black;
+                        font-size:12px;
+                        }
+                    </style>
+                    <div class="o_center_header">
+                            <div class="row mb8">
+                                <div class="col-2 mb2">
+                                    <!--<img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" style="max-height: 60px; margin-top:10px;"/>-->
+                                </div>
+                                <div class="col-8 mb6" style="margin-top:10px;">
+                                    <!--<h3 class="mt0 erp-title text-center " t-field="company.partner_id.kh_name"/>-->
+                                    <h3 class="mt0 erp-title text-center " t-field="company.partner_id.kh_name">ត្រាស់ គ្លូប៊ល សឺវីស</h3>
+                                    <h4 class="mt0 text-center erp-title-en" t-field="company.partner_id.name"/>
+                                    <!--<div name="company_address" class="float-center mb6">-->
+                                    <!--    <ul class="list-unstyled erp-text text-center">-->
+                                    <!--        <li style="font-family: 'Battambang'; font-size:12px;" t-if="company.partner_id.vat">លេខអត្តសញ្ញាណកម្ម អតប (VATTIN): <strong><span t-field="company.partner_id.vat"/></strong></li>-->
+                                    <!--        <li style="font-family: 'Battambang'; font-size:12px;" t-if="company.partner_id.address_kh">អាសយដ្ឋាន: <span t-field="company.partner_id.address_kh"/></li>-->
+
+                                    <!--        <li style="font-size:12px;">ទូរស័ព្ទលេខ: <span class="" t-field="company.partner_id.phone"/> / ទូរសារលេខ: <span class="" t-field="company.partner_id.mobile"/></li>-->
+                                    <!--        <li t-if="company.partner_id.website">Website: <span t-field="company.partner_id.website"/></li>-->
+                                    <!--    </ul>-->
+                                    <!--</div>-->
+                                </div>
+                                <div class="col-2 mb2">
+                                    <span/>
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top: 10px;">
+                                <div class="col-12" style="border-bottom: 1px solid black;"/>
+                            </div>
+                        </div>
+                    <div style="border-bottom: 1px solid black;"/>
+                    <br/>
+
+                    <page>
+                        <h4 class="text-center erp-title">
+                            SALARY-CALCULATION TIME SHEET
+                        </h4>
+
+                        <div class="row erp-border border-black">
+                            <div class="col-4 erp-border border-black">
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        EMPL. ID
+                                    </div>
+                                    <div class="col-7">
+                                        :
+                                        <strong>
+                                            <span class="erp-text" t-esc="o.employee_id.registration_number"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        EMPL. NAME
+                                    </div>
+                                    <div class="col-7">
+                                        :
+                                        <strong>
+                                            <span class="erp-text" t-esc="o.employee_id.name"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        CONTACT
+                                    </div>
+                                    <div class="col-7">
+                                        :
+                                        <strong>
+                                            <span class="erp-text" t-esc="o.employee_id.work_phone"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        POSITION
+                                    </div>
+                                    <div class="col-7">
+                                        :
+                                        <strong>
+                                            <span class="erp-text" t-esc="o.employee_id.job_id.name"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-4 erp-border border-black">
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        DOB
+                                    </div>
+                                    <div class="col-7">
+                                        :
+                                        <strong>
+                                            <span class="erp-text" t-esc="o.employee_id.birthday"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        AGE
+                                    </div>
+                                    <div class="col-7">
+                                        :
+                                        <strong>
+                                            <!--<span class="erp-text" t-esc="o.employee_id.age"/>-->
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        EMPL DATE
+                                    </div>
+                                    <div class="col-7">
+                                        :
+                                        <strong>
+                                            <span class="erp-text" t-esc="o.employee_id.first_contract_date"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        W-PERIOD
+                                    </div>
+                                    <div class="col-7">
+                                        :
+                                        <strong>
+                                            <!--<span class="erp-text" t-esc="o.employee_id.name"/>-->
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-4 erp-border border-black">
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        MONTH
+                                    </div>
+                                    <div class="col-7">
+                                        :
+                                        <strong>
+                                            <span class="erp-text" t-esc="o.payslip_run_id.name"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        START
+                                    </div>
+                                    <div class="col-7">
+                                        :
+                                        <strong>
+                                            <span class="erp-text" t-esc="o.date_from"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        END
+                                    </div>
+                                    <div class="col-7">
+                                        :
+                                        <strong>
+                                            <span class="erp-text" t-esc="o.date_to"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5 erp-text">
+                                        DEPARTMENT
+                                    </div>
+                                    <div class="col-7">
+                                        :
+                                        <strong>
+                                            <span class="erp-text" t-esc="o.employee_id.department_id.name"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br/>
+                        <table class="table table-sm o_main_table table-border border-black">
+                            <thead>
+                                <tr class="erp-border border-black">
+                                    <!--<th class="erp-border border-black">-->
+                                    <!--    <span></span>-->
+                                    <!--</th>-->
+                                    <th class="text-center erp-border border-black">
+                                        <span>DESCRIPTIOIN</span>
+                                    </th>
+                                    <th class="text-center erp-border border-black">
+                                        <span>AMOUNT</span>
+                                    </th>
+                                </tr>
+                            </thead>
+
+
+                            <tbody>
+                                <t t-foreach="o.line_ids" t-as="line">
+                                    <tr class="erp-border border-black">
+                                        <!--<td class="erp-border border-black">-->
+                                            <!--<span class="erp-text" t-esc="line.salary_rule_id.khmer_name"/>-->
+                                        <!--</td>-->
+                                        <td class="erp-border border-black">
+                                            <span class="erp-text" t-esc="line.salary_rule_id.name"/>
+                                        </td>
+                                        <td class="text-center erp-border border-black">
+                                            <span class="erp-text" t-esc="line.total"/>
+                                        </td>
+                                    </tr>
+                                </t>
+
+                            </tbody>
+
+                        </table>
+                        <table class="table table-sm o_main_table table-border border-black">
+                            <tr class="erp-border border-black">
+                                <td class="erp-text erp-border border-black" colspan="3">
+                                    ប្រសិនបើ៖
+                                </td>
+                            </tr>
+                            <tr class="erp-border border-black">
+                                <td class="erp-text">
+                                    -មូលដ្ឋានគិតពន្ធលើប្រាក់បៀវត្ស មានចំនួនចាប់ពី សូន្យរៀល ដល់ ១ ៥០០ ០០០រៀល
+                                    ត្រូវជាប់ពន្ធតាមអត្រា
+                                </td>
+                                <td class="erp-text">
+                                    ០%
+                                </td>
+                                <td class="erp-text">
+
+                                </td>
+                            </tr>
+                            <tr class="erp-border border-black">
+                                <td class="erp-text">
+                                    -មូលដ្ឋានគិតពន្ធលើប្រាក់បៀវត្ស មានចំនួនចាប់ពី ១ ៥០០ ០០១រៀល ដល់ ២ ០០០ ០០០រៀល
+                                    ត្រូវជាប់ពន្ធតាមអត្រា
+                                </td>
+                                <td class="erp-text">
+                                    ៥%
+                                </td>
+                                <td class="erp-text">
+                                    វិធីគណនា = [មូលដ្ឋានគិតពន្ធលើបៀវត្ស x ៥% ] - ៧៥ ០០០៛
+                                </td>
+                            </tr>
+
+                            <tr class="erp-border border-black">
+                                <td class="erp-text">
+                                    -មូលដ្ឋានគិតពន្ធលើប្រាក់បៀវត្ស មានចំនួនចាប់ពី ២ ០០០ ០០១រៀល ដល់ ០៨ ៥០០ ០០០រៀល
+                                    ត្រូវជាប់ពន្ធតាមអត្រា
+                                </td>
+                                <td class="erp-text">
+                                    ១០%
+                                </td>
+                                <td class="erp-text">
+                                    វិធីគណនា = [មូលដ្ឋានគិតពន្ធលើបៀវត្ស x ១០% ] - ១៧៥ ០០០៛
+                                </td>
+                            </tr>
+
+                            <tr class="erp-border border-black">
+                                <td class="erp-text">
+                                    -មូលដ្ឋានគិតពន្ធលើប្រាក់បៀវត្ស មានចំនួនចាប់ពី ០៨ ៥០០ ០០១រៀល ដល់ ១២ ៥០០ ០០០រៀល
+                                    ត្រូវជាប់ពន្ធតាមអត្រា
+                                </td>
+                                <td class="erp-text">
+                                    ១៥%
+                                </td>
+                                <td class="erp-text">
+                                    វិធីគណនា = [មូលដ្ឋានគិតពន្ធលើបៀវត្ស x ១៥% ] - ៦០០ ០០០៛
+                                </td>
+                            </tr>
+                            <tr class="erp-border border-black">
+                                <td class="erp-text">
+                                    -មូលដ្ឋានគិតពន្ធលើប្រាក់បៀវត្ស មានចំនួនចាប់ពី ១២ ៥០០ ០០១រៀល ឡើងទៅ
+                                    ត្រូវជាប់ពន្ធតាមអត្រា
+                                </td>
+                                <td class="erp-text">
+                                    ២០%
+                                </td>
+                                <td class="erp-text">
+                                    វិធីគណនា = [មូលដ្ឋានគិតពន្ធលើបៀវត្ស x ២០% ] - ១​ ២២៥ ០០០៛
+                                </td>
+                            </tr>
+
+                        </table>
+
+                        <br/>
+                        <div class="row">
+                          <div class="col-6">
+                            <!--<div class="erp-text">-->
+                            <!--  Bank Name: <span/>-->
+                            <!--</div>-->
+                            <!--<div class="erp-text">-->
+                            <!--  Account Name: <span/>-->
+                            <!--</div>-->
+                            <!--<div class="erp-text">-->
+                            <!--  Account Number: <span/>-->
+                            <!--</div>-->
+                          </div>
+                          <div class="col-2"/>
+                          <div class="col-4">
+                            <div class="erp-text text-center">Sincerely yours,</div>
+
+                            <div style="border-bottom: 1px solid black; margin-top: 100px; margin-bottom: 5px;"/>
+                            <div class="erp-text">Mr. Leang Sopheng</div>
+                            <div class="erp-text">Chief Executive Officer</div>
+                            <div class="erp-text"><span t-esc="o.company_id.name"/></div>
+                          </div>
+                        </div>
+
+
+
+                    </page>
+
+                </t>
+</t>
