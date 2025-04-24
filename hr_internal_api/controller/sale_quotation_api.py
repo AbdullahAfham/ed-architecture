@@ -334,9 +334,9 @@ class SaleQuotationAPI(http.Controller):
                     'subtotal': line.price_subtotal,
                     'order_line_id': line.id } for line in sale.order_line
                 ],
-                "subtotal": sale.amount_untaxed,
-                "tax": sale.amount_tax,
-                "total": sale.amount_total
+                "subtotal": sale.currency_id.format(sale.amount_untaxed),
+                "tax": sale.currency_id.format(sale.amount_tax),
+                "total": sale.currency_id.format(sale.amount_total)
             }
         } for sale in sale_quotations]
 
