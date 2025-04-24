@@ -46,6 +46,37 @@ class ScanQrAttendance(models.Model):
         ('afternoon', 'Afternoon')
     ], string='Day Period', store=True)
 
+    # def _assign_day_period(self):
+    #     print(f"=== _assign_day_period ===")
+    #     for rec in self:
+    #         rec.day_period = False
+
+    #         if not rec.scan_time or not rec.resource_calendar_id or not rec.scan_type:
+    #             continue
+
+    #         # Convert scan time to user's local timezone
+    #         scan_time = rec.scan_time.astimezone(
+    #             timezone(self.env.user.partner_id.tz or 'Asia/Bangkok')).replace(tzinfo=None)
+    #         scan_hour = scan_time.hour + scan_time.minute / 60.0
+
+    #         # Get morning attendance slots from calendar
+    #         calendar = rec.resource_calendar_id
+    #         morning_attendances = calendar.attendance_ids.filtered(lambda a: a.day_period == 'morning')
+
+    #         if morning_attendances:
+    #             # Filter for current weekday
+    #             weekday = str(scan_time.weekday())  # Monday = 0
+    #             today_morning = morning_attendances.filtered(lambda a: a.dayofweek == weekday)
+    #             morning_end = today_morning[0].hour_to if today_morning else 12.0
+    #             print(f"=== [get] weekday: {weekday}, morning_end: {morning_end}")
+    #         else:
+    #             print("=== [warn] No morning attendance configured, using default morning_end = 12.0")
+    #             morning_end = 12.0
+
+    #         # Compare scan time to end of morning
+    #         rec.day_period = 'morning' if scan_hour < morning_end else 'afternoon'
+    #         print(f"=== [done] assigned day_period: {rec.day_period}")
+
     def _assign_day_period(self):
         print(f"=== _assign_day_period ===")
         for rec in self:
@@ -139,7 +170,8 @@ class ScanQrAttendance(models.Model):
             self.env['hr.attendance'].create_attendance(
                 date=rec.date,
                 employee=rec.employee_id,
-                resource_calendar=rec.resource_calendar_id
+                resource_calendar=rec.resource_calendar_id,
+                day_period=rec.day_period
             )
 
     def compute_scan_qr_attendance_late_status(self):

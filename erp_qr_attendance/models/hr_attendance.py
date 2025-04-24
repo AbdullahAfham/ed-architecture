@@ -112,7 +112,7 @@ class HrAttendance(models.Model):
 
     def _assign_day_period(self, period=None):
         """ Update day_period in `self` if day_period provided.
-        Otherwise, find the matching period of the punch_in float time within working schedule.
+        Otherwise, find the matching period of the check_in float time within working schedule.
 
         :param: day_period: either `morning` or `afternoon`
         :return: None
@@ -121,22 +121,22 @@ class HrAttendance(models.Model):
             self.day_period = period
 
         # day_period in `self` is already set
-        if self.punch_in and self.day_period:
+        if self.check_in and self.day_period:
             return
         
-        # to get weekday correctly, aware punch_in is needed (+7 hours)
-        punch_in = self.punch_in + timedelta(hours=7)
+        # to get weekday correctly, aware check_in is needed (+7 hours)
+        check_in = self.check_in + timedelta(hours=7)
 
         # for create attendance manually, either `work_schedule_id` or `calendar_id` need to defined
         calendar = self.work_schedule_id or self.calendar_id
 
-        # find out whether an aware `punch_in` is already ended or not
-        end_of_morning = calendar._is_end_of_session(punch_in, 'morning')
+        # find out whether an aware `check_in` is already ended or not
+        end_of_morning = calendar._is_end_of_session(check_in, 'morning')
         
         self.day_period = 'afternoon' if end_of_morning else 'morning'
 
-    # Action view scans 
     def action_view(self):
+        # search scan logs records
         for attendance in self:
             scan_qr_logs = self.env['scan.qr.attendance'].search([
                 ('employee_id', '=', attendance.employee_id.id),
@@ -149,7 +149,6 @@ class HrAttendance(models.Model):
         result.pop('id', None)
         result['context'] = {}
         result['domain'] = [('id', 'in', self.line_ids.ids)]
-        
         line_ids = len(self.line_ids)
         if line_ids == 1:
             res = self.env.ref('erp_qr_attendance.scan_qr_attendance_form_view', False)
@@ -157,8 +156,8 @@ class HrAttendance(models.Model):
             result['res_id'] = self.line_ids[0].id
         return result
 
-    # Action view leaves
     def action_view_leaves(self):
+        # search leave records
         for attendance in self:
             leaves = self.env['hr.leave'].search([
                 ('employee_id', '=', attendance.employee_id.id),
@@ -276,14 +275,126 @@ class HrAttendance(models.Model):
 
         return 1 if late_in_minutes > buffer_minutes else 0
 
-    def create_attendance(self, date, employee, resource_calendar):
-        print(f"=== create_attendance: {date}, {employee.name}")
-        # Assign default values for shift times
+    # def create_attendance(self, date, employee, resource_calendar):
+    #     # Assign default values for shift times
+    #     shift_check_in = shift_check_out = shift_break_in = shift_break_out = 0.0
+    #     resource_calendar_id = resource_calendar
+
+    #     domain = [('employee_id', '=', employee.id), ('status', '=', 'new')]
+
+    #     # Handle cross-day shifts
+    #     if resource_calendar_id.is_cross_day_shift:
+    #         date_now = datetime.now().astimezone(pytz.timezone(employee.tz))
+    #         shift_start_hour = min(resource_calendar_id.attendance_ids.mapped("hour_from"), default=0.0)
+
+    #         if date_now.hour < shift_start_hour:
+    #             date -= timedelta(days=1)
+
+    #         domain += [
+    #             ('scan_time', '>=', datetime.strptime(str(date), '%Y-%m-%d').replace(hour=12, minute=0, second=0)),
+    #             ('scan_time', '<=', datetime.strptime(str(date), '%Y-%m-%d').replace(hour=11, minute=59, second=59) + timedelta(days=1))
+    #         ]
+    #     else:
+    #         domain += [('date', '=', date)]
+
+    #     dayofweek = date.weekday()
+
+    #     # Find morning and afternoon shifts for the given weekday
+    #     working_hours = resource_calendar_id.attendance_ids.filtered(
+    #         lambda att: str(dayofweek) == str(att.dayofweek)
+    #     )
+
+    #     morning_shift = working_hours.filtered(lambda att: att.day_period == 'morning')
+    #     afternoon_shift = working_hours.filtered(lambda att: att.day_period == 'afternoon')
+    #     if morning_shift:
+    #         shift_check_in, shift_check_out = morning_shift.hour_from, morning_shift.hour_to
+    #     elif afternoon_shift:
+    #         shift_check_in, shift_check_out = afternoon_shift.hour_from, afternoon_shift.hour_to
+
+    #     # Find existing attendance records
+    #     attendances = self.env['hr.attendance'].search([
+    #         ('employee_id', '=', employee.id),
+    #         ('punching_day', '=', date)
+    #     ])
+
+    #     # flag true if both attendances for morning and afternoon are found
+    #     is_done = all([session in attendances.mapped('day_period') for session in ['morning', 'afternoon']])
+
+    #     # true if attendance in the morning is done
+    #     is_morning_done = attendances.filtered(lambda x: x.day_period == 'morning' and x.check_in != False and x.check_out != False)
+        
+    #     # Check if both morning and afternoon attendance already exist
+    #     # is_done = all(session in attendances.mapped('day_period') for session in ['morning', 'afternoon'])
+
+    #     # Find attendance to be updated (if necessary)
+    #     attendance_rec = None
+    #     if not is_done:
+    #         attendance_rec = attendances.filtered(lambda x: not x.check_out)
+
+    #     afternoon_attendance = attendances.filtered(lambda x: x.day_period == 'afternoon')
+    #     if afternoon_attendance.exists():
+    #         # Always update check_out for afternoon attendance
+    #         attendance_rec = afternoon_attendance
+
+    #     # Create attendance if not found
+    #     if not attendance_rec and not is_done and len(attendances) <= 2:
+    #         attendance_rec = self.env['hr.attendance'].create({
+    #             'employee_id': employee.id,
+    #             'punching_day': date,
+    #             'work_schedule_id': resource_calendar_id.id,
+    #             'shift_check_in': shift_check_in,
+    #             'shift_check_out': shift_check_out,
+    #             'shift_break_in': shift_break_in,
+    #             'shift_break_out': shift_break_out,
+    #             'state': 'absence',
+    #         })
+
+    #     # Update attendance record based on day_period
+    #     if attendance_rec:
+    #         _logger.info(f"=== day_period: {attendance_rec.day_period}")
+    #         if attendance_rec.day_period == 'morning':
+    #             attendance_rec.write({
+    #                 'shift_check_in': morning_shift.hour_from,
+    #                 'shift_check_out': morning_shift.hour_to
+    #             })
+    #         elif attendance_rec.day_period == 'afternoon':
+    #             attendance_rec.write({
+    #                 'shift_check_in': afternoon_shift.hour_from,
+    #                 'shift_check_out': afternoon_shift.hour_to
+    #             })
+
+    #     # Fetch scan logs for the employee
+    #     scan_logs = self.env['scan.qr.attendance'].search(domain)
+
+    #     # Process scan records
+    #     for rec in scan_logs:
+    #         if rec.scan_type == 'check_in':
+    #             print(f"=== scan type: check_in")
+    #             self._process_check_in(rec, attendance_rec)
+    #         elif rec.scan_type == 'check_out':
+    #             self._process_check_out(rec, attendance_rec)
+    #         elif rec.scan_type == 'break_out':
+    #             self._process_break_out(rec, attendance_rec)
+    #         elif rec.scan_type == 'break_in':
+    #             self._process_break_in(rec, attendance_rec)
+
+    #     # determine day_period of attendance
+    #     if is_morning_done:
+    #         attendance_rec._assign_day_period(period='afternoon')
+    #     else:
+    #         attendance_rec._assign_day_period()
+
+    #     return attendance_rec
+
+
+
+    def create_attendance(self, date, employee, resource_calendar, day_period):
+        print(f"=== create_attendance: {date}, {employee.name}, period: {day_period}")
         shift_check_in = shift_check_out = shift_break_in = shift_break_out = 0.0
         resource_calendar_id = resource_calendar
+
         domain = [('employee_id', '=', employee.id), ('status', '=', 'new')]
 
-        # Handle cross-day shifts
         if resource_calendar_id.is_cross_day_shift:
             date_now = datetime.now().astimezone(pytz.timezone(employee.tz))
             shift_start_hour = min(resource_calendar_id.attendance_ids.mapped("hour_from"), default=0.0)
@@ -300,43 +411,37 @@ class HrAttendance(models.Model):
 
         dayofweek = date.weekday()
 
-        # Find morning and afternoon shifts for the given weekday
         working_hours = resource_calendar_id.attendance_ids.filtered(
             lambda att: str(dayofweek) == str(att.dayofweek)
         )
 
         morning_shift = working_hours.filtered(lambda att: att.day_period == 'morning')
         afternoon_shift = working_hours.filtered(lambda att: att.day_period == 'afternoon')
-        if morning_shift:
+
+        if day_period == 'morning' and morning_shift:
             shift_check_in, shift_check_out = morning_shift.hour_from, morning_shift.hour_to
-        elif afternoon_shift:
+        elif day_period == 'afternoon' and afternoon_shift:
             shift_check_in, shift_check_out = afternoon_shift.hour_from, afternoon_shift.hour_to
 
-        # Find existing attendance records
         attendances = self.env['hr.attendance'].search([
             ('employee_id', '=', employee.id),
             ('punching_day', '=', date)
         ])
-        print(f"=== attendances៖: {attendances}")
+        print(f"=== attendances: {attendances}")
 
-        # flag true if both attendances for morning and afternoon are found
-        is_done = all([session in attendances.mapped('day_period') for session in ['morning', 'afternoon']])
+        attendance_rec = attendances.filtered(lambda a: a.day_period == day_period)
+        if not attendance_rec:
+            # Assign default check-in/out based on day_period
+            check_in = check_out = False
+            if day_period == 'morning' and morning_shift:
+                check_in = datetime.combine(date, float_to_time(morning_shift.hour_from)) - timedelta(hours=7)
+                check_out = datetime.combine(date, float_to_time(morning_shift.hour_to)) - timedelta(hours=7)
+                print(f"=== [get] - 'morning' {check_in}, {check_out}")
+            elif day_period == 'afternoon' and afternoon_shift:
+                check_in = datetime.combine(date, float_to_time(afternoon_shift.hour_from)) - timedelta(hours=7)
+                check_out = datetime.combine(date, float_to_time(afternoon_shift.hour_to)) - timedelta(hours=7)
+                print(f"=== [get] - 'afternoon' {check_in}, {check_out}")
 
-        # true if attendance in the morning is done
-        is_morning_done = attendances.filtered(lambda x: x.day_period == 'morning' and x.punch_in != False and x.punch_out != False)
-        
-        # Find attendance to be updated (if necessary)
-        attendance_rec = None
-        if not is_done:
-            attendance_rec = attendances.filtered(lambda x: not x.punch_out)
-
-        afternoon_attendance = attendances.filtered(lambda x: x.day_period == 'afternoon')
-        if afternoon_attendance.exists():
-            # Always update check_out for afternoon attendance
-            attendance_rec = afternoon_attendance
-
-        # Create attendance if not found
-        if not attendance_rec and not is_done and len(attendances) <= 2:
             attendance_rec = self.env['hr.attendance'].create({
                 'employee_id': employee.id,
                 'punching_day': date,
@@ -345,51 +450,50 @@ class HrAttendance(models.Model):
                 'shift_check_out': shift_check_out,
                 'shift_break_in': shift_break_in,
                 'shift_break_out': shift_break_out,
+                'day_period': day_period,
+                'check_in': check_in,
+                'check_out': check_out,
                 'state': 'absence',
             })
 
-        # Update attendance record based on day_period
-        if attendance_rec:
-            # _logger.info(f"=== day_period: {attendance_rec.day_period}")
-            print(f"=== create_attendance - day_period: {attendance_rec.day_period}")
-            if attendance_rec.day_period == 'morning':
-                attendance_rec.write({
-                    'shift_check_in': morning_shift.hour_from,
-                    'shift_check_out': morning_shift.hour_to
-                })
-            elif attendance_rec.day_period == 'afternoon':
-                attendance_rec.write({
-                    'shift_check_in': afternoon_shift.hour_from,
-                    'shift_check_out': afternoon_shift.hour_to
-                })
-
-        # Fetch scan logs for the employee
         scan_logs = self.env['scan.qr.attendance'].search(domain)
+        print(f"=== logs: {scan_logs}")
+
+        # for rec in scan_logs:
+        #     if rec.scan_type == 'check_in':
+        #         self._process_check_in(rec, attendance_rec)
+        #     elif rec.scan_type == 'check_out':
+        #         self._process_check_out(rec, attendance_rec)
+
+        # attendance_rec.day_period = day_period
+        # print(f"=== [done] created attendance: {attendance_rec.day_period}")
+        # return attendance_rec
 
         # Process scan records
         for rec in scan_logs:
             if rec.scan_type == 'check_in':
+                print(f"=== type: {rec.scan_type}")
                 self._process_check_in(rec, attendance_rec)
             elif rec.scan_type == 'check_out':
+                print(f"=== type: {rec.scan_type}")
                 self._process_check_out(rec, attendance_rec)
+            elif rec.scan_type == 'break_out':
+                print(f"=== type: {rec.scan_type}")
+                self._process_break_out(rec, attendance_rec)
+            elif rec.scan_type == 'break_in':
+                print(f"=== type: {rec.scan_type}")
+                self._process_break_in(rec, attendance_rec)
 
-        # determine day_period of attendance
-        if is_morning_done:
-            attendance_rec._assign_day_period(period='afternoon')
-        else:
-            attendance_rec._assign_day_period()
-
+        attendance_rec.day_period = day_period
         print(f"=== [done] created attendance: {attendance_rec.day_period}")
-
         return attendance_rec
 
     @staticmethod
     def _process_check_in(rec, attendance_rec):
+        print(f"=== att: {attendance_rec}")
         if not attendance_rec.punch_in and not attendance_rec.punch_out:
-            print(f"=== attendance_rec: {attendance_rec}")
-            print(f"=== rec: {rec}")
             attendance_rec.write({
-                'check_in': rec.scan_time,
+                # 'check_in': rec.scan_time,
                 'punch_in': rec.scan_time,
                 'project_id': rec.project_id.id,
                 'project_manager_id': rec.project_id.user_id and rec.project_id.user_id.id or False,
@@ -400,7 +504,7 @@ class HrAttendance(models.Model):
         elif not attendance_rec.punch_in and attendance_rec.punch_out:
             if attendance_rec.punch_out > rec.scan_time:
                 attendance_rec.write({
-                    'check_in': rec.scan_time,
+                    # 'check_in': rec.scan_time,
                     'punch_in': rec.scan_time,
                     'project_id': rec.project_id.id,
                     'project_manager_id': rec.project_id.user_id and rec.project_id.user_id.id or False,
@@ -412,7 +516,7 @@ class HrAttendance(models.Model):
 
         elif attendance_rec.punch_in and attendance_rec.punch_in > rec.scan_time:
             attendance_rec.write({
-                'check_in': rec.scan_time,
+                # 'check_in': rec.scan_time,
                 'punch_in': rec.scan_time,
                 'project_id': rec.project_id.id,
                 'project_manager_id': rec.project_id.user_id and rec.project_id.user_id.id or False,
@@ -424,7 +528,6 @@ class HrAttendance(models.Model):
 
     @staticmethod
     def _process_check_out(rec, attendance_rec):
-        print(f"=== att: {attendance_rec}")
         scan_date = rec.scan_time.date()
         attendance_date = attendance_rec.punching_day
 
@@ -485,69 +588,68 @@ class HrAttendance(models.Model):
             _logger.warning(f'check out between different date -> {scan_date} and {attendance_date}')
             rec.status = 'skip'
 
-    # === DEPRECATED ===
-    # @staticmethod
-    # def _process_break_out(rec, attendance_rec):
-    #     """ `break_out` is considered to be `check_out` for the morning shift. """
+    @staticmethod
+    def _process_break_out(rec, attendance_rec):
+        """ `break_out` is considered to be `check_out` for the morning shift. """
 
-    #     # prevent early break_out
-    #     if attendance_rec.work_schedule_id.scan_interval:
-    #         # hour in float
-    #         break_out_hour = attendance_rec.shift_break_out - attendance_rec.work_schedule_id.scan_interval
+        # prevent early break_out
+        if attendance_rec.work_schedule_id.scan_interval:
+            # hour in float
+            break_out_hour = attendance_rec.shift_break_out - attendance_rec.work_schedule_id.scan_interval
 
-    #         # convert scan time to float
-    #         current_scan_time = str((rec.scan_time + timedelta(hours=7)).time())
-    #         hour, minute, second = current_scan_time.split(':')
-    #         current_scan_time_float = float(hour) + float(minute) / 60.0
+            # convert scan time to float
+            current_scan_time = str((rec.scan_time + timedelta(hours=7)).time())
+            hour, minute, second = current_scan_time.split(':')
+            current_scan_time_float = float(hour) + float(minute) / 60.0
 
-    #         if current_scan_time_float < break_out_hour:
-    #             rec.status = 'skip'
+            if current_scan_time_float < break_out_hour:
+                rec.status = 'skip'
 
-    #             msg = ':'.join(str(timedelta(hours=break_out_hour)).split(':')[:2])
-    #             raise UserError(_(f"Break Out can be scanned from {msg}"))
+                msg = ':'.join(str(timedelta(hours=break_out_hour)).split(':')[:2])
+                raise UserError(_(f"Break Out can be scanned from {msg}"))
         
-    #     if not attendance_rec.break_out:
-    #         attendance_rec.write({
-    #             'break_out': rec.scan_time,
-    #             'punch_break_out': rec.scan_time,
-    #             'check_out': rec.scan_time,
-    #             'state': 'presence'
-    #         })
-    #         attendance_rec.update_scan_qr_attendance_status(rec)
+        if not attendance_rec.break_out:
+            attendance_rec.write({
+                'break_out': rec.scan_time,
+                'punch_break_out': rec.scan_time,
+                'punch_out': rec.scan_time,
+                'state': 'presence'
+            })
+            attendance_rec.update_scan_qr_attendance_status(rec)
 
-    #     elif attendance_rec.break_out and attendance_rec.break_out < rec.scan_time:
-    #         attendance_rec.write({
-    #             'break_out': rec.scan_time,
-    #             'punch_break_out': rec.scan_time,
-    #             'check_out': rec.scan_time,
-    #             'state': 'presence'
-    #         })
-    #         attendance_rec.update_scan_qr_attendance_status(rec)
-    #     else:
-    #         rec.status = 'skip'
+        elif attendance_rec.break_out and attendance_rec.break_out < rec.scan_time:
+            attendance_rec.write({
+                'break_out': rec.scan_time,
+                'punch_break_out': rec.scan_time,
+                'punch_out': rec.scan_time,
+                'state': 'presence'
+            })
+            attendance_rec.update_scan_qr_attendance_status(rec)
+        else:
+            rec.status = 'skip'
 
-    # @staticmethod
-    # def _process_break_in(rec, attendance_rec):
-    #     """ `break_in` is considered to be `check_in` for the afternoon shift. """
-    #     if not attendance_rec.break_in:
-    #         attendance_rec.write({
-    #             'break_in': rec.scan_time,
-    #             'punch_break_in': rec.scan_time,
-    #             'check_in': rec.scan_time,
-    #             'state': 'missed'
-    #         })
-    #         attendance_rec.update_scan_qr_attendance_status(rec)
+    @staticmethod
+    def _process_break_in(rec, attendance_rec):
+        """ `break_in` is considered to be `check_in` for the afternoon shift. """
+        if not attendance_rec.break_in:
+            attendance_rec.write({
+                'break_in': rec.scan_time,
+                'punch_break_in': rec.scan_time,
+                'punch_in': rec.scan_time,
+                'state': 'missed'
+            })
+            attendance_rec.update_scan_qr_attendance_status(rec)
 
-    #     elif attendance_rec.break_in and attendance_rec.break_in > rec.scan_time:
-    #         attendance_rec.write({
-    #             'break_in': rec.scan_time,
-    #             'punch_break_in': rec.scan_time,
-    #             'check_in': rec.scan_time,
-    #             'state': 'missed'
-    #         })
-    #         attendance_rec.update_scan_qr_attendance_status(rec)
-    #     else:
-    #         rec.status = 'skip'
+        elif attendance_rec.break_in and attendance_rec.break_in > rec.scan_time:
+            attendance_rec.write({
+                'break_in': rec.scan_time,
+                'punch_break_in': rec.scan_time,
+                'punch_in': rec.scan_time,
+                'state': 'missed'
+            })
+            attendance_rec.update_scan_qr_attendance_status(rec)
+        else:
+            rec.status = 'skip'
 
     def update_scan_qr_attendance_status(self, rec):
             rec.status = 'done'
@@ -753,104 +855,154 @@ class HrAttendance(models.Model):
                             attendance.write({'missed_count': attendance.missed_count + 1})
 
     def pre_create_attendance(self):
-        """
-        Automatically generates attendance records for active employees based on their work schedule. 
-        """
+        date = (datetime.now() + relativedelta(hours=+7)).date()
+        _logger.info(f"=== Pre create attendance: {date}")
 
-        user_tz = self.env.user.tz or 'UTC'
-        date = fields.Date.today()
         dayofweek = date.weekday()
-        employees = self.env['hr.employee'].search([('active', '=', True)])
+        employees = self.env['hr.employee'].search([('active', '=', True)])           
         holiday = self._holiday_exists(date)
 
         for employee in employees:
-            shift_check_in = shift_check_out = shift_break_in = shift_break_out = None
+            shift_check_in = shift_check_out = shift_break_in = shift_break_out = 0.0
             attendance_exists = self._attendance_exists(employee, date)
             contract = self.env['hr.contract'].search([
                 ('employee_id', '=', employee.id),
-                ('state', '=', 'open')
+                ('state', '=', 'open'),
             ], limit=1)
-            
+
+            _logger.info(f"=== calender: {employee.name}, {employee.resource_calendar_id}")
+                
+            # attendance_ids = contract.resource_calendar_id.attendance_ids
+            working_hours = self._get_working_hours(employee, dayofweek)
             if attendance_exists:
                 continue
-            
-            # Default calendare is get from Employee
-            resource_calendar = employee.resource_calendar_id
-            
-            # Skip employees with no schedule
-            if not resource_calendar:
-                continue
-            
-            # Fetch shift times
-            attendance_ids = resource_calendar.attendance_ids.filtered(
-                lambda att: str(dayofweek) == str(att.dayofweek)
-            )
-            
-            # Identify the employee's assigned shifts for the given day (morning and afternoon).
-            # If no shift exists for a period, the variable will be set to None.
-            morning_shift = next((att for att in attendance_ids if att.day_period == 'morning'), None)
-            afternoon_shift = next((att for att in attendance_ids if att.day_period == 'afternoon'), None)
-            
-            if morning_shift and afternoon_shift:
-                shift_check_in = morning_shift.hour_from
-                shift_break_out = morning_shift.hour_to
-                shift_break_in = afternoon_shift.hour_from
-                shift_check_out = afternoon_shift.hour_to
-            elif morning_shift:
-                shift_check_in = morning_shift.hour_from
-                shift_check_out = morning_shift.hour_to
-            elif afternoon_shift:
-                shift_check_in = afternoon_shift.hour_from
-                shift_check_out = afternoon_shift.hour_to
-            else:
-                _logger.info(f"=== {employee.name} missing shift information.")
-                continue
-            
-            time_off = self._time_off_exists(employee, date)
-            
-            # Check if the employee has assigned working hours for the given day.
-            # If `attendance_ids` is not empty, it means the employee has a scheduled shift.
-            working_hours_exists = bool(attendance_ids)
 
-            # Determine attendance state
+            if len(working_hours) == 2:
+                for calendar_attendance in employee.resource_calendar_id.attendance_ids.filtered(
+                        lambda att: str(dayofweek) == str(att.dayofweek)):
+                    if calendar_attendance.day_period == 'morning':
+                        shift_check_in = calendar_attendance.hour_from
+                        shift_break_out = calendar_attendance.hour_to
+                    elif calendar_attendance.day_period == 'afternoon':
+                        shift_break_in = calendar_attendance.hour_from
+                        shift_check_out = calendar_attendance.hour_to
+            if len(working_hours) == 1:
+                for calendar_attendance in employee.resource_calendar_id.attendance_ids.filtered(
+                        lambda att: str(dayofweek) == str(att.dayofweek)):
+                    shift_check_in = calendar_attendance.hour_from
+                    shift_check_out = calendar_attendance.hour_to
+            time_off = self._time_off_exists(employee, date)
+
+            working_hours_exists = any(
+                attendance.dayofweek == str(dayofweek) for attendance in employee.resource_calendar_id.attendance_ids)
+
+            # attendance_state = 'absence'
+            # if not contract:
+            #     attendance_state = 'cancel'
+            # elif not working_hours_exists:
+            #     attendance_state = 'weekend'
+            # elif time_off:
+            #     attendance_state = time_off.holiday_status_id.attendance_state \
+            #         if time_off.holiday_status_id.attendance_state else 'time_off'
+            # elif holiday:
+            #     attendance_state = 'holiday'
+
             attendance_state = 'absence'
-            if not working_hours_exists:
-                attendance_state = 'weekend'
-            elif time_off:
-                attendance_state = 'time_off'
-            elif holiday:
+            # if not contract:
+            #     attendance_state = 'cancel'
+            if holiday:
                 attendance_state = 'holiday'
-            
-            # Compute check-in and check-out times in UTC
-            check_in_date = date
-            check_out_date = date
-            if resource_calendar.is_cross_day_shift:
-                check_out_date += timedelta(days=1)
-            
-            # Convert to UTC
-            time_in = datetime.combine(date, time(int(shift_check_in), 0)) - timedelta(hours=7)  
-            time_out = datetime.combine(date, time(int(shift_check_out), 0)) - timedelta(hours=7)
-            
-            # If check-out is before check-in, move check-out forward to today
-            if time_out < time_in:
-                _logger.warning(f"=== Invalid check-out for {employee.name}")
-                time_out = datetime.combine(date, time(int(shift_check_out), 0)) + timedelta(hours=7)
-            
-            # Create attendance record
+            elif time_off:
+                attendance_state = time_off.holiday_status_id.attendance_state or 'time_off'
+            elif not working_hours_exists:
+                attendance_state = 'weekend'
+
             self.env['hr.attendance'].create({
                 'employee_id': employee.id,
-                # 'project_id': employee.project_id.id if employee.project_id else False,
-                # 'project_manager_id': employee.project_id.user_id.id if employee.project_id.user_id else False,
-                'work_schedule_id': resource_calendar.id,
+                # 'project_id': employee.project_id and employee.project_id.id or False,
+                # 'project_manager_id': employee.project_id.user_id and employee.project_id.user_id.id or False,
+                'work_schedule_id': employee.resource_calendar_id and employee.resource_calendar_id.id or False,
                 'punching_day': date,
                 'shift_check_in': shift_check_in,
                 'shift_check_out': shift_check_out,
                 'shift_break_in': shift_break_in,
                 'shift_break_out': shift_break_out,
-                'check_in': time_in,
-                'check_out': time_out,
+                'check_in': False,
                 'state': attendance_state
             })
+
+    # def pre_create_attendance(self):
+    #     """
+    #     Automatically generates two attendance records (morning and afternoon)
+    #     based on employee's work schedule.
+    #     """
+    #     user_tz = self.env.user.tz or 'UTC'
+    #     date = fields.Date.today()
+    #     dayofweek = date.weekday()
+    #     employees = self.env['hr.employee'].search([('active', '=', True)])
+    #     holiday = self._holiday_exists(date)
+
+    #     for employee in employees:
+    #         attendance_exists = self._attendance_exists(employee, date)
+    #         if attendance_exists:
+    #             continue
+
+    #         calendar = employee.resource_calendar_id
+    #         if not calendar:
+    #             continue
+
+    #         attendance_ids = calendar.attendance_ids.filtered(
+    #             lambda a: str(a.dayofweek) == str(dayofweek)
+    #         )
+
+    #         morning_shift = attendance_ids.filtered(lambda a: a.day_period == 'morning')
+    #         afternoon_shift = attendance_ids.filtered(lambda a: a.day_period == 'afternoon')
+
+    #         # Skip if no shift at all
+    #         if not morning_shift and not afternoon_shift:
+    #             continue
+
+    #         # Determine attendance state
+    #         attendance_state = 'absence'
+    #         if holiday:
+    #             attendance_state = 'holiday'
+    #         elif not attendance_ids:
+    #             attendance_state = 'weekend'
+    #         elif self._time_off_exists(employee, date):
+    #             attendance_state = 'time_off'
+            
+    #         # Convert to UTC
+    #         def local_to_utc(float_hour):
+    #             local_dt = datetime.combine(date, time(int(float_hour), int((float_hour % 1) * 60)))
+    #             return local_dt - timedelta(hours=7)
+
+    #         # Create morning attendance
+    #         if morning_shift:
+    #             self.env['hr.attendance'].create({
+    #                 'employee_id': employee.id,
+    #                 'punching_day': date,
+    #                 'day_period': 'morning',
+    #                 'work_schedule_id': calendar.id,
+    #                 'shift_check_in': morning_shift[0].hour_from,
+    #                 'shift_check_out': morning_shift[0].hour_to,
+    #                 'check_in': local_to_utc(morning_shift[0].hour_from),
+    #                 'check_out': local_to_utc(morning_shift[0].hour_to),
+    #                 'state': attendance_state,
+    #             })
+
+    #         # Create afternoon attendance
+    #         if afternoon_shift:
+    #             self.env['hr.attendance'].create({
+    #                 'employee_id': employee.id,
+    #                 'punching_day': date,
+    #                 'day_period': 'afternoon',
+    #                 'work_schedule_id': calendar.id,
+    #                 'shift_check_in': afternoon_shift[0].hour_from,
+    #                 'shift_check_out': afternoon_shift[0].hour_to,
+    #                 'check_in': local_to_utc(afternoon_shift[0].hour_from),
+    #                 'check_out': local_to_utc(afternoon_shift[0].hour_to),
+    #                 'state': attendance_state,
+    #             })
 
     def manual_pre_create_attendance(self, date, employees=None):
         date = date or fields.Date.today()
@@ -1151,6 +1303,19 @@ class HrAttendance(models.Model):
         elif all(field for field in attendance_fields):
             return 'presence'
         return attendance.state
+
+    # @staticmethod
+    # def attendance_half_shift_missing_check(attendance, day_period):
+    #     if day_period == 'morning':
+    #         attendance_fields = [attendance.check_in, attendance.break_out]
+    #     else:
+    #         attendance_fields = [attendance.break_in, attendance.check_out]
+
+    #     if any(field is False for field in attendance_fields):
+    #         return 'missed'
+    #     elif all(field for field in attendance_fields):
+    #         return 'presence'
+    #     return attendance.state
 
     @staticmethod
     def attendance_half_shift_missing_check(attendance):

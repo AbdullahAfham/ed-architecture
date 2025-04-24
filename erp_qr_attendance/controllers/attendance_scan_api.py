@@ -1,5 +1,4 @@
 import json
-import logging
 
 from odoo import http, _
 from odoo.addons.hr_internal_api.controller.helper import validate_token, validate_pw_jwt, validate_jwt, \
@@ -9,6 +8,8 @@ from odoo.http import request
 from datetime import datetime, timedelta
 from pytz import timezone
 
+import logging
+
 _logger = logging.getLogger(__name__)
 
 class AttendanceScanAPI(http.Controller):
@@ -16,7 +17,6 @@ class AttendanceScanAPI(http.Controller):
     @validate_jwt
     @http.route('/api/create_scan_attendance', type='json', auth='none', methods=['POST'], csrf=False)
     def create_scan_attendance(self, uid, **payload):
-        print("=== [process] create_scan_attendance ===")
         if not payload:
             payload = json.loads(request.httprequest.data)
 
@@ -34,7 +34,6 @@ class AttendanceScanAPI(http.Controller):
         latitude = payload.get('latitude')
         longitude = payload.get('longitude')
         # scan_time = payload.get('scan_time')
-        
         if not location_id and employee.restrict_location:
             return invalid_response(type='Bad Request', message='Location ID should not be null.', status=400)
         if not scan_type:
@@ -43,7 +42,6 @@ class AttendanceScanAPI(http.Controller):
         location = get_table_model('erp.qr.generate').search([('id', '=', location_id)], limit=1)
         if not location and employee.restrict_location:
             return invalid_response(type='Not Found', message='Work Location not found', status=404)
-        
         if location.resource_calendar_id:
             resource_calendar_id = location.resource_calendar_id
         else:
@@ -85,28 +83,23 @@ class AttendanceScanAPI(http.Controller):
 
         attendance = hr_attendance_model.search([
             ('employee_id', '=', employee.id), 
-            ('punching_day', '=', date_today)
-        ], limit=1, order='create_date desc')
-        print(f"=== attendance: {attendance}")
+            ('punching_day', '=', date_today)], limit=1, order='create_date desc')
 
-        if attendance:
-            # Change default fields (check_in, check_out) to a new fields to avoid conflict:
-            # last_check_time = attendance.check_out or attendance.check_in
-            last_check_time = attendance.punch_out or attendance.punch_in
-            print(f"=== last_check_time: {last_check_time}")
+        # if attendance:
+        #     last_check_time = attendance.punch_out or attendance.break_in or attendance.break_out or attendance.punch_in
 
-            # find difference in minutes
-            if last_check_time:
-                time_delta = scan_time - last_check_time
-                total_seconds = time_delta.total_seconds()
-                minutes = total_seconds / 60
+        #     # find difference in minutes
+        #     if last_check_time:
+        #         time_delta = scan_time - last_check_time
+        #         total_seconds = time_delta.total_seconds()
+        #         minutes = total_seconds / 60
 
-                # TODO: refactor
-                checkin_delay = int(request.env['ir.config_parameter'].sudo().get_param('erp_qr_attendance.employee_checkin_delay_in_mn', default=10))
-                if minutes < checkin_delay:
-                    last_check_time_str = str((last_check_time + timedelta(hours=7)).time())
-                    msg = _(f"You already scanned at {last_check_time_str}.")
-                    return invalid_response(type='Bad Request', message=msg, status=400)
+        #         # TODO: refactor
+        #         checkin_delay = int(request.env['ir.config_parameter'].sudo().get_param('erp_qr_attendance.employee_checkin_delay_in_mn', default=10))
+        #         if minutes < checkin_delay:
+        #             last_check_time_str = str((last_check_time + timedelta(hours=7)).time())
+        #             msg = _(f"You already scanned at {last_check_time_str}.")
+        #             return invalid_response(type='Bad Request', message=msg, status=400)
 
         scan_attendance_val = {
             'user_id': uid,
@@ -133,7 +126,6 @@ class AttendanceScanAPI(http.Controller):
     @validate_jwt
     @http.route('/api/check_scan_location', type='json', auth='none', methods=['POST'], csrf=False)
     def check_scan_location(self, uid, **payload):
-        print("=== [process] check_scan_location ===")
         if not payload:
             payload = json.loads(request.httprequest.data)
 
@@ -142,7 +134,8 @@ class AttendanceScanAPI(http.Controller):
 
         if scan_location['distance'] > scan_location['radius']:
             if employee.restrict_location:
-                return invalid_response(type='Bad Request', message='Your current location is out of range.', status=400)
+                return invalid_response(type='Bad Request', message='Your current location is out of range.',
+                                        status=400)
             else:
                 return valid_response(
                     data={'message': "You're out of Range! Input your reference"}, status=200)
@@ -158,7 +151,6 @@ class AttendanceScanAPI(http.Controller):
     @validate_jwt
     @http.route('/api/check_scan_location_distance', type='json', auth='none', methods=['POST'], csrf=False)
     def attendance_checking_distance(self, uid, **payload):
-        print("=== [process] attendance_checking_distance ===")
         if not payload:
             payload = json.loads(request.httprequest.data)
 
@@ -182,7 +174,6 @@ class AttendanceScanAPI(http.Controller):
 
     @staticmethod
     def get_scan_location(uid, latitude, longitude):
-        print("=== [process] get_scan_location ===")
         erp_qr_generates = get_table_model('erp.qr.generate').search([])
         employee = get_table_model('hr.employee').search([('user_id', '=', uid)], limit=1)
         if not erp_qr_generates:
