@@ -267,6 +267,12 @@ class SaleQuotationAPI(http.Controller):
             "payment_state": get_selection_string_value(sale, 'payment_state'),
             "delivery_state": get_selection_string_value(sale.picking_ids and sale.picking_ids[-1], 'state'),
             "state": get_selection_string_value(sale, 'state'),
+            "currency": {
+                'id': sale.currency_id.id,
+                'name': sale.currency_id.name,
+                'rate': sale.currency_id.rate,
+                'symbol': sale.currency_id.symbol,
+            },
             "body": [
                 {
                     "key": "partner_id",
@@ -330,13 +336,13 @@ class SaleQuotationAPI(http.Controller):
                     'name': line.product_id.name, 
                     'quantity': line.product_uom_qty, 
                     'uom': line.product_uom.name,
-                    'unit_price': line.price_unit,
-                    'subtotal': line.price_subtotal,
+                    'unit_price': sale.currency_id.format(line.price_unit),
+                    'subtotal': sale.currency_id.format(line.price_subtotal),
                     'order_line_id': line.id } for line in sale.order_line
                 ],
                 "subtotal": sale.currency_id.format(sale.amount_untaxed),
                 "tax": sale.currency_id.format(sale.amount_tax),
-                "total": sale.currency_id.format(sale.amount_total)
+                "total": sale.currency_id.format(sale.amount_total),
             }
         } for sale in sale_quotations]
 
