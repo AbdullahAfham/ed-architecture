@@ -40,9 +40,14 @@ class PaymentAPI(http.Controller):
                 'name_km': payment.partner_id.name,
                 'dms_code': "",
                 'payment_date': payment.date and payment.date.strftime('%Y-%m-%d') or "",
-                'amount': payment.amount,
+                'amount': payment.currency_id.format(payment.amount),
                 'state': get_selection_string_value(payment, 'state'),
-                
+                'currency': {
+                    'id': payment.currency_id.id,
+                    'name': payment.currency_id.name,
+                    'rate': payment.currency_id.rate,
+                    'symbol': payment.currency_id.symbol,
+                },
             } for payment in payments]
 
             # For optimization purpose, we include the details only when viewing specific payment.
@@ -104,7 +109,7 @@ class PaymentAPI(http.Controller):
             {
                 "key": "amount",
                 "label": "Amount",
-                "value": payment.amount,
+                "value": payment.currency_id.format(payment.amount),
                 "is_highlight": False
             },
             {
