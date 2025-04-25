@@ -20,7 +20,7 @@ class AttendanceScanAPI(http.Controller):
         if not payload:
             payload = json.loads(request.httprequest.data)
 
-        tz = request.httprequest.cookies.get('tz') or 'Asia/Bangkok'
+        tz = request.httprequest.cookies.get('tz') or 'Asia/Phnom_Penh'
         scan_attendance_model = get_table_model('scan.qr.attendance')
         hr_attendance_model = get_table_model('hr.attendance')
         employee = get_table_model('hr.employee').search([('user_id', '=', uid)], limit=1)

@@ -56,7 +56,7 @@ class ScanQrAttendance(models.Model):
 
     #         # Convert scan time to user's local timezone
     #         scan_time = rec.scan_time.astimezone(
-    #             timezone(self.env.user.partner_id.tz or 'Asia/Bangkok')).replace(tzinfo=None)
+    #             timezone(self.env.user.partner_id.tz or 'Asia/Phnom_Penh')).replace(tzinfo=None)
     #         scan_hour = scan_time.hour + scan_time.minute / 60.0
 
     #         # Get morning attendance slots from calendar
@@ -87,7 +87,7 @@ class ScanQrAttendance(models.Model):
 
             # Convert scan time to user's local timezone
             scan_time = rec.scan_time.astimezone(
-                timezone(self.env.user.partner_id.tz or 'Asia/Bangkok')).replace(tzinfo=None)
+                timezone(self.env.user.partner_id.tz or 'Asia/Phnom_Penh')).replace(tzinfo=None)
             scan_hour = scan_time.hour + scan_time.minute / 60.0
 
             # Get morning attendance slots from calendar

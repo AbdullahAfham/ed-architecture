@@ -178,7 +178,7 @@ class ResUsers(models.Model):
         # no time limit for initial invitation, only for reset password
         expiration = False if create_mode else now(days=+1)
 
-        self.mapped('partner_id').signup_prepare(signup_type="reset", expiration=expiration)
+        self.mapped('partner_id').signup_prepare(signup_type="reset")
 
         # send email to users with their signup url
         template = False
