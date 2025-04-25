@@ -7,6 +7,10 @@ from datetime import datetime, date, time, timedelta
 from odoo.osv import expression
 import json
 
+import logging
+
+_logger = logging.getLogger(__name__)
+
 
 class PartnerVisitHistoryAPI(http.Controller):
 
@@ -179,12 +183,29 @@ class PartnerVisitHistoryAPI(http.Controller):
             ])
 
             orders = get_table_model('sale.order').search(domain)
-            
+
+            currency = orders.mapped('currency_id')
+            if len(currency) > 1:
+                currency = currency[-1]
+                _logger.warning('There is more than one currency in Sale Orders and therefore we decide to use the last one.')
+
+            total_orders, total_invoices, total_payments = "", "", ""
+            if orders and currency:
+                total_orders = currency.format(
+                    sum(order.amount_total for order in orders)
+                )
+                total_invoices = currency.format(
+                    sum(invoice.amount_total_in_currency_signed for invoice in orders.invoice_ids if invoice.state == 'posted')
+                )
+                total_payments = currency.format(
+                    sum(payment.amount for payment in orders.invoice_ids.matched_payment_ids if payment.state == 'paid')
+                )
+
             response = [{
                 'order_count': len(orders),
-                'total_orders': sum(order.amount_total for order in orders),
-                'total_invoices': sum(invoice.amount_total for invoice in orders.invoice_ids if invoice.state == 'posted'),
-                'total_payments': sum(payment.amount for payment in orders.invoice_ids.matched_payment_ids if payment.state == 'paid'),
+                'total_orders': total_orders,
+                'total_invoices': total_invoices,
+                'total_payments': total_payments,
             }]
             return valid_response_http(data=response, status=200)
         except Exception as e:

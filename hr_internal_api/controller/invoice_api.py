@@ -44,7 +44,7 @@ class InvoiceAPI(http.Controller):
                 'name_km': invoice.partner_id.name,
                 'dms_code': "",
                 'invoice_date': invoice.invoice_date and invoice.invoice_date.strftime('%Y-%m-%d') or "",
-                'amount_total': invoice.amount_total,
+                'amount_total': invoice.currency_id.format(invoice.amount_total),
                 'state': get_selection_string_value(invoice, 'status_in_payment'),
             } for invoice in invoices]
 
@@ -127,25 +127,32 @@ class InvoiceAPI(http.Controller):
             ],
             'invoice_line': {
                 'products': [{
-                    'id': line.product_id.id, 
-                    'image_url': f'/web/image/product.product/{line.product_id.id}/image_1024', 
-                    'name': line.product_id.name, 
-                    'quantity': line.quantity, 
-                    'uom': line.product_uom_id.name,
-                    'unit_price': line.price_unit,
-                    'subtotal': line.price_subtotal} for line in invoice.invoice_line_ids
+                        'id': line.product_id.id, 
+                        'image_url': f'/web/image/product.product/{line.product_id.id}/image_1024', 
+                        'name': line.product_id.name, 
+                        'quantity': line.quantity, 
+                        'uom': line.product_uom_id.name,
+                        'unit_price': invoice.currency_id.format(line.price_unit),
+                        'subtotal': invoice.currency_id.format(line.price_subtotal)
+                    } for line in invoice.invoice_line_ids
                 ],
-                'subtotal': invoice.amount_untaxed,
-                'tax': invoice.amount_tax,
-                'total': invoice.amount_total
+                'subtotal': invoice.currency_id.format(invoice.amount_untaxed),
+                'tax': invoice.currency_id.format(invoice.amount_tax),
+                'total': invoice.currency_id.format(invoice.amount_total),
             },
             'payments': [{
                 'id': payment.id,
                 'name': f"Paid on {payment.date.strftime('%d %B %Y')} by {get_selection_string_value(payment.journal_id, 'type')}",
                 'date': payment.date and payment.date.strftime('%d-%m-%Y') or "",
-                'amount': payment.amount,
+                'amount': payment.currency_id.format(payment.amount),
             } for payment in invoice.matched_payment_ids
             ],
+            "currency": {
+                'id': invoice.currency_id.id,
+                'name': invoice.currency_id.name,
+                'rate': invoice.currency_id.rate,
+                'symbol': invoice.currency_id.symbol,
+            },
         }
 
     @validate_jwt
