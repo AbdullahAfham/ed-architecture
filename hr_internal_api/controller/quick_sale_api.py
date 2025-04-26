@@ -306,10 +306,10 @@ class QuickSaleAPI(http.Controller):
             
             # current user is `Created by` or `Employee` of sale.order, and it has a type of Quick Sale.
             domain = [
-                '&',
+                # '&', '|',
                 ('create_uid', '=', uid),
                 # ('employee_id', 'in', current_user.employee_ids.ids),
-                ('type_id.code', '=', 'quick'),
+                # ('type_id.code', '=', 'quick'),
             ]
 
             if quick_sale_id:
