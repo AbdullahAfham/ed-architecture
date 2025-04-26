@@ -308,7 +308,7 @@ class QuickSaleAPI(http.Controller):
             domain = [
                 '&', '|',
                 ('create_uid', '=', uid),
-                ('employee_id', 'in', current_user.employee_ids.ids),
+                # ('employee_id', 'in', current_user.employee_ids.ids),
                 ('type_id.code', '=', 'quick'),
             ]
 
