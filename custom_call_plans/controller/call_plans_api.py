@@ -55,8 +55,8 @@ class CallPlansAPI(http.Controller):
             tag_ids = ast.literal_eval(tag_ids) # safely evaluates the string -> list of ids
 
         try:
-            date_start = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M:%S")
-            date_stop = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M:%S")
+            date_start = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
+            date_stop = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
 
             # in creation, it expects a naive datetime, also store in utc to avoid timezone conversion issues
             naive_utc_date_start = self._get_naive_utc_datetime(date_start, self._get_default_timezone())
@@ -211,14 +211,13 @@ class CallPlansAPI(http.Controller):
 
     def _prepare_call_plan(self, call_plan):
         """ Prepare `call.plans` data to be returned. """
-        partner_employee = call_plan.partner_id.employee_id
         return {
             'id': call_plan.id,
             'name': call_plan.name,
             'name_en': call_plan.partner_id.khmer_name or call_plan.partner_id.name,
             'name_km': call_plan.partner_id.name,
             'phone': call_plan.partner_id.phone or "",
-            'profile_url': f'/api/get_employee_image/{partner_employee.id}' if partner_employee else "",
+            'profile_url': f'/web/image/res.partner/{call_plan.partner_id.id}/image_1920',
             'date': call_plan.date and call_plan.date.strftime('%Y-%m-%d') or "",
             'plan_type': {
                 'id': call_plan.plan_type_id.id,
