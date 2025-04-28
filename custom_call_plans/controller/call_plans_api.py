@@ -55,8 +55,8 @@ class CallPlansAPI(http.Controller):
             tag_ids = ast.literal_eval(tag_ids) # safely evaluates the string -> list of ids
 
         try:
-            date_start = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
-            date_stop = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
+            date_start = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M:%S")
+            date_stop = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M:%S")
 
             # in creation, it expects a naive datetime, also store in utc to avoid timezone conversion issues
             naive_utc_date_start = self._get_naive_utc_datetime(date_start, self._get_default_timezone())
