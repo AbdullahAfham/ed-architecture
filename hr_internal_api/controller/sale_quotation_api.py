@@ -244,8 +244,7 @@ class SaleQuotationAPI(http.Controller):
         except Exception as e:
             return invalid_response_http("Bad Request", str(e), status=400)
    
-    @staticmethod
-    def _prepare_sale_quotation_response(sale_quotations) -> list[dict]:
+    def _prepare_sale_quotation_response(self, sale_quotations) -> list[dict]:
         """ Prepare the expected response
 
         :param sale_quotations: sale.order recordset.
@@ -342,9 +341,19 @@ class SaleQuotationAPI(http.Controller):
                 ],
                 "subtotal": sale.currency_id.format(sale.amount_untaxed),
                 "tax": sale.currency_id.format(sale.amount_tax),
-                "total": sale.currency_id.format(sale.amount_total),
+                "exchange_rate": sale.khr_currency_id.format(sale.exchange_rate),
+                "total": sale.amount_total,
+                "display_total": sale.currency_id.format(sale.amount_total),
+                "display_secondary_total": self._get_secondary_total(sale) or "",
             }
         } for sale in sale_quotations]
+
+    def _get_secondary_total(self, sale) -> str:
+        main_currency = sale.currency_id.name
+        if main_currency == 'USD':
+            return sale.khr_currency_id.format(sale.amount_total_khr)
+        elif main_currency == 'KHR':
+            return sale.usd_currency_id.format(sale.amount_total_usd)
 
     @validate_jwt
     @http.route('/api/sale_pdf_report/<int:order_id>', type="http", auth="none", methods=["get"], csrf=False)
