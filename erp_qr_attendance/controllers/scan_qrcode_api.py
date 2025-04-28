@@ -38,16 +38,28 @@ class ScanQrcodeAPI(http.Controller):
                                                           ('state', '=', 'open')], limit=1)
         attendance_id = get_table_model('hr.attendance').search(
             [('employee_id', '=', employee.id), ('punching_day', '=', date)], limit=1)
-        attendance_ids = contract.resource_calendar_id.attendance_ids
+        attendance_ids = employee.resource_calendar_id.attendance_ids
+        print(f"=== attendance_id: {attendance_id} {attendance_id.break_out}")
+        # if not attendance_id:
+        #     default = 'check_in'
+        # elif attendance_id.punch_in:
+        #     default = 'break_out'
+        # elif attendance_id.break_out:
+        #     default = 'break_in'
+        # elif attendance_id.break_in:
+        #     default = 'check_out'
+        # elif attendance_id.punch_out:
+        #     default = 'check_out'
+
         if not attendance_id:
             default = 'check_in'
-        elif attendance_id.check_in:
+        elif attendance_id.punch_in and not attendance_id.break_out:
             default = 'break_out'
-        elif attendance_id.break_out:
+        elif attendance_id.break_out and not attendance_id.break_in:
             default = 'break_in'
-        elif attendance_id.break_in:
+        elif attendance_id.break_in and not attendance_id.punch_out:
             default = 'check_out'
-        elif attendance_id.check_out:
+        else:
             default = 'check_out'
         try:
             response_data = {

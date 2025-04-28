@@ -1,0 +1,134 @@
+<odoo>
+    <data>
+      <record id="erp_portal_users_form_view" model="ir.ui.view">
+          <field name="name">erp.portal.users.form.view</field>
+          <field name="model">res.users</field>
+          <field name="arch" type="xml">
+              <form string="Portal Users">
+                  <sheet>
+                      <field name="id" invisible="1"/>
+                      <div class="oe_button_box" name="button_box">
+                          <button name="action_show_groups" type="object" groups="base.group_no_one" class="oe_stat_button" icon="fa-users">
+                              <field string="Groups" name="groups_count" widget="statinfo"/>
+                          </button>
+                          <button name="action_show_accesses" type="object" groups="base.group_no_one" class="oe_stat_button" icon="fa-list">
+                              <field string="Access Rights" name="accesses_count" widget="statinfo"/>
+                          </button>
+                          <button name="action_show_rules" type="object" groups="base.group_no_one" class="oe_stat_button" icon="fa-list-ul">
+                              <field string="Record Rules" name="rules_count" widget="statinfo"/>
+                          </button>
+                      </div>
+                      <!-- attrs="{'invisible': [('active', '=', True)]}" -->
+                      <widget name="web_ribbon" title="Archived" bg_color="bg-danger" />
+                      <field name="active_partner" required="0" readonly="1" invisible="1"/>
+                          <!-- attrs="{'invisible': [                                 '|', '|',                                 '&amp;', ('active', '=', True), ('active_partner', '=', True),                                 '&amp;', ('active', '=', False), ('active_partner', '=', False),                                 '&amp;', ('active', '=', True), ('active_partner', '=', False),                             ]}" -->
+                      <div class="alert alert-info text-center o_form_header" role="alert">
+                          <a class="close" data-dismiss="alert" href="#">x</a>
+                          <div>
+                          <strong>The contact linked to this user is still active</strong>
+                          </div>
+                          <div>You can archive the contact
+                          <field name="partner_id" required="0" readonly="1"/>
+                          </div>
+                      </div>
+                      <field name="avatar_128" invisible="1"/>
+                      <field name="image_1920" widget="image" class="oe_avatar" options="{&quot;preview_image&quot;: &quot;avatar_128&quot;}"/>
+                      <div class="oe_title">
+                          <label for="name"/>
+                          <h1><field name="name" placeholder="e.g. John Doe" required="1"/></h1>
+                          <field name="email" invisible="1"/>
+                          <label for="login" string="Email Address"/>
+                          <h2><field name="login" placeholder="e.g. email@yourcompany.com"/></h2>
+                          <group>
+                              <field name="partner_id" readonly="1" required="0" groups="base.group_no_one"/>
+                          </group>
+                      </div>
+                      <notebook colspan="4">
+                          <page name="access_rights" string="Access Rights">
+                              <!-- attrs="{'invisible': [('companies_count', '&lt;=', 1)]}" -->
+                              <group string="Multi Companies">
+                                  <field string="Allowed Companies" name="company_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                  <field string="Default Company" name="company_id" context="{'user_preference': 0}"/>
+                                  <field string="Companies count" name="companies_count" invisible="1"/>
+                              </group>
+                              <field name="groups_id"/>
+                          </page>
+                          <page string="Preferences" name="preferences">
+                              <group>
+  
+                                  <group string="Localization" name="preferences">
+                                      <field name="active" invisible="1"/>
+                                      <label for="lang"/>
+                                      <div class="o_row">
+                                          <field name="lang" required="1"/>
+                                          <button type="action" name="56" class="btn-sm btn-link mb4 fa fa-globe" aria-label="More languages" title="More languages"/>
+                                      </div>
+                                      <field name="tz" widget="timezone_mismatch" options="{'tz_offset_field': 'tz_offset'}"/>
+                                      <field name="tz_offset" invisible="1"/>
+                                  </group>
+                                  <group string="Menus Customization" groups="base.group_no_one">
+                                      <field name="action_id"/>
+                                  </group>
+                              </group>
+                              <group name="messaging">
+                                  <field name="signature" options="{'style-inline': true, 'codeview': true}"/>
+                              </group>
+                          </page>
+                      </notebook>
+                  </sheet>
+              </form>
+          </field>
+      </record>
+  
+      <!-- explicit list view definition -->
+      <record model="ir.ui.view" id="erp_portal_users.erp_portal_users_list_view">
+        <field name="name">erp.portal.users.list.view</field>
+        <field name="model">res.users</field>
+        <field name="arch" type="xml">
+          <list>
+              <field name="name"/>
+              <field name="login"/>
+              <field name="lang"/>
+              <field name="login_date"/>
+              <field name="company_id" groups="base.group_multi_company"/>
+          </list>
+        </field>
+      </record>
+      
+      <!-- actions opening views on models -->
+      <record model="ir.actions.act_window" id="erp_portal_users.action_portal_users_window">
+        <field name="name">Portal Users</field>
+        <field name="res_model">res.users</field>
+        <field name="domain">['|', ('share', '=', '0'), ('employee_id', '!=', False)]</field>
+        <field name="view_mode">list,form</field>
+         <!-- <field name="groups_id" eval="[(4, ref('hr.group_hr_manager'))]"/> -->
+        <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                  Click to create new users for your customer or vendor!
+              </p>
+          </field>
+      </record>
+
+      <menuitem name="PORTAL USERS" 
+        id="erp_portal_users.menu_portal_users_root" 
+        groups="hr.group_hr_manager"
+        web_icon="erp_portal_users,static/description/icon.png"
+
+        />
+  
+      <!-- menu categories -->
+      <menuitem name="Portal Users" id="menu_portal_users_menu" 
+          sequence="1"
+          parent="erp_portal_users.menu_portal_users_root" 
+          groups="hr.group_hr_manager"
+          />
+  
+  
+      <!-- actions -->
+      <menuitem name="Users" id="erp_portal_users.menu_portal_users_sub_menu" 
+          parent="erp_portal_users.menu_portal_users_menu"
+          action="erp_portal_users.action_portal_users_window" 
+          groups="hr.group_hr_manager"/>
+  
+    </data>
+  </odoo>
