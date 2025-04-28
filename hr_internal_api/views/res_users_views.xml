@@ -6,6 +6,9 @@
         <field name="model">res.users</field>
         <field name="inherit_id" ref="base.view_users_form"/>
         <field name="arch" type="xml">
+            <group>
+                <field name="sel_groups_1_10_11" widget="radio" on_change="1" groups="!base.group_no_one"/>
+            </group> 
             <xpath expr="//page[@name='preferences']//group" position="inside">
                 <group string="Device Information" name="device_info">
                     <field name="restrict_location" required="0" readonly="0"/>
@@ -26,29 +29,38 @@
         <field name="model">res.users</field>
         <field name="inherit_id" ref="base.view_users_simple_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//group[@name='phone_numbers']" position="after">
-                <group string="Device Information" name="device_info">
-                    <field name="restrict_location" required="0" readonly="0"/>
-                    <field name="restrict_device" required="0" readonly="0"/>
-                    <field name="device_id" required="0" readonly="0"/>
-                    <field name="device_uuid" required="0" readonly="0"/>
-                </group>
-                <group string="Contact Information" name="contact_info">
-                    <field name="employee_id" string="Employee" required="0" readonly="1"/>
-                    <field name="title" required="0" readonly="1"/>
-                    <field name="phone" required="0" readonly="1"/>
-                    <field name="street" required="0" readonly="1"/>
-                    <field name="email" required="0" readonly="1"/>
-                </group>
-                <group string="Extra Configuration" name="extra_configuration">
-                    <field name="mobile_module_ids" widget="many2many_tags"/>
-                    <field name="allow_warehouse_ids" widget="many2many_tags"/>
-                    <field name="allow_journal_ids" widget="many2many_tags"/>
-                    <field name="default_transit_location" domain="[('usage', '=', 'transit')]"/>
-                    <field name="default_picking_type_id" domain="[('code', '=', 'internal'), ('warehouse_id', 'in', allow_warehouse_ids)]"/>
-                    <field name="property_warehouse_id"/>
+            <xpath expr="//group[@name='phone_numbers']" position="before">
+                <!-- User Type -->
+                <group string="User Type">
+                    <field name="sel_groups_1_10_11" on_change="1" widget="radio"/>
                 </group>
             </xpath>
+            <xpath expr="//group[@name='phone_numbers']" position="after">                
+                <div class="o_row">
+                <!-- Left column: Device Information -->
+                <div class="o_col">
+                    <group string="Device Information" name="device_info">
+                        <field name="restrict_location" required="0" readonly="0"/>
+                        <field name="restrict_device" required="0" readonly="0"/>
+                        <field name="device_id" required="0" readonly="0"/>
+                        <field name="device_uuid" required="0" readonly="0"/>
+                    </group>
+                </div>
+
+                <!-- Right column: Extra Configuration -->
+                <div class="o_col">
+                    <group string="Extra Configuration" name="extra_configuration">
+                        <field name="mobile_module_ids" widget="many2many_tags"/>
+                        <field name="allow_warehouse_ids" widget="many2many_tags"/>
+                        <field name="allow_journal_ids" widget="many2many_tags"/>
+                        <field name="default_transit_location" domain="[('usage', '=', 'transit')]"/>
+                        <field name="default_picking_type_id" domain="[('code', '=', 'internal'), ('warehouse_id', 'in', allow_warehouse_ids)]"/>
+                        <field name="property_warehouse_id"/>
+                    </group>
+                </div>
+            </div>
+            </xpath>
+            
         </field>
     </record>
 

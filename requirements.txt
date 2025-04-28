@@ -2,3 +2,4 @@
 
 geopy==2.4.1
 firebase_admin==6.6.0
+pandas==2.2.3
