@@ -341,7 +341,7 @@ class SaleQuotationAPI(http.Controller):
                 ],
                 "subtotal": sale.currency_id.format(sale.amount_untaxed),
                 "tax": sale.currency_id.format(sale.amount_tax),
-                "exchange_rate": sale.currency_id.format(sale.exchange_rate),
+                "exchange_rate": sale.khr_currency_id.format(sale.exchange_rate),
                 "total": sale.amount_total,
                 "display_total": sale.currency_id.format(sale.amount_total),
                 "display_secondary_total": self._get_secondary_total(sale) or "",
