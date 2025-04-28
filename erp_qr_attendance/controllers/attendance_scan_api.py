@@ -148,25 +148,250 @@ class AttendanceScanAPI(http.Controller):
             status=200
         )
 
+    # @validate_jwt
+    # @http.route('/api/check_scan_location_distance', type='json', auth='none', methods=['POST'], csrf=False)
+    # def attendance_checking_distance(self, uid, **payload):
+    #     if not payload:
+    #         payload = json.loads(request.httprequest.data)
+
+    #     scan_location = self.get_scan_location(uid, payload.get('latitude'), payload.get('longitude'))
+    #     if scan_location['distance'] > 1000:
+    #         distance = round(scan_location['distance']/1000, 2)
+    #         distance = str(distance)+"Km"
+    #     else:
+    #         distance = round(scan_location['distance'], 2)
+    #         distance = str(distance) + "m"
+    #     message = "You are " + distance + " from "+scan_location['location_name']
+    #     # return valid_response(
+    #     #     data={
+    #     #         'location_id': scan_location['location_id'],
+    #     #         'location_name': scan_location['location_name'],
+    #     #         'distance': scan_location['distance'],
+    #     #         'message': message,
+    #     #     },
+    #     #     status=200
+    #     # )
+        
+    #     # === Testing ===
+    #     user_tz = request.env.user.tz or request.env.context.get('tz')
+    #     date_today = datetime.now().astimezone(timezone(user_tz)).strftime('%Y-%m-%d')
+    #     dayofweek = datetime.now().astimezone(timezone(user_tz)).weekday()
+    #     employee = get_table_model('hr.employee').search([('user_id', '=', uid)], limit=1)
+        
+    #     resource_calendar_id = employee.resource_calendar_id
+    #     working_hours = resource_calendar_id.attendance_ids.filtered(lambda x: x.dayofweek == str(dayofweek))
+    #     domain = [('user_id', '=', uid)]
+    #     if resource_calendar_id.is_cross_day_shift:
+    #         date_now = datetime.now().astimezone(timezone(user_tz)).strftime('%Y-%m-%d %H:%M:%S')
+    #         if datetime.strptime(date_now, '%Y-%m-%d %H:%M:%S').hour < 12:
+    #             domain += [
+    #                 ('scan_time', '>=',
+    #                  datetime.strptime(date_today, '%Y-%m-%d').replace(hour=12, minute=0, second=0)
+    #                  - timedelta(days=1)),
+    #                 ('scan_time', '<=',
+    #                  datetime.strptime(date_today, '%Y-%m-%d').replace(hour=11, minute=59, second=59))
+    #             ]
+    #         else:
+    #             print(f"=== else")
+    #             domain += [
+    #                 ('scan_time', '>=',
+    #                  datetime.strptime(date_today, '%Y-%m-%d').replace(hour=12, minute=0, second=0)),
+    #                 ('scan_time', '<=',
+    #                  datetime.strptime(date_today, '%Y-%m-%d').replace(hour=11, minute=59, second=59)
+    #                  + timedelta(days=1))
+    #             ]
+    #     else:
+    #         domain += [
+    #             ('date', '=', date_today)
+    #         ]
+
+    #     logs = get_table_model('scan.qr.attendance').search(domain)
+    #     print(f"=== logs: {logs}")
+    #     is_check_in = False
+    #     is_check_out = False
+    #     is_break_in = False
+    #     is_break_out = False
+
+    #     for log in logs:
+    #         if log.scan_type == 'check_in':
+    #             is_check_in = True
+
+    #         if log.scan_type == 'check_out':
+    #             is_check_out = True
+
+    #         if log.scan_type == 'break_in':
+    #             is_break_in = True
+
+    #         if log.scan_type == 'break_out':
+    #             is_break_out = True
+
+    #     if resource_calendar_id.is_cross_day_shift or len(working_hours) == 1:
+    #         if not logs:
+    #             default_scan_type = 'check_in'
+    #         elif is_check_in and not is_check_out:
+    #             default_scan_type = 'check_out'
+    #         else:
+    #             return invalid_response(
+    #                 type='Bad Request', 
+    #                 message="You already done scan attendances for today!",
+    #                 status=400)
+
+    #     else:
+    #         if not logs:
+    #             default_scan_type = 'check_in'
+
+    #         elif is_check_in and not is_break_out:
+    #             default_scan_type = 'break_out'
+
+    #         elif is_break_out and not is_break_in:
+    #             default_scan_type = 'break_in'
+
+    #         elif is_break_in and not is_check_out:
+    #             default_scan_type = 'check_out'
+
+    #         elif is_check_in and is_break_out and is_break_in and is_check_out:
+    #             default_scan_type = 'check_out'
+
+    #         else:
+    #             return invalid_response(
+    #                 type='Bad Request', 
+    #                 message="You already done scan attendances for today!",
+    #                 status=400)
+            
+    #     scan_location = self.get_scan_location(uid, payload.get('latitude'), payload.get('longitude'))
+    #     if not scan_location:
+    #         return invalid_response(type='Bad Request', message="Location not found!",
+    #                                      status=400)
+    #     if scan_location['distance'] > 1000:
+    #         distance = round(scan_location['distance'] / 1000, 2)
+    #         distance = str(distance) + "Km"
+    #     else:
+    #         distance = round(scan_location['distance'], 2)
+    #         distance = str(distance) + "m"
+    #     message = "You are " + distance + " from " + scan_location['location_name']
+        
+    #     return valid_response(
+    #         data={
+    #             'location_id': scan_location['location_id'],
+    #             'location_name': scan_location['location_name'],
+    #             'distance': scan_location['distance'],
+    #             'default_scan_type': default_scan_type,
+    #             'message': message,
+    #         },
+    #         status=200
+    #     )
+
     @validate_jwt
     @http.route('/api/check_scan_location_distance', type='json', auth='none', methods=['POST'], csrf=False)
     def attendance_checking_distance(self, uid, **payload):
         if not payload:
             payload = json.loads(request.httprequest.data)
 
+        user_tz = request.env.user.tz or request.env.context.get('tz') or 'Asia/Phnom_Penh'
+        now = datetime.now().astimezone(timezone(user_tz))
+        today_date = now.strftime('%Y-%m-%d')
+        weekday = str(now.weekday())  # Monday = 0
+
+        employee = get_table_model('hr.employee').search([('user_id', '=', uid)], limit=1)
+        if not employee:
+            return invalid_response(type='Not Found', message="Employee not found!", status=404)
+
+        calendar = employee.resource_calendar_id
+        if not calendar:
+            return invalid_response(type='Not Found', message="Employee has no Working Hours set!", status=404)
+
+        # Calculate current scan_hour
+        scan_hour = now.hour + now.minute / 60.0
+
+        # Get morning_end time
+        morning_attendances = calendar.attendance_ids.filtered(lambda a: a.day_period == 'morning')
+        if morning_attendances:
+            today_morning = morning_attendances.filtered(lambda a: a.dayofweek == weekday)
+            morning_end = today_morning[0].hour_to if today_morning else 12.0
+            print(f"=== today_morning: {today_morning}, morning_end: {morning_end}")
+        else:
+            morning_end = 12.0  # Default
+
+        # Determine day_period
+        day_period = 'morning' if scan_hour < morning_end else 'afternoon'
+
+        # Find scan logs today
+        domain = [('user_id', '=', uid)]
+        print(f"=== now: {now.hour}")
+        if calendar.is_cross_day_shift:
+            if now.hour < 12:
+                domain += [
+                    ('scan_time', '>=', datetime.strptime(today_date, '%Y-%m-%d').replace(hour=12, minute=0, second=0) - timedelta(days=1)),
+                    ('scan_time', '<=', datetime.strptime(today_date, '%Y-%m-%d').replace(hour=11, minute=59, second=59))
+                ]
+            else:
+                domain += [
+                    ('scan_time', '>=', datetime.strptime(today_date, '%Y-%m-%d').replace(hour=12, minute=0, second=0)),
+                    ('scan_time', '<=', datetime.strptime(today_date, '%Y-%m-%d').replace(hour=11, minute=59, second=59) + timedelta(days=1))
+                ]
+        else:
+            domain += [('date', '=', today_date)]
+
+        logs = get_table_model('scan.qr.attendance').search(domain)
+
+        # Check existing scans
+        morning_logs = logs.filtered(lambda l: l.day_period == 'morning')
+        afternoon_logs = logs.filtered(lambda l: l.day_period == 'afternoon')
+        print(f"=== morning_logs: {morning_logs}")
+        print(f"=== afternoon_logs: {afternoon_logs}")
+
+        default_scan_type = None
+
+        if day_period == 'morning':
+            print("=== morning")
+            is_check_in = any(l.scan_type == 'check_in' for l in morning_logs)
+            is_check_out = any(l.scan_type == 'check_out' for l in morning_logs)
+
+            if not is_check_in:
+                default_scan_type = 'check_in'
+            elif is_check_in and not is_check_out:
+                default_scan_type = 'check_out'
+            else:
+                return invalid_response(
+                    type='Bad Request',
+                    message="You already done morning scan attendances!",
+                    status=400)
+
+        elif day_period == 'afternoon':
+            print("=== afternoon: ")
+            is_check_in = any(l.scan_type == 'check_in' for l in afternoon_logs)
+            is_check_out = any(l.scan_type == 'check_out' for l in afternoon_logs)
+
+            if not is_check_in:
+                default_scan_type = 'check_in'
+            elif is_check_in and not is_check_out:
+                default_scan_type = 'check_out'
+            else:
+                return invalid_response(
+                    type='Bad Request',
+                    message="You already done afternoon scan attendances!",
+                    status=400)
+
+        # Get scan location
         scan_location = self.get_scan_location(uid, payload.get('latitude'), payload.get('longitude'))
+        if not scan_location:
+            return invalid_response(type='Bad Request', message="Location not found!", status=400)
+
         if scan_location['distance'] > 1000:
-            distance = round(scan_location['distance']/1000, 2)
-            distance = str(distance)+"Km"
+            distance = round(scan_location['distance'] / 1000, 2)
+            distance_str = str(distance) + "Km"
         else:
             distance = round(scan_location['distance'], 2)
-            distance = str(distance) + "m"
-        message = "You are " + distance + " from "+scan_location['location_name']
+            distance_str = str(distance) + "m"
+
+        message = f"You are {distance_str} from {scan_location['location_name']}"
+
         return valid_response(
             data={
                 'location_id': scan_location['location_id'],
                 'location_name': scan_location['location_name'],
                 'distance': scan_location['distance'],
+                'default_scan_type': default_scan_type,
                 'message': message,
             },
             status=200
