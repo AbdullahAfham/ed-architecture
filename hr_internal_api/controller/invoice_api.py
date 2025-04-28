@@ -60,8 +60,7 @@ class InvoiceAPI(http.Controller):
         except Exception as e:
             return invalid_response_http("Bad Request", str(e), status=400)
 
-    @staticmethod
-    def _get_invoice_detail(invoice):
+    def _get_invoice_detail(self, invoice):
         return {
             'body': [
                 {
@@ -138,7 +137,10 @@ class InvoiceAPI(http.Controller):
                 ],
                 'subtotal': invoice.currency_id.format(invoice.amount_untaxed),
                 'tax': invoice.currency_id.format(invoice.amount_tax),
-                'total': invoice.currency_id.format(invoice.amount_total),
+                'exchange_rate': invoice.khr_currency_id.format(invoice.exchange_rate),
+                'total': invoice.amount_total,
+                'display_total': invoice.currency_id.format(invoice.amount_total),
+                'display_secondary_total': self._get_secondary_total(invoice) or "",
             },
             'payments': [{
                 'id': payment.id,
@@ -154,6 +156,13 @@ class InvoiceAPI(http.Controller):
                 'symbol': invoice.currency_id.symbol,
             },
         }
+
+    def _get_secondary_total(self, invoice) -> str:
+        main_currency = invoice.currency_id.name
+        if main_currency == 'USD':
+            return invoice.khr_currency_id.format(invoice.amount_total_khr)
+        elif main_currency == 'KHR':
+            return invoice.usd_currency_id.format(invoice.amount_total_usd)
 
     @validate_jwt
     @http.route('/api/get_invoices_by_sale_id/<int:sale_id>', type="http", auth="none", methods=["get"], csrf=False)
