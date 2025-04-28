@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_call_plans,access_call_plans,model_call_plans,base.group_user,1,1,1,1
+access_call_plans_stages,access_call_plans_stages,model_call_plans_stages,base.group_user,1,1,1,1
+access_call_plans_tags,access_call_plans_tags,model_call_plans_tags,base.group_user,1,1,1,1
+access_call_plans_types,access_call_plans_types,model_call_plans_types,base.group_user,1,1,1,1

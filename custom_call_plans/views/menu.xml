@@ -1,0 +1,45 @@
+<!-- ring_pull_management/views/menu.xml -->
+
+<odoo>
+    <menuitem
+            id="menu_call_plans_root"
+            name="Call Plans"
+            web_icon="custom_call_plans,static/description/icon.png"
+            sequence="10"
+    />
+
+    <menuitem
+            id="menu_call_plans"
+            name="Call Plans"
+            parent="menu_call_plans_root"
+            action="action_call_plans"
+    />
+
+    <menuitem
+            id="menu_call_plans_configuration"
+            name="Configuration"
+            parent="menu_call_plans_root"
+    />
+
+    <menuitem
+            id="menu_call_plans_stages"
+            name="Call Plans Stages"
+            parent="menu_call_plans_configuration"
+            action="action_call_plans_stages"
+    />
+
+    <menuitem
+            id="menu_call_plans_tags"
+            name="Call Plans Tags"
+            parent="menu_call_plans_configuration"
+            action="action_call_plans_tags"
+    />
+
+    <menuitem
+            id="menu_call_plans_types"
+            name="Call Plans Types"
+            parent="menu_call_plans_configuration"
+            action="action_call_plans_types"
+    />
+
+</odoo>
