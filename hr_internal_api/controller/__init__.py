@@ -1,6 +1,7 @@
 from . import main
 from . import helper
 from . import jsonrequest
+from . import ir_attachment_api
 from . import attendance_api
 from . import overtime_api
 from . import payslip_api
