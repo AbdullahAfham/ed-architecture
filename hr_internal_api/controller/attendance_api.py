@@ -41,7 +41,7 @@ class AttendanceAPI(http.Controller):
                         'name': attendance.employee_id.name,
                     },
                     'date': attendance.punching_day.strftime("%d-%m-%Y") if attendance.punching_day else '',
-                    'check_in': attendance.check_in,
+                    'check_in': attendance.punch_in,
                     'check_out': attendance.check_out,
                     'break_in': attendance.break_in,
                     'break_out': attendance.break_out,
@@ -68,8 +68,7 @@ class AttendanceAPI(http.Controller):
 
     # get current user attendances by date format: yyyy-mm-dd (attendance of the whole day)
     @validate_jwt
-    @http.route('/api/get_user_attendances_by_date/<string:date>', type="http", auth="none", methods=["get"],
-                csrf=False)
+    @http.route('/api/get_user_attendances_by_date/<string:date>', type="http", auth="none", methods=["get"], csrf=False)
     def get_user_attendances_by_date(self, uid, date, **payload):
         try:
             attendance_model = get_table_model('hr.attendance')
@@ -78,9 +77,10 @@ class AttendanceAPI(http.Controller):
             local_tz = pytz.timezone(user_id.tz or 'GMT')
             attendances = attendances.filtered(
                 lambda r: r.punching_day and r.punching_day.strftime("%Y-%m-%d") == date)
+            
             val = []
             for attendance in attendances:
-                check_in = local_tz.localize(attendance.check_in, is_dst=None)
+                punch_in = local_tz.localize(attendance.check_in, is_dst=None)
                 val.append({
                     'id': attendance.id,
                     'employee_id': {
@@ -88,7 +88,7 @@ class AttendanceAPI(http.Controller):
                         'name': attendance.employee_id.name,
                     },
                     'date': attendance.punching_day.strftime("%d-%m-%Y") if attendance.punching_day else '',
-                    'check_in': check_in,
+                    'check_in': punch_in,
                     'check_out': attendance.check_out,
                     'break_in': attendance.break_in,
                     'break_out': attendance.break_out,
@@ -99,6 +99,7 @@ class AttendanceAPI(http.Controller):
                     'write_date': attendance.write_date,
                     'write_uid': attendance.write_uid.id,
                 })
+                
             return valid_response_http(data=val, status=200)
         except Exception as e:
             return invalid_response_http(type(e).__name__, message=str(e), status=400)
@@ -128,6 +129,8 @@ class AttendanceAPI(http.Controller):
             weekend = 0
             cancel = 0
             val = []
+            grouped_attendances = {}
+
             for attendance in attendances:
                 if attendance.state == 'presence':
                     present += 1
@@ -142,25 +145,45 @@ class AttendanceAPI(http.Controller):
                 elif attendance.state == 'missed':
                     missed += 1
 
-                val.append({
-                    'id': attendance.id,
-                    'employee_id': {
-                        'id': attendance.employee_id.id,
-                        'name': attendance.employee_id.name,
-                    },
-                    'date': attendance.punching_day.strftime("%d-%m-%Y") if attendance.punching_day else '',
-                    'check_in': attendance.check_in,
-                    'check_out': attendance.check_out,
-                    'break_in': attendance.break_in,
-                    'break_out': attendance.break_out,
-                    'worked_hours': attendance.worked_hours,
-                    'status': attendance.state,
-                    'create_date': attendance.create_date,
-                    'create_uid': attendance.create_uid.id,
-                    'write_date': attendance.write_date,
-                    'write_uid': attendance.write_uid.id,
-                })
+                # date = attendance.punching_day.strftime("%Y-%m-%d") if attendance.punching_day else ''
+                date = attendance.punching_day.strftime("%d-%m-%Y") if attendance.punching_day else ''
+                if date not in grouped_attendances:
+                    grouped_attendances[date] = {
+                        'id': attendance.id,
+                        'employee_id': {
+                            'id': attendance.employee_id.id,
+                            'name': attendance.employee_id.name,
+                        },
+                        'date': date,
+                        'check_in': None,
+                        'check_out': None,
+                        'break_in': None,
+                        'break_out': None,
+                        'worked_hours': attendance.worked_hours,
+                        'status': attendance.state,
+                        'create_date': attendance.create_date,
+                        'create_uid': attendance.create_uid.id,
+                        'write_date': attendance.write_date,
+                        'write_uid': attendance.write_uid.id,
+                    }
+                
+                # len(attendances) == 2
+                if attendance.day_period == 'morning':
+                    grouped_attendances[date]['check_in'] = attendance.punch_in if attendance.punch_in else None
+                    grouped_attendances[date]['break_out'] = attendance.break_out if attendance.break_out else None
+                elif attendance.day_period == 'afternoon':
+                    grouped_attendances[date]['break_in'] = attendance.break_in if attendance.break_in else None
+                    grouped_attendances[date]['check_out'] = attendance.punch_ou if attendance.punch_ou else None
 
+                # len(attendances) == 1
+                if len(attendances) == 1 and attendance.day_period == 'afternoon':
+                    grouped_attendances[date]['check_in'] = ""
+                    grouped_attendances[date]['break_out'] = ""
+                    grouped_attendances[date]['break_in'] = attendance.punch_in if attendance.punch_in else None
+                    # grouped_attendances[date]['check_out'] = attendance.check_out if attendance.check_out else None
+
+            val = list(grouped_attendances.values())
+            
             data = {
                 'present': present,
                 'absent': absent,
@@ -209,7 +232,7 @@ class AttendanceAPI(http.Controller):
     @http.route('/api/attendance', type="http", auth="none", methods=["get"], csrf=False)
     def get_user_attendances(self, uid, **payload):
         try:
-            leave_model = get_table_model('hr.attendance')
+            attendance_model = get_table_model('hr.attendance')
 
             domain = [('employee_id.user_id', '=', uid)]
             if payload.get('start_date'):
@@ -217,7 +240,8 @@ class AttendanceAPI(http.Controller):
             if payload.get('end_date'):
                 domain.append(('punching_day', '<=', payload.get('end_date')))
 
-            attendances = leave_model.search(domain)
+            attendances = attendance_model.search(domain)
+            grouped_attendances = {}
 
             present = 0
             absent = 0
@@ -237,25 +261,44 @@ class AttendanceAPI(http.Controller):
                     holiday += 1
                 elif attendance.state == 'cancel':
                     cancel += 1
+    
+                date = attendance.punching_day.strftime("%Y-%m-%d") if attendance.punching_day else ''
+                if date not in grouped_attendances:
+                    grouped_attendances[date] = {
+                        'id': attendance.id,
+                        'employee_id': {
+                            'id': attendance.employee_id.id,
+                            'name': attendance.employee_id.name,
+                        },
+                        'date': date,
+                        'check_in': None,
+                        'check_out': None,
+                        'break_in': None,
+                        'break_out': None,
+                        'worked_hours': attendance.worked_hours,
+                        'status': attendance.state,
+                        'create_date': attendance.create_date,
+                        'create_uid': attendance.create_uid.id,
+                        'write_date': attendance.write_date,
+                        'write_uid': attendance.write_uid.id,
+                    }
+                
+                # len(attendances) == 2
+                if attendance.day_period == 'morning':
+                    grouped_attendances[date]['check_in'] = attendance.punch_in if attendance.punch_in else None
+                    grouped_attendances[date]['break_out'] = attendance.break_out if attendance.break_out else None
+                elif attendance.day_period == 'afternoon':
+                    grouped_attendances[date]['break_in'] = attendance.break_in if attendance.break_in else None
+                    grouped_attendances[date]['check_out'] = attendance.check_out if attendance.check_out else None
 
-                val.append({
-                    'id': attendance.id,
-                    'employee_id': {
-                        'id': attendance.employee_id.id,
-                        'name': attendance.employee_id.name,
-                    },
-                    'date': attendance.punching_day.strftime("%d-%m-%Y") if attendance.punching_day else '',
-                    'check_in': attendance.check_in,
-                    'check_out': attendance.check_out,
-                    'break_in': attendance.break_in,
-                    'break_out': attendance.break_out,
-                    'worked_hours': attendance.worked_hours,
-                    'status': attendance.state,
-                    'create_date': attendance.create_date,
-                    'create_uid': attendance.create_uid.id,
-                    'write_date': attendance.write_date,
-                    'write_uid': attendance.write_uid.id,
-                })
+                # len(attendances) == 1
+                if len(attendances) == 1 and attendance.day_period == 'afternoon':
+                    grouped_attendances[date]['check_in'] = ""
+                    grouped_attendances[date]['break_out'] = ""
+                    grouped_attendances[date]['break_in'] = attendance.punch_in if attendance.punch_in else None
+                    # grouped_attendances[date]['check_out'] = attendance.check_out if attendance.check_out else None
+
+            val = list(grouped_attendances.values())
 
             data = {
                 'present': present,
