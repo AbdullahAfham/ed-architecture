@@ -19,3 +19,4 @@ from . import invoice_api
 from . import payment_api
 from . import stock_delivery_api
 from . import stock_request_api
+from . import stock_on_hand_api
