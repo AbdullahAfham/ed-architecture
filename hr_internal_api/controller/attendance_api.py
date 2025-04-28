@@ -170,9 +170,9 @@ class AttendanceAPI(http.Controller):
                 # len(attendances) == 2
                 if attendance.day_period == 'morning':
                     grouped_attendances[date]['check_in'] = attendance.punch_in if attendance.punch_in else None
-                    grouped_attendances[date]['break_out'] = attendance.break_out if attendance.break_out else None
+                    grouped_attendances[date]['break_out'] = attendance.punch_out if attendance.punch_out else None
                 elif attendance.day_period == 'afternoon':
-                    grouped_attendances[date]['break_in'] = attendance.break_in if attendance.break_in else None
+                    grouped_attendances[date]['break_in'] = attendance.punch_in if attendance.punch_in else None
                     grouped_attendances[date]['check_out'] = attendance.punch_out if attendance.punch_out else None
 
                 # len(attendances) == 1
@@ -286,9 +286,9 @@ class AttendanceAPI(http.Controller):
                 # len(attendances) == 2
                 if attendance.day_period == 'morning':
                     grouped_attendances[date]['check_in'] = attendance.punch_in if attendance.punch_in else None
-                    grouped_attendances[date]['break_out'] = attendance.break_out if attendance.break_out else None
+                    grouped_attendances[date]['break_out'] = attendance.punch_out if attendance.punch_out else None
                 elif attendance.day_period == 'afternoon':
-                    grouped_attendances[date]['break_in'] = attendance.break_in if attendance.break_in else None
+                    grouped_attendances[date]['break_in'] = attendance.punch_in if attendance.punch_in else None
                     grouped_attendances[date]['check_out'] = attendance.punch_out if attendance.punch_out else None
 
                 # len(attendances) == 1
