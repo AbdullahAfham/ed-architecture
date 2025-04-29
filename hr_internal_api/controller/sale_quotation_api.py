@@ -3,9 +3,13 @@ from odoo.http import request, content_disposition
 from odoo.addons.hr_internal_api.controller.helper import validate_jwt, get_table_model,\
     valid_response, invalid_response, valid_response_http, invalid_response_http,\
     get_selection_string_value, combine_date_with_current_time
+from odoo.osv import expression
+from datetime import datetime, date, time, timedelta\
 
-from datetime import datetime
 import json
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class SaleQuotationAPI(http.Controller):
@@ -369,5 +373,64 @@ class SaleQuotationAPI(http.Controller):
                 ('Content-Disposition', content_disposition(f'SaleQuotation_{sale_order.name}.pdf'))
             ]
             return request.make_response(pdf_content, headers=pdf_http_headers)
+        except Exception as e:
+            return invalid_response_http("Bad Request", str(e), status=400)
+
+    @validate_jwt
+    @http.route('/api/get_orders_invoices_count', type="http", auth="none", methods=["post"], csrf=False)
+    def get_orders_invoices_count(self, uid, **payload):
+        if not payload:
+            payload = json.loads(request.httprequest.data)
+
+        current_user = get_table_model('res.users').search([('id', '=', uid)])
+        if not current_user:
+            return invalid_response_http('Not Found', 'User not found.', status=404)
+
+        order_date = payload.get('order_date')
+        if not order_date:
+            return invalid_response_http('Bad Request', 'Order Date is required.', status=400)
+        
+        try:
+            order_date = datetime.strptime(order_date, '%Y-%m-%d')
+            order_date_min = datetime.combine(order_date.date(), time.min)  # 00:00:00
+            order_date_max = datetime.combine(order_date.date(), time.max)  # 23:59:59.999999
+
+            domain = expression.AND([
+                [('state', '=', 'sale')],
+                [('create_date', '>=', order_date_min)],
+                [('create_date', '<=', order_date_max)],
+                [('company_id', 'in', current_user.company_ids.ids)],
+                expression.OR([
+                    [('create_uid', '=', uid)],
+                    # [('employee_id', 'in', current_user.employee_ids.ids)],
+                ])
+            ])
+
+            orders = get_table_model('sale.order').search(domain)
+
+            currency = orders.mapped('currency_id')
+            if len(currency) > 1:
+                currency = currency[-1]
+                _logger.warning('There is more than one currency in Sale Orders and therefore we decide to use the last one.')
+
+            total_orders, total_invoices, total_payments = "", "", ""
+            if orders and currency:
+                total_orders = currency.format(
+                    sum(order.amount_total for order in orders)
+                )
+                total_invoices = currency.format(
+                    sum(invoice.amount_total_in_currency_signed for invoice in orders.invoice_ids if invoice.state == 'posted')
+                )
+                total_payments = currency.format(
+                    sum(payment.amount for payment in orders.invoice_ids.matched_payment_ids if payment.state == 'paid')
+                )
+
+            response = [{
+                'order_count': len(orders),
+                'total_orders': total_orders,
+                'total_invoices': total_invoices,
+                'total_payments': total_payments,
+            }]
+            return valid_response_http(data=response, status=200)
         except Exception as e:
             return invalid_response_http("Bad Request", str(e), status=400)
