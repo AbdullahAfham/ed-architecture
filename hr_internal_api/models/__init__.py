@@ -9,6 +9,5 @@ from . import mobile_module
 from . import main
 # from . import hr_leave
 
-from . import partner_visit_history
 from . import res_partner
 from . import product_pricelist
