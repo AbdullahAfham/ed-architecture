@@ -211,14 +211,13 @@ class CallPlansAPI(http.Controller):
 
     def _prepare_call_plan(self, call_plan):
         """ Prepare `call.plans` data to be returned. """
-        partner_employee = call_plan.partner_id.employee_id
         return {
             'id': call_plan.id,
             'name': call_plan.name,
             'name_en': call_plan.partner_id.khmer_name or call_plan.partner_id.name,
             'name_km': call_plan.partner_id.name,
             'phone': call_plan.partner_id.phone or "",
-            'profile_url': f'/api/get_employee_image/{partner_employee.id}' if partner_employee else "",
+            'profile_url': f'/web/image/res.partner/{call_plan.partner_id.id}/image_1920',
             'date': call_plan.date and call_plan.date.strftime('%Y-%m-%d') or "",
             'plan_type': {
                 'id': call_plan.plan_type_id.id,
