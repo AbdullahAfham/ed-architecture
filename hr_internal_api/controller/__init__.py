@@ -11,7 +11,6 @@ from . import notification_api
 from . import announcement_api
 from . import courses_api
 from . import appraisal_api
-from . import partner_visit_history_api
 from . import product_api
 from . import quick_sale_api
 from . import sale_quotation_api

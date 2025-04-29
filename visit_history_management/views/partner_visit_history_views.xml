@@ -77,6 +77,7 @@
 
     <menuitem id="menu_visit_history_root"
         name="Visit History"
+        web_icon="visit_history_management,static/description/icon.png"
         sequence="100"
     />
 
