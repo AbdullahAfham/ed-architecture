@@ -341,7 +341,8 @@ class SaleQuotationAPI(http.Controller):
                     'uom': line.product_uom.name,
                     'unit_price': sale.currency_id.format(line.price_unit),
                     'subtotal': sale.currency_id.format(line.price_subtotal),
-                    'order_line_id': line.id } for line in sale.order_line
+                    'order_line_id': line.id,
+                    } for line in sale.order_line.filtered(lambda x: not x.display_type)
                 ],
                 "subtotal": sale.currency_id.format(sale.amount_untaxed),
                 "tax": sale.currency_id.format(sale.amount_tax),
