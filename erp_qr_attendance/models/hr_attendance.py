@@ -204,10 +204,10 @@ class HrAttendance(models.Model):
 
             for logs in scan_qr_logs:
                 if logs.late_state == 'late':
-                    if rec.day_period == 'morning' and logs.scan_type in ['check_in', 'check_out', 'break_out']:
+                    if rec.day_period == 'morning' and logs.scan_type in ['check_in', 'break_out']:
                         late_duration += logs.late
                         late_count += 1
-                    elif rec.day_period == 'afternoon' and logs.scan_type in ['break_in', 'check_in', 'check_out']:
+                    elif rec.day_period == 'afternoon' and logs.scan_type in ['break_in', 'check_out']:
                         late_duration += logs.late
                         late_count += 1
 
