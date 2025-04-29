@@ -12,6 +12,3 @@ access_blacklist_token_portal,blacklist.token portal,model_blacklist_token,base.
 access_mobile_module_portal,mobile.module portal,model_mobile_module,base.group_portal,1,1,1,0
 access_mobile_module_root,mobile.module root,model_mobile_module,base.group_user,1,1,1,1
 access_device_info_root,device.info root,model_device_info,base.group_user,1,1,1,1
-
-acess_visit_history,acess_visit_history,model_visit_history,base.group_user,1,1,1,1
-acess_visit_history_location,acess_visit_history_location,model_visit_history_location,base.group_user,1,1,1,1
