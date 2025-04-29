@@ -44,8 +44,8 @@
         id="wizard_create_absent_attendance_menu"
         name="Create Absent Attendance"
         action="action_create_absent_attendance_wizard"
-        parent="erp_qr_attendance.menu_scan_configuration"
-        sequence="29"
+        parent="hr_attendance.menu_hr_attendance_configuration"
+        sequence="102"
         groups="hr.group_hr_manager"
     />
 

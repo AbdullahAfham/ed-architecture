@@ -44,8 +44,8 @@
         id="wizard_update_attendance_menu"
         name="Update Attendance"
         action="action_update_attendance_wizard"
-        parent="erp_qr_attendance.menu_scan_configuration"
-        sequence="29"
+        parent="hr_attendance.menu_hr_attendance_configuration"
+        sequence="101"
         groups="hr.group_hr_manager"
     />
 

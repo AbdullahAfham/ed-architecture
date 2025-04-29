@@ -854,83 +854,6 @@ class HrAttendance(models.Model):
                         if attendance.state == 'missed':
                             attendance.write({'missed_count': attendance.missed_count + 1})
 
-    # def pre_create_attendance(self):
-    #     date = (datetime.now() + relativedelta(hours=+7)).date()
-    #     _logger.info(f"=== Pre create attendance: {date}")
-
-    #     dayofweek = date.weekday()
-    #     employees = self.env['hr.employee'].search([('active', '=', True)])           
-    #     holiday = self._holiday_exists(date)
-
-    #     for employee in employees:
-    #         shift_check_in = shift_check_out = shift_break_in = shift_break_out = 0.0
-    #         attendance_exists = self._attendance_exists(employee, date)
-    #         contract = self.env['hr.contract'].search([
-    #             ('employee_id', '=', employee.id),
-    #             ('state', '=', 'open'),
-    #         ], limit=1)
-
-    #         _logger.info(f"=== calender: {employee.name}, {employee.resource_calendar_id}")
-                
-    #         # attendance_ids = contract.resource_calendar_id.attendance_ids
-    #         working_hours = self._get_working_hours(employee, dayofweek)
-    #         if attendance_exists:
-    #             continue
-
-    #         if len(working_hours) == 2:
-    #             for calendar_attendance in employee.resource_calendar_id.attendance_ids.filtered(
-    #                     lambda att: str(dayofweek) == str(att.dayofweek)):
-    #                 if calendar_attendance.day_period == 'morning':
-    #                     shift_check_in = calendar_attendance.hour_from
-    #                     shift_break_out = calendar_attendance.hour_to
-    #                 elif calendar_attendance.day_period == 'afternoon':
-    #                     shift_break_in = calendar_attendance.hour_from
-    #                     shift_check_out = calendar_attendance.hour_to
-    #         if len(working_hours) == 1:
-    #             for calendar_attendance in employee.resource_calendar_id.attendance_ids.filtered(
-    #                     lambda att: str(dayofweek) == str(att.dayofweek)):
-    #                 shift_check_in = calendar_attendance.hour_from
-    #                 shift_check_out = calendar_attendance.hour_to
-    #         time_off = self._time_off_exists(employee, date)
-
-    #         working_hours_exists = any(
-    #             attendance.dayofweek == str(dayofweek) for attendance in employee.resource_calendar_id.attendance_ids)
-
-    #         # attendance_state = 'absence'
-    #         # if not contract:
-    #         #     attendance_state = 'cancel'
-    #         # elif not working_hours_exists:
-    #         #     attendance_state = 'weekend'
-    #         # elif time_off:
-    #         #     attendance_state = time_off.holiday_status_id.attendance_state \
-    #         #         if time_off.holiday_status_id.attendance_state else 'time_off'
-    #         # elif holiday:
-    #         #     attendance_state = 'holiday'
-
-    #         attendance_state = 'absence'
-    #         # if not contract:
-    #         #     attendance_state = 'cancel'
-    #         if holiday:
-    #             attendance_state = 'holiday'
-    #         elif time_off:
-    #             attendance_state = time_off.holiday_status_id.attendance_state or 'time_off'
-    #         elif not working_hours_exists:
-    #             attendance_state = 'weekend'
-
-    #         self.env['hr.attendance'].create({
-    #             'employee_id': employee.id,
-    #             # 'project_id': employee.project_id and employee.project_id.id or False,
-    #             # 'project_manager_id': employee.project_id.user_id and employee.project_id.user_id.id or False,
-    #             'work_schedule_id': employee.resource_calendar_id and employee.resource_calendar_id.id or False,
-    #             'punching_day': date,
-    #             'shift_check_in': shift_check_in,
-    #             'shift_check_out': shift_check_out,
-    #             'shift_break_in': shift_break_in,
-    #             'shift_break_out': shift_break_out,
-    #             'check_in': False,
-    #             'state': attendance_state
-    #         })
-
     def pre_create_attendance(self):
         """
         Automatically generates two attendance records (morning and afternoon)
@@ -1330,7 +1253,7 @@ class HrAttendance(models.Model):
         Default:
         If none of the above conditions apply, return the current state of the attendance.
         """
-        attendance_fields = [attendance.check_in, attendance.check_out]
+        attendance_fields = [attendance.punch_in, attendance.punch_out]
         
         if not any(field for field in attendance_fields):
             return 'absence'
