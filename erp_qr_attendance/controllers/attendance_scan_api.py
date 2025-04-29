@@ -84,22 +84,22 @@ class AttendanceScanAPI(http.Controller):
         attendance = hr_attendance_model.search([
             ('employee_id', '=', employee.id), 
             ('punching_day', '=', date_today)], limit=1, order='create_date desc')
+        morning_attendance = attendance.filtered(lambda l: l.day_period == 'morning')
+        afternoon_attendance = attendance.filtered(lambda l: l.day_period == 'afternoon')
+        if attendance:
+            last_check_time = attendance.punch_out or attendance.break_in or attendance.break_out or attendance.punch_in
 
-        # if attendance:
-        #     last_check_time = attendance.punch_out or attendance.break_in or attendance.break_out or attendance.punch_in
+            # find difference in minutes
+            if last_check_time:
+                time_delta = scan_time - last_check_time
+                total_seconds = time_delta.total_seconds()
+                minutes = total_seconds / 60
 
-        #     # find difference in minutes
-        #     if last_check_time:
-        #         time_delta = scan_time - last_check_time
-        #         total_seconds = time_delta.total_seconds()
-        #         minutes = total_seconds / 60
-
-        #         # TODO: refactor
-        #         checkin_delay = int(request.env['ir.config_parameter'].sudo().get_param('erp_qr_attendance.employee_checkin_delay_in_mn', default=10))
-        #         if minutes < checkin_delay:
-        #             last_check_time_str = str((last_check_time + timedelta(hours=7)).time())
-        #             msg = _(f"You already scanned at {last_check_time_str}.")
-        #             return invalid_response(type='Bad Request', message=msg, status=400)
+                # TODO: refactor
+                checkin_delay = int(request.env['ir.config_parameter'].sudo().get_param('erp_qr_attendance.employee_checkin_delay_in_mn', default=10))
+                if minutes < checkin_delay:
+                    msg = _(f"You already scanned less than 15 minutes ago!")
+                    return invalid_response(type='Bad Request', message=msg, status=400)
 
         scan_attendance_val = {
             'user_id': uid,
@@ -148,139 +148,6 @@ class AttendanceScanAPI(http.Controller):
             status=200
         )
 
-    # @validate_jwt
-    # @http.route('/api/check_scan_location_distance', type='json', auth='none', methods=['POST'], csrf=False)
-    # def attendance_checking_distance(self, uid, **payload):
-    #     if not payload:
-    #         payload = json.loads(request.httprequest.data)
-
-    #     scan_location = self.get_scan_location(uid, payload.get('latitude'), payload.get('longitude'))
-    #     if scan_location['distance'] > 1000:
-    #         distance = round(scan_location['distance']/1000, 2)
-    #         distance = str(distance)+"Km"
-    #     else:
-    #         distance = round(scan_location['distance'], 2)
-    #         distance = str(distance) + "m"
-    #     message = "You are " + distance + " from "+scan_location['location_name']
-    #     # return valid_response(
-    #     #     data={
-    #     #         'location_id': scan_location['location_id'],
-    #     #         'location_name': scan_location['location_name'],
-    #     #         'distance': scan_location['distance'],
-    #     #         'message': message,
-    #     #     },
-    #     #     status=200
-    #     # )
-        
-    #     # === Testing ===
-    #     user_tz = request.env.user.tz or request.env.context.get('tz')
-    #     date_today = datetime.now().astimezone(timezone(user_tz)).strftime('%Y-%m-%d')
-    #     dayofweek = datetime.now().astimezone(timezone(user_tz)).weekday()
-    #     employee = get_table_model('hr.employee').search([('user_id', '=', uid)], limit=1)
-        
-    #     resource_calendar_id = employee.resource_calendar_id
-    #     working_hours = resource_calendar_id.attendance_ids.filtered(lambda x: x.dayofweek == str(dayofweek))
-    #     domain = [('user_id', '=', uid)]
-    #     if resource_calendar_id.is_cross_day_shift:
-    #         date_now = datetime.now().astimezone(timezone(user_tz)).strftime('%Y-%m-%d %H:%M:%S')
-    #         if datetime.strptime(date_now, '%Y-%m-%d %H:%M:%S').hour < 12:
-    #             domain += [
-    #                 ('scan_time', '>=',
-    #                  datetime.strptime(date_today, '%Y-%m-%d').replace(hour=12, minute=0, second=0)
-    #                  - timedelta(days=1)),
-    #                 ('scan_time', '<=',
-    #                  datetime.strptime(date_today, '%Y-%m-%d').replace(hour=11, minute=59, second=59))
-    #             ]
-    #         else:
-    #             print(f"=== else")
-    #             domain += [
-    #                 ('scan_time', '>=',
-    #                  datetime.strptime(date_today, '%Y-%m-%d').replace(hour=12, minute=0, second=0)),
-    #                 ('scan_time', '<=',
-    #                  datetime.strptime(date_today, '%Y-%m-%d').replace(hour=11, minute=59, second=59)
-    #                  + timedelta(days=1))
-    #             ]
-    #     else:
-    #         domain += [
-    #             ('date', '=', date_today)
-    #         ]
-
-    #     logs = get_table_model('scan.qr.attendance').search(domain)
-    #     print(f"=== logs: {logs}")
-    #     is_check_in = False
-    #     is_check_out = False
-    #     is_break_in = False
-    #     is_break_out = False
-
-    #     for log in logs:
-    #         if log.scan_type == 'check_in':
-    #             is_check_in = True
-
-    #         if log.scan_type == 'check_out':
-    #             is_check_out = True
-
-    #         if log.scan_type == 'break_in':
-    #             is_break_in = True
-
-    #         if log.scan_type == 'break_out':
-    #             is_break_out = True
-
-    #     if resource_calendar_id.is_cross_day_shift or len(working_hours) == 1:
-    #         if not logs:
-    #             default_scan_type = 'check_in'
-    #         elif is_check_in and not is_check_out:
-    #             default_scan_type = 'check_out'
-    #         else:
-    #             return invalid_response(
-    #                 type='Bad Request', 
-    #                 message="You already done scan attendances for today!",
-    #                 status=400)
-
-    #     else:
-    #         if not logs:
-    #             default_scan_type = 'check_in'
-
-    #         elif is_check_in and not is_break_out:
-    #             default_scan_type = 'break_out'
-
-    #         elif is_break_out and not is_break_in:
-    #             default_scan_type = 'break_in'
-
-    #         elif is_break_in and not is_check_out:
-    #             default_scan_type = 'check_out'
-
-    #         elif is_check_in and is_break_out and is_break_in and is_check_out:
-    #             default_scan_type = 'check_out'
-
-    #         else:
-    #             return invalid_response(
-    #                 type='Bad Request', 
-    #                 message="You already done scan attendances for today!",
-    #                 status=400)
-            
-    #     scan_location = self.get_scan_location(uid, payload.get('latitude'), payload.get('longitude'))
-    #     if not scan_location:
-    #         return invalid_response(type='Bad Request', message="Location not found!",
-    #                                      status=400)
-    #     if scan_location['distance'] > 1000:
-    #         distance = round(scan_location['distance'] / 1000, 2)
-    #         distance = str(distance) + "Km"
-    #     else:
-    #         distance = round(scan_location['distance'], 2)
-    #         distance = str(distance) + "m"
-    #     message = "You are " + distance + " from " + scan_location['location_name']
-        
-    #     return valid_response(
-    #         data={
-    #             'location_id': scan_location['location_id'],
-    #             'location_name': scan_location['location_name'],
-    #             'distance': scan_location['distance'],
-    #             'default_scan_type': default_scan_type,
-    #             'message': message,
-    #         },
-    #         status=200
-    #     )
-
     @validate_jwt
     @http.route('/api/check_scan_location_distance', type='json', auth='none', methods=['POST'], csrf=False)
     def attendance_checking_distance(self, uid, **payload):
@@ -317,7 +184,6 @@ class AttendanceScanAPI(http.Controller):
 
         # Find scan logs today
         domain = [('user_id', '=', uid)]
-        print(f"=== now: {now.hour}")
         if calendar.is_cross_day_shift:
             if now.hour < 12:
                 domain += [
