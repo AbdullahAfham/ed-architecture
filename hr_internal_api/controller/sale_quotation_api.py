@@ -342,7 +342,7 @@ class SaleQuotationAPI(http.Controller):
                     'unit_price': sale.currency_id.format(line.price_unit),
                     'subtotal': sale.currency_id.format(line.price_subtotal),
                     'order_line_id': line.id,
-                    } for line in sale.order_line.filtered(lambda x: not x.product_id)
+                    } for line in sale.order_line.filtered(lambda x: x.product_id)
                 ],
                 "subtotal": sale.currency_id.format(sale.amount_untaxed),
                 "tax": sale.currency_id.format(sale.amount_tax),
