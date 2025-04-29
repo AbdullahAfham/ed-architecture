@@ -72,6 +72,19 @@ class VisitHistory(models.Model):
 
         return visit_history, is_updated
 
+    def get_visit_locations(self):
+        visit_location_data = []
+        for visit_location in self.visit_location_ids:
+            visit_location_data.append(
+                {
+                    'latitude': visit_location.latitude,
+                    'longitude': visit_location.longitude,
+                    'reason': visit_location.reason or "",
+                    'datetime': visit_location.visit_datetime.strftime("%d-%m-%Y %H:%M:%S") or "",
+                }
+            )
+        return visit_location_data
+
 
 class VisitHistoryLocation(models.Model):
     _name = 'visit.history.location'

@@ -150,3 +150,36 @@ class PartnerVisitHistoryAPI(http.Controller):
         
         except Exception as e:
             return invalid_response_http("Bad Request", str(e), status=400)
+
+    @validate_jwt
+    @http.route('/api/get_visit_history', type="http", auth="none", methods=["get"], csrf=False)
+    def get_visit_history(self, uid, **payload):
+        if not payload:
+            payload = json.loads(request.httprequest.data)
+
+        # visit_date = payload.get('visit_date')
+
+        current_user = get_table_model('res.users').search([('id', '=', uid)], limit=1)
+        if not current_user:
+            return invalid_response_http("Not Found", 'User not found.', status=404)
+        
+        try:
+            visit_history = get_table_model('visit.history').search([
+                ('salesperson_id', '=', current_user.id)
+            ], limit=1)
+            
+            response = [{
+                'customer': history.partner_id.khmer_name or history.partner_id.name,
+                'phone': history.partner_id.phone or "",
+                'address': " ".join(history.partner_id._display_address(without_company=True).split()),    # remove white-space
+                'customer_latitude': history.partner_id.partner_latitude,
+                'customer_longitude': history.partner_id.partner_longitude,
+                'visit_date': history.date.strftime("%d-%m-%Y"),
+                'visit_duration': history.display_visit_duration,
+                'salesperson': history.salesperson_id.name,
+                'check_in_locations': history.get_visit_locations(),
+            } for history in visit_history]
+
+            return valid_response_http(data=response, status=200)
+        except Exception as e:
+            return invalid_response_http("Bad Request", str(e), status=400)
