@@ -16,33 +16,30 @@ class InvoiceAPI(http.Controller):
     )
     def get_invoices(self, uid, invoice_id=None, **payload):
         try:
-            domain = [
-                ('move_type', '=', 'out_invoice'),  # Customer Invoice
-                ('create_uid', '=', uid),
-            ]
+            current_user = get_table_model('res.users').search([('id', '=', uid)], limit=1)
 
-            if invoice_id:
-                domain += [('id', '=', invoice_id)]
-            elif payload.get('keyword'):
-                domain += [('name', 'ilike', payload['keyword'])]
+            if not current_user:
+                return invalid_response_http("Not Found", 'User not found.', status=404)
             
-            # Add datetime filter
-            date_from = payload.get('date_from')
-            date_to = payload.get('date_to')
-            if date_from:
-                domain += [('create_date', '>=', date_from)]
-            if date_to:
-                domain += [('create_date', '<=', date_to)]
+            if not current_user.employee_ids:
+                return invalid_response_http("Bad Request", 'User has no related employees.', status=400)
+
+            # make sure current_user must be included
+            payload.update({'current_user': current_user})
+
+            if not invoice_id:
+                domain = self._get_account_move_domain_filters(**payload)
+            else:
+                domain = [('id', '=', invoice_id)]    # view invoice detail
 
             invoices = get_table_model('account.move').search(domain, limit=120, order="create_date desc")
 
             # For multiple invoices.
             response = [{
                 'id': invoice.id,
-                'name': invoice.name,
+                'name': invoice.name or "",
                 'name_en': invoice.partner_id.khmer_name or invoice.partner_id.name,
                 'name_km': invoice.partner_id.name,
-                'dms_code': "",
                 'invoice_date': invoice.invoice_date and invoice.invoice_date.strftime('%Y-%m-%d') or "",
                 'amount_total': invoice.currency_id.format(invoice.amount_total),
                 'state': get_selection_string_value(invoice, 'status_in_payment'),
@@ -60,6 +57,25 @@ class InvoiceAPI(http.Controller):
         except Exception as e:
             return invalid_response_http("Bad Request", str(e), status=400)
 
+    def _get_account_move_domain_filters(self, **payload):
+        """ Returns a search domain provided by query parameters `payload`. """
+        domain = [
+            ('move_type', '=', 'out_invoice'),  # Customer Invoice
+            # '|',
+            ('create_uid', '=', payload['current_user'].id),
+            # ('employee_id', 'in', payload['current_user'].employee_ids.ids),
+        ]
+
+        # by `Create Date`
+        if payload.get('date_from') and payload.get('date_to'):
+            domain += [('create_date', '>=', payload['date_from']), ('create_date', '<=', payload['date_to'])]
+
+        # by `Invoice Ref` or `Customer Name`
+        if payload.get('keyword'):
+            domain += ['|', ('name', 'ilike', payload['keyword']), ('partner_id.name', 'ilike', payload['keyword'])]
+
+        return domain
+
     def _get_invoice_detail(self, invoice):
         return {
             'body': [
@@ -68,12 +84,6 @@ class InvoiceAPI(http.Controller):
                     "label": "Customer",
                     "value": invoice.partner_id.name,
                     "is_highlight": True
-                },
-                {
-                    "key": "dms_code",
-                    "label": "DMS code",
-                    "value": "",
-                    "is_highlight": False
                 },
                 {
                     "key": "address",
@@ -176,10 +186,9 @@ class InvoiceAPI(http.Controller):
             # For multiple invoices.
             response = [{
                 'id': invoice.id,
-                'name': invoice.name,
+                'name': invoice.name or "",
                 'name_en': invoice.partner_id.khmer_name or invoice.partner_id.name,
                 'name_km': invoice.partner_id.name,
-                'dms_code': "",
                 'invoice_date': invoice.invoice_date and invoice.invoice_date.strftime('%Y-%m-%d') or "",
                 'amount_total': invoice.amount_total,
                 'state': get_selection_string_value(invoice, 'status_in_payment'),
