@@ -10,6 +10,7 @@ class VisitHistory(models.Model):
     salesperson_id = fields.Many2one('res.users', string='Salesperson', required=True)
     partner_id = fields.Many2one('res.partner', string='Customer', required=True)
     visit_duration = fields.Float(string='Duration', compute='_compute_visit_duration')
+    display_visit_duration = fields.Char(string='Duration', compute='_compute_display_visit_duration')
     date = fields.Date(string='Date', required=True)
 
     visit_location_ids = fields.One2many('visit.history.location', 'visit_history_id', string='Locations')
@@ -31,6 +32,20 @@ class VisitHistory(models.Model):
             
             duration = max(all_visit_date) - min(all_visit_date)
             history.visit_duration = duration.total_seconds() / 3600  # convert seconds to hours
+
+    def _compute_display_visit_duration(self):
+        for history in self:
+            total_minutes = int(history.visit_duration * 60)
+            hours = total_minutes // 60
+            minutes = total_minutes % 60
+
+            parts = []
+            if hours:
+                parts.append(f"{hours}h")
+            if minutes:
+                parts.append(f"{minutes}mn")
+    
+            history.display_visit_duration = ' '.join(parts) if parts else "0mn"
 
     def create_or_update_visit_history(self, vals: dict):
         """ Create or Update `visit.history` of provided `vals`.
@@ -56,6 +71,19 @@ class VisitHistory(models.Model):
             is_updated = True
 
         return visit_history, is_updated
+
+    def get_visit_locations(self):
+        visit_location_data = []
+        for visit_location in self.visit_location_ids:
+            visit_location_data.append(
+                {
+                    'latitude': visit_location.latitude,
+                    'longitude': visit_location.longitude,
+                    'reason': visit_location.reason or "",
+                    'datetime': visit_location.visit_datetime.strftime("%d-%m-%Y %H:%M:%S") or "",
+                }
+            )
+        return visit_location_data
 
 
 class VisitHistoryLocation(models.Model):

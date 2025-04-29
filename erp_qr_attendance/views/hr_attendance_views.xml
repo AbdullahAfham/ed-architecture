@@ -11,7 +11,7 @@
                 <field name="state"/>
                 
                 <!-- Action buttons -->
-                <button string="Scans" name="action_view" type="object" icon="fa-list"/>
+                <button string="Scans" name="action_view_scan_logs" type="object" icon="fa-list"/>
                 <button string="Leaves" name="action_view_leaves" type="object" icon="fa-list"/>
             </xpath>
             <xpath expr="//field[@name='check_in']" position="before">
@@ -52,6 +52,17 @@
         <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
         <field name="arch" type="xml">
             <field name="employee_id" position="attributes"><attribute name="readonly">1</attribute></field>
+
+            <!-- Overtime -->
+            <xpath expr="//field[@name='overtime_status'][1]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='overtime_status'][2]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group/group[2]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <field name="check_in" position="attributes">
                 <attribute name="readonly">1</attribute>
                 <attribute name="string">Check In (Default)</attribute>
@@ -73,12 +84,13 @@
             </xpath>
 
             <xpath expr="//field[@name='check_out']" position="after">
+                <field name="work_schedule_id" readonly="1"/>
                 <field name="shift_check_in" widget="float_time" readonly="1"/>
                 <field name="shift_check_out" widget="float_time" readonly="1"/>
+                <field name="worked_hours" widget="float_time" readonly="1"/>
                 <field name="late_num" readonly="1"/>
                 <field name="late_duration" widget="float_time" readonly="1"/>
                 <field name="state" readonly="1"/>
-                <field name="work_schedule_id" readonly="1"/>
             </xpath>
         </field>
     </record>
@@ -114,6 +126,15 @@
         <field name="view_id" ref="hr_attendance.view_attendance_tree"/>
         <field name="context">{"search_default_filter_today": 1}</field>
     </record>
+
+    <!-- Modify menu -->
+    <!-- Define Configuration menu -->
+    <menuitem id="hr_attendance.menu_hr_attendance_configuration" name="Configuration" parent="hr_attendance.menu_hr_attendance_root" 
+        sequence="99" groups="hr_attendance.group_hr_attendance_manager"/>
+    
+    <!-- Change base menu to under Configuration -->
+    <menuitem id="hr_attendance.menu_hr_attendance_settings" name="Settings" parent="hr_attendance.menu_hr_attendance_configuration"
+        sequence="99" action="hr_attendance.action_hr_attendance_settings" groups="hr_attendance.group_hr_attendance_manager"/>
 
   </data>
 </odoo>

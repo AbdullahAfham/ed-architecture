@@ -20,8 +20,6 @@
         'data/data.xml',
         'data/mobile_modules_data.xml',
         'security/ir.model.access.csv',
-        'views/partner_visit_history.xml',
-        'views/res_partner_views.xml',
         'views/res_users_views.xml',
         'views/product_pricelist_views.xml',
         # 'views/hr_employee_views.xml',

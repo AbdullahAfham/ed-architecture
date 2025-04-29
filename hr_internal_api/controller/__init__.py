@@ -1,6 +1,7 @@
 from . import main
 from . import helper
 from . import jsonrequest
+from . import ir_attachment_api
 from . import attendance_api
 from . import overtime_api
 from . import payslip_api
@@ -10,7 +11,7 @@ from . import notification_api
 from . import announcement_api
 from . import courses_api
 from . import appraisal_api
-from . import partner_visit_history_api
+from . import product_api
 from . import quick_sale_api
 from . import sale_quotation_api
 from . import customer_api
@@ -18,3 +19,4 @@ from . import invoice_api
 from . import payment_api
 from . import stock_delivery_api
 from . import stock_request_api
+from . import stock_on_hand_api
