@@ -1,13 +1,7 @@
 from odoo import models
 
 class PurchaseOrder(models.Model):
-    _inherit = [
-        'purchase.order',
-        'mail.alias.mixin',
-        'mail.thread',
-        'mail.activity.mixin',
-    ]
+    _inherit = 'purchase.order'
 
     def _alias_get_creation_values(self):
-        values = super()._alias_get_creation_values()
-        return values
+        return super(PurchaseOrder, self)._alias_get_creation_values()
