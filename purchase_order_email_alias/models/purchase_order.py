@@ -1,14 +1,22 @@
-from odoo import models
+from odoo import models, api
 
 
 class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
-    # Enable e-mail alias support
-    def _get_alias_values(self):
-        """Return values used for the mail alias linked to purchase.order."""
-        return {
-            'alias_name': 'purchaseteam',      # alias name
-            'alias_model_id': self.env.ref('purchase.model_purchase_order').id,
-            'alias_contact': 'everyone',       # anyone can send PO email
+    @api.model
+    def message_new(self, msg_dict, custom_values=None):
+        """Create a PO from incoming email."""
+        vals = {
+            'partner_id': False,
+            'origin': msg_dict.get('subject', 'Email RFQ'),
+            'user_id': self.env.uid,
         }
+        if custom_values:
+            vals.update(custom_values)
+        return super(PurchaseOrder, self).create(vals)
+
+    @api.model
+    def message_update(self, record, msg_dict, custom_values=None):
+        """Append new emails to chatter."""
+        return record.message_post(body=msg_dict.get('body', ''))
