@@ -1,2 +1,1 @@
-access_portal_user,access_portal_user,model_erp_portal_users,,1,1,1,1
-
+access_erp_portal_users,erp.portal.users,model_erp_portal_users,hr.group_hr_user,1,1,1,1
